@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { setBusy } from './ui.js';
+import { api } from './config.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -62,7 +63,7 @@ $('send').addEventListener('click', async () => {
   setBusy($('send'), 'Sending…');
 
   try {
-    const res = await fetch('/api/report', {
+    const res = await fetch(api('/api/report'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       // Only the id and the reason. Never the fragment.

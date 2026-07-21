@@ -3,6 +3,7 @@
 
 import { newSecretKey, encryptBytes, sealManifest } from './crypto.js';
 import { attachReveal, fmtBytes, setBusy } from './ui.js';
+import { SITE_ORIGIN, api } from './config.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -286,7 +287,7 @@ btn.addEventListener('click', async () => {
     setBusy(btn, 'Encrypting…');
     const body = await sealManifest(aesKey, salt, passphrase, plaintext, manifestFiles);
 
-    const res = await fetch('/api/secret', {
+    const res = await fetch(api('/api/secret'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -309,8 +310,8 @@ btn.addEventListener('click', async () => {
     // coming BEFORE they burn the secret. openSecret ignores the extra segment; a
     // link without it (text-only, or made before this existed) just shows no size.
     const sizeTag = downloadBytes > 0 ? `.${downloadBytes}` : '';
-    const share = `${location.origin}/s/${id}#${fragment}${sizeTag}`;
-    const status = `${location.origin}/status/${status_id}`;
+    const share = `${SITE_ORIGIN}/s/${id}#${fragment}${sizeTag}`;
+    const status = `${SITE_ORIGIN}/status/${status_id}`;
 
     $('shareLink').textContent = share;
     $('statusLink').textContent = status;
@@ -357,7 +358,7 @@ btn.addEventListener('click', async () => {
 // 25 MB file would become 33 MB of text to build in memory, send, and decode
 // again on the far side -- all to move bytes that were already bytes.
 async function uploadBlob(ciphertext) {
-  const res = await fetch('/api/blob', {
+  const res = await fetch(api('/api/blob'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/octet-stream' },
     body: ciphertext,

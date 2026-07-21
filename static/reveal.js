@@ -3,6 +3,7 @@
 
 import { openSecret, decryptBytes } from './crypto.js';
 import { attachReveal, fmtBytes, setBusy } from './ui.js';
+import { api } from './config.js';
 
 const $ = (id) => document.getElementById(id);
 const show = (id) => $(id).classList.remove('hidden');
@@ -116,7 +117,7 @@ async function downloadFile(file, btn, li) {
   btn.textContent = 'Downloading…';
 
   try {
-    const res = await fetch(`/api/blob/${encodeURIComponent(file.ref)}`);
+    const res = await fetch(api(`/api/blob/${encodeURIComponent(file.ref)}`));
     if (!res.ok) {
       throw new Error('This file is no longer available on the server.');
     }
@@ -204,7 +205,7 @@ async function burn(ref) {
     show('filesDone');
   }
   try {
-    await fetch(`/api/blob/${encodeURIComponent(ref)}/burn`, { method: 'POST' });
+    await fetch(api(`/api/blob/${encodeURIComponent(ref)}/burn`), { method: 'POST' });
   } catch {
     // The request failed, but the file is not immortal: the server destroys it at
     // the 30-minute deadline regardless. Saying nothing is right -- the recipient
@@ -241,7 +242,7 @@ $('reveal').addEventListener('click', async () => {
 
   let res;
   try {
-    res = await fetch(`/api/secret/${encodeURIComponent(id)}`);
+    res = await fetch(api(`/api/secret/${encodeURIComponent(id)}`));
   } catch {
     gone('Could not reach the server. Nothing was opened; try again.');
     return;

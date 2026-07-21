@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Zumitomi Oy
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { api } from './config.js';
+
 const el = document.getElementById('state');
 const refresh = document.getElementById('refresh');
 const statusID = location.pathname.split('/').pop();
@@ -36,7 +38,7 @@ async function check() {
 
   let res;
   try {
-    res = await fetch(`/api/status/${encodeURIComponent(statusID)}`, { cache: 'no-store' });
+    res = await fetch(api(`/api/status/${encodeURIComponent(statusID)}`), { cache: 'no-store' });
   } catch {
     render('⚠️', 'Could not reach the server', 'Please try again in a moment.');
     refresh.disabled = false;
