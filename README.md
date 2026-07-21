@@ -75,10 +75,26 @@ serve *one* targeted person a modified script. Open-sourcing makes that tamperin
 *detectable* (there is now a canonical version to diff against); it does not make it
 *impossible*.
 
-The stronger answer is a **browser extension** (planned): the audited code shipped as
-an installed, versioned, store-reviewed artifact that is not re-fetched from the
-server on every visit. That is the verifiable-client story in its complete form, and
-it is why the extension matters beyond convenience.
+The stronger answer is a **browser extension — and it now exists, in this very
+repository.** The files you are reading here *are* the extension: load this folder as
+an unpacked extension and the crypto runs from that installed, versioned copy, never
+re-fetched from the server. Both the send flow and the receive flow then run from
+installed code — opening a share link with the extension present decrypts it from the
+bundled page, not from one the server hands you at that moment. A single unmodified
+copy of this repository loads in Chromium browsers (Chrome, Edge, Opera, Brave,
+Vivaldi) and Firefox alike. That is the verifiable-client story in its complete form,
+and it is why the extension matters beyond convenience.
+
+To load it unpacked and review it for yourself:
+
+- **Chromium** (Chrome/Edge/Opera/Brave/Vivaldi): open the extensions page, turn on
+  *Developer mode*, choose *Load unpacked*, and select this folder.
+- **Firefox**: open `about:debugging` → *This Firefox* → *Load Temporary Add-on*, and
+  select this folder's `manifest.json`.
+
+The toolbar button opens the compose page in a full tab. (Store-published builds, and
+a fuller walkthrough of how to verify that a copy you were given is genuine, are on
+the way.)
 
 ## What this does *not* protect
 

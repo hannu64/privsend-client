@@ -1,0 +1,42 @@
+/* SPDX-FileCopyrightText: 2026 Zumitomi Oy */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+/* Styling for popup.html, the toolbar launcher. It is shown for only the instant
+   it takes to open the compose tab and close itself, so this is deliberately tiny
+   and self-contained -- it does not pull in the full site stylesheet. Palette is
+   kept in step with static/style.css (dark ground, --accent #f81d45). */
+
+:root {
+  --bg: #0f1116;
+  --text: #e8ebf0;
+  --muted: #98a0ae;
+  --accent: #f81d45;
+}
+
+html, body { margin: 0; }
+
+body {
+  min-width: 220px;
+  padding: 20px 26px;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.launcher { text-align: center; }
+
+.lock { font-size: 26px; line-height: 1; }
+
+.brand {
+  margin: .5rem 0 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+.brand span { color: var(--accent); }
+
+.sub {
+  margin: .25rem 0 0;
+  color: var(--muted);
+  font-size: .85rem;
+}

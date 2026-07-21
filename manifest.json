@@ -1,9 +1,18 @@
 {
   "manifest_version": 3,
   "name": "PrivSend — one-time encrypted secrets",
-  "version": "0.2.0",
-  "version_name": "0.2.0 (2026-07-21)",
+  "version": "0.4.0",
+  "version_name": "0.4.0 (2026-07-21)",
   "description": "Send end-to-end-encrypted, one-time secrets and files. The encryption runs on your device from this installed, audited copy — the server only ever sees ciphertext.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "privsend@zumitomi.fi",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": ["personalCommunications"]
+      }
+    }
+  },
   "icons": {
     "16": "static/ext-icon-16.png",
     "32": "static/ext-icon-32.png",
@@ -12,15 +21,13 @@
   },
   "action": {
     "default_title": "New PrivSend secret",
+    "default_popup": "popup.html",
     "default_icon": {
       "16": "static/ext-icon-16.png",
       "32": "static/ext-icon-32.png",
       "48": "static/ext-icon-48.png",
       "128": "static/ext-icon-128.png"
     }
-  },
-  "background": {
-    "service_worker": "background.js"
   },
   "host_permissions": [
     "https://privsend.app/*"
