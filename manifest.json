@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "PrivSend — one-time encrypted secrets",
+  "version": "0.1.0",
+  "description": "Send end-to-end-encrypted, one-time secrets and files. The encryption runs on your device from this installed, audited copy — the server only ever sees ciphertext.",
+  "icons": {
+    "16": "static/ext-icon-16.png",
+    "32": "static/ext-icon-32.png",
+    "48": "static/ext-icon-48.png",
+    "128": "static/ext-icon-128.png"
+  },
+  "action": {
+    "default_title": "New PrivSend secret",
+    "default_icon": {
+      "16": "static/ext-icon-16.png",
+      "32": "static/ext-icon-32.png",
+      "48": "static/ext-icon-48.png",
+      "128": "static/ext-icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "host_permissions": [
+    "https://privsend.app/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; connect-src https://privsend.app; img-src 'self' data:; object-src 'none'"
+  }
+}
