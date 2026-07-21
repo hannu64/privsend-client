@@ -35,3 +35,15 @@ export const homeHref = IN_EXTENSION ? '/index.html' : '/';
 // target is character-for-character what it has always been. In the extension it
 // is prefixed with the production origin.
 export const api = (path) => (IN_EXTENSION ? SITE_ORIGIN + path : path);
+
+// The id of the secret being revealed. On the WEBSITE the reveal page is served
+// at /s/{id}, so the id is the last path segment -- unchanged from before. In the
+// EXTENSION the reveal page is a bundled file (reveal.html) that the content
+// script (intercept-reveal.js) navigates to, carrying the id across in a ?id=
+// query parameter because the path no longer holds it. The decryption KEY is
+// untouched in both cases: it always lives in the fragment (location.hash), which
+// is never sent anywhere -- this helper only ever concerns the non-secret id.
+export const secretId = () =>
+  IN_EXTENSION
+    ? new URLSearchParams(location.search).get('id')
+    : location.pathname.split('/').pop();

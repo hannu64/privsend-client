@@ -45,4 +45,22 @@ if (IN_EXTENSION) {
       a.setAttribute('rel', 'noopener');
     }
   }
+
+  // 3) An honest build stamp in the footer, extension-only. On the website there is
+  //    no fixed "version" -- the server can change what it serves at any moment. In
+  //    the extension the code is pinned to whatever the user installed, so telling
+  //    them which build they are running is meaningful, and it is the string they
+  //    would quote when verifying a copy or reporting a problem.
+  try {
+    const m = chrome.runtime.getManifest();
+    const footer = document.querySelector('footer');
+    if (m && footer) {
+      const stamp = document.createElement('p');
+      stamp.className = 'small muted';
+      stamp.textContent = 'Extension build ' + (m.version_name || m.version);
+      footer.append(stamp);
+    }
+  } catch {
+    // No extension runtime available -- nothing to stamp. Silent by design.
+  }
 }

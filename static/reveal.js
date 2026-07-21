@@ -3,13 +3,16 @@
 
 import { openSecret, decryptBytes } from './crypto.js';
 import { attachReveal, fmtBytes, setBusy } from './ui.js';
-import { api } from './config.js';
+import { api, secretId } from './config.js';
 
 const $ = (id) => document.getElementById(id);
 const show = (id) => $(id).classList.remove('hidden');
 const hide = (id) => $(id).classList.add('hidden');
 
-const id = location.pathname.split('/').pop();
+// On the website this is the last segment of the /s/{id} path; in the extension it
+// comes from the ?id= query the content script set. Either way it is only the
+// non-secret id -- the decryption key still comes solely from the fragment below.
+const id = secretId();
 
 // #5: let the recipient SEE what they typed. Correcting a mistyped passphrase
 // while blind was needlessly painful.
