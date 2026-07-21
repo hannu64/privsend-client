@@ -1,0 +1,116 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>privsend — how it works</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <p class="tagline">How it works</p>
+</header>
+
+<main>
+  <p class="small muted"><a href="/fi/how">Suomeksi</a></p>
+
+  <p class="hint">
+    privsend lets you send a secret — a password, a private note, or some files — so that
+    <strong>only the person you give the link to</strong> can open it, <strong>just once</strong>, and then it
+    is gone. Everything is encrypted on your own device before it leaves, so
+    <strong>we never see what is inside</strong>.
+  </p>
+
+  <h2>Sending a secret</h2>
+  <ol class="hint">
+    <li><strong>Write your secret</strong> — a note, a password, anything — in the Secret box. It is
+      encrypted right here in your browser (up to about 256 KB; a live counter shows the room left).
+      We only ever receive the scrambled version.</li>
+    <li><strong>Add files if you like</strong> <span class="soft">(optional)</span> — up to 10 files of
+      any kind, images or documents, 25 MB in total. They are encrypted the same way.</li>
+    <li><strong>Choose how long it lives</strong> — if no one opens it, it destroys itself after
+      1 hour, 1 day, or 7 days.</li>
+    <li><strong>Add a passphrase</strong> <span class="soft">(optional, extra protection)</span> — a word
+      or phrase the recipient must also type to open the secret. Send it by a
+      <strong>different route</strong> than the link.</li>
+    <li><strong>Create the link.</strong> The key that unlocks the secret lives in the part of the link
+      after the “#”. Browsers <strong>never send that part to any server</strong> — so we never receive
+      the key and <strong>cannot read your secret, even in principle</strong>.</li>
+    <li><strong>Send the link yourself.</strong> Copy it and pass it to your recipient however you like —
+      message, email, in person. privsend does not send or deliver your link or secret for you, so we
+      never learn who the recipient is. If you set a passphrase, send it a different way.</li>
+  </ol>
+  <p class="hint">
+    You also get a <strong>status link</strong> — a private receipt, just for you. Keep it; it only ever
+    tells you <em>whether</em> the secret has been read, and can never reveal what was in it.
+  </p>
+
+  <h2>Opening a secret</h2>
+  <p class="hint">
+    If someone sent you a privsend link, open it and you will see a short page saying a secret is waiting.
+    <strong>Nothing has happened yet</strong> — simply landing there does not open or destroy anything.
+    When you are ready and able to save what you receive, click <strong>Reveal</strong>.
+  </p>
+  <ul class="hint">
+    <li>The secret is fetched and <strong>destroyed on our server in that same moment</strong>, so a link
+      works only <strong>once</strong>.</li>
+    <li>You need the <strong>whole link</strong> (and the passphrase, if one was set). Without them, nobody
+      can decrypt it — not you, not the sender, not us.</li>
+    <li>Text is yours to read and copy right away. Any files finish downloading within a short grace
+      period — <strong>at most 60 minutes</strong> — and are then destroyed too.</li>
+    <li>Keep the page open until you have saved everything. Reloading or reopening the link will say
+      “no longer available”, because by then it is genuinely gone.</li>
+  </ul>
+  <p class="hint">
+    And if a link is never opened at all? It <strong>self-destructs</strong> on its own, at the time the
+    sender chose.
+  </p>
+
+  <h2>Why you can trust it</h2>
+  <ul class="hint">
+    <li><strong>Encrypted on your device.</strong> Your secret is scrambled before it leaves your browser
+      and unscrambled only in the recipient’s. We hold nothing but ciphertext.</li>
+    <li><strong>The key never reaches us.</strong> It rides in the link’s “#” fragment, which browsers do
+      not transmit to servers — so there is nothing on our side that <em>could</em> read your secret.</li>
+    <li><strong>Reading is a deliberate act.</strong> Merely opening a link does not consume it — only a
+      human clicking <em>Reveal</em> does. That is what stops mail scanners and link previews from burning
+      a secret before your recipient arrives.</li>
+  </ul>
+
+  <h2>Good to keep in mind</h2>
+  <ul class="hint">
+    <li><strong>privsend is not storage or a backup.</strong> Every secret is destroyed when it is read or
+      when it expires — whichever comes first. Never make privsend the only copy of anything.</li>
+    <li><strong>A mistyped or lost link or passphrase cannot be recovered</strong> — by anyone, including
+      us. That is the design, not a fault: if we could recover it, so could someone else.</li>
+  </ul>
+
+  <h2>Nothing to install</h2>
+  <p class="hint">
+    privsend is a <strong>web app</strong>: nothing to download, no app store, and <strong>no account</strong>
+    — no username, no email, no phone number, ever. It runs in any modern browser on any device, which is
+    exactly what you want when installing an app is awkward or impossible: a work laptop, a shared computer,
+    or a place where app stores are restricted.
+  </p>
+  <p class="hint">
+    If you reach for it often, you can <strong>add privsend to your home screen</strong> and open it like an
+    ordinary app. On <strong>Android</strong>, use your browser menu’s <em>Install app</em> (or <em>Add to
+    Home screen</em>); on <strong>iPhone or iPad</strong>, tap <em>Share</em> and then <em>Add to Home
+    Screen</em>. It stays the same private web app — no extra permissions, and still nothing kept about you.
+  </p>
+
+  <p class="linkrow"><a href="/">＋ Send a secret</a></p>
+
+  <p class="hint small muted">
+    Want the finer detail, or the fine print? See our <a href="/privacy">privacy notice</a> and
+    <a href="/terms">terms</a>.
+  </p>
+</main>
+
+<footer>
+  <p><a href="/">Home</a> · <a href="/how">How it works</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a></p>
+</footer>

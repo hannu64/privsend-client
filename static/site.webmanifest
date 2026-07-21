@@ -1,0 +1,16 @@
+{
+  "name": "privsend",
+  "short_name": "privsend",
+  "description": "Send a secret that self-destructs. Encrypted in your browser; we cannot read it.",
+  "lang": "en",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#f81d45",
+  "background_color": "#0f1116",
+  "icons": [
+    { "src": "/static/icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "/static/icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
+    { "src": "/static/icon-maskable-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ]
+}

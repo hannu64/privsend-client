@@ -1,0 +1,54 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>privsend — report a link</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <p class="tagline">Report abuse</p>
+</header>
+
+<main>
+  <section id="form">
+    <h2>Report a privsend link</h2>
+    <p class="hint">
+      We cannot read the contents of any secret — they are encrypted before they reach us.
+      If a link is being used for something abusive or illegal, tell us and we will destroy it.
+    </p>
+
+    <label for="link">The privsend link (or just its id)</label>
+    <input type="text" id="link" placeholder="https://privsend.app/s/…" autocomplete="off" spellcheck="false">
+    <p class="note">
+      🔒 <strong>Your privacy is preserved.</strong> If you paste a full link, the part after the “#” is the
+      decryption key — your browser will <strong>strip it before anything is sent</strong>. We receive only the
+      link’s id, never the key, so reporting a secret does not disclose its contents to us.
+    </p>
+    <p id="parsed" class="small muted hidden"></p>
+
+    <label for="reason">What is wrong with it? (optional)</label>
+    <textarea id="reason" placeholder="Phishing, malware, harassment, illegal content…" class="textarea-sm"></textarea>
+
+    <button id="send">Send report</button>
+    <p id="err" class="note danger hidden"></p>
+  </section>
+
+  <section id="thanks" class="hidden big-state">
+    <div class="icon">✅</div>
+    <h2>Report received</h2>
+    <p class="hint">Thank you. We review reports and destroy links that break our terms.</p>
+    <p class="linkrow"><a href="/">Back to privsend</a></p>
+  </section>
+</main>
+
+<footer>
+  <p><a href="/">Home</a> · <a href="/how">How it works</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a></p>
+</footer>
+
+<script type="module" src="/static/report.js"></script>

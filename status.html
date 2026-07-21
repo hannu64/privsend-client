@@ -1,0 +1,49 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The receipt URL must NEVER be indexed either: /status/{id} in a search result
+     would disclose that a secret existed and let anyone watch its state. Like the
+     share page, this is true on the public apex too, so it lives here rather than in
+     an environment flag. -->
+<meta name="robots" content="noindex, nofollow">
+<title>privsend — secret status</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <p class="tagline">Your private receipt</p>
+</header>
+
+<main>
+  <section id="state" class="big-state">
+    <div class="icon"><span class="spinner"></span></div>
+    <h2>Checking…</h2>
+  </section>
+
+  <button id="refresh" class="secondary">Check again</button>
+
+  <div class="note">
+    Checking this page does <strong>not</strong> open or consume the secret, and this link
+    can never reveal its content.
+  </div>
+
+  <div class="note" id="retention">
+    This receipt stays available for <strong>7 days</strong> after the secret is opened or expires.
+    After that it is deleted permanently, and this link will stop working — we keep no record
+    of secrets once they are done.
+  </div>
+
+  <p class="linkrow"><a href="/">＋ Send a secret</a></p>
+</main>
+
+<footer>
+  <p><a href="/">Home</a> · <a href="/how">How it works</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a></p>
+</footer>
+
+<script type="module" src="/static/status.js"></script>

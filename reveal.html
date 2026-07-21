@@ -1,0 +1,112 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- A share URL must NEVER be indexed. The decryption key is safe (it lives in the
+     fragment, which no crawler receives), but the /s/{id} PATH appearing in search
+     would itself disclose that a secret existed, with its id and timing -- a
+     metadata leak on a tool whose whole point is leaving no trace. This holds on the
+     public apex too, so it lives in the page, not in an environment flag. Fetching
+     this page does not burn the secret (the interstitial is static), so letting a
+     crawler read it and obey the noindex is safe. -->
+<meta name="robots" content="noindex, nofollow">
+<title>privsend — a secret is waiting</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
+</header>
+
+<main>
+  <!--
+    THE INTERSTITIAL (spec §3.5).
+
+    Loading this page does NOT fetch and does NOT destroy the secret. Nothing is
+    read from the database until the human below clicks "Reveal".
+
+    This exists because mail scanners, chat link-previewers and antivirus
+    crawlers automatically fetch any URL they see. Without this page, such a bot
+    would silently consume the secret and the real recipient would find nothing.
+  -->
+  <section id="gate" class="big-state">
+    <div class="icon">🔒</div>
+    <h2>A secret is waiting for you</h2>
+    <p class="hint">
+      It can be read <strong>once</strong>. The moment you reveal it, it is destroyed on the server forever.
+      Make sure you can save it now.
+    </p>
+    <p id="sizeHint" class="note hidden"></p>
+    <button id="reveal">Reveal secret</button>
+    <p class="small muted mt-md">
+      Nothing has been opened yet — this page has not touched the secret.
+    </p>
+    <p class="small muted"><a href="/how" target="_blank" rel="noopener">What is privsend? Is this safe? →</a></p>
+  </section>
+
+  <section id="passSection" class="hidden">
+    <h2>Passphrase required</h2>
+    <p class="hint">The sender protected this secret with a passphrase, sent to you separately.</p>
+    <input type="password" id="passphrase" placeholder="Passphrase" autocomplete="off">
+    <button id="unlock">Unlock</button>
+    <p id="passErr" class="note danger hidden"></p>
+  </section>
+
+  <section id="out" class="hidden">
+    <h2>The secret</h2>
+    <div id="msgWrap">
+      <div class="secret-out" id="plaintext"></div>
+      <button id="copy" class="secondary">Copy to clipboard</button>
+    </div>
+
+    <div id="filesWrap" class="hidden">
+      <label>Files</label>
+      <ul id="dlList" class="filelist"></ul>
+      <div class="note danger" id="filesPending">
+        <strong>Keep this page open until every file is saved.</strong>
+        This tab holds the only key to them — the server destroyed its copy the instant you
+        revealed the secret. If a download fails, just press <strong>Download</strong> again
+        right here. Reloading this page, or opening the link again in another tab, will say
+        “no longer available” and the files will be lost for good.
+        <br><br>
+        You do not need to do anything else: each file is destroyed automatically the moment
+        your browser confirms it arrived intact.
+      </div>
+      <button id="destroyNow" class="secondary">Destroy all files now</button>
+      <p id="filesDone" class="note hidden">All files have been destroyed on the server. ✓</p>
+    </div>
+
+    <div class="note danger">
+      This secret has now been <strong>destroyed on the server</strong>. Closing or reloading this page
+      will lose it forever. Save it somewhere safe before you leave.
+    </div>
+  <p class="linkrow"><a href="/">＋ Send a secret of your own</a></p>
+  </section>
+
+  <section id="gone" class="hidden big-state">
+    <div class="icon">💨</div>
+    <h2>This secret is no longer available</h2>
+    <p class="hint" id="goneMsg"></p>
+    <p id="lockoutQuote" class="small muted hidden">♪ “Keep a-knockin’, but you can’t come in” — Little Richard, 1957</p>
+    <p class="small muted">
+      Secrets are destroyed the first time they are read, and expire on their own.
+      Ask the sender to create a new one.
+    </p>
+  <p class="linkrow"><a href="/">＋ Send a secret of your own</a></p>
+  </section>
+
+  <section id="busy" class="hidden big-state">
+    <div class="icon"><span class="spinner"></span></div>
+    <h2 id="busyMsg">Working…</h2>
+  </section>
+</main>
+
+<footer>
+  <p><a href="/">Home</a> · <a href="/how">How it works</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a></p>
+</footer>
+
+<script type="module" src="/static/reveal.js"></script>

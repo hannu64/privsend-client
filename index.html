@@ -1,0 +1,109 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>privsend — send a secret that self-destructs</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <p class="tagline">Encrypted in your browser. We cannot read it.<br>You send the link yourself. Read once, then destroyed.</p>
+  <p class="small muted"><a href="/how">New here? How privsend works →</a></p>
+</header>
+
+<main>
+  <section id="compose">
+    <h2>Create a secret</h2>
+    <p class="hint">Your text is encrypted <strong>on this device</strong>. We only ever receive ciphertext — we cannot read it.</p>
+
+    <label for="secret">Secret</label>
+    <textarea id="secret" placeholder="Paste a password, a key, a note…" autocomplete="off" spellcheck="false"></textarea>
+    <div class="counter" id="counter">
+      <span id="used">0 B</span>
+      <span id="cap"></span>
+    </div>
+
+    <label for="files">Files <span class="soft">(optional)</span></label>
+    <div id="drop" class="dropzone">
+      <input type="file" id="files" multiple>
+      <p class="drop-hint">or drag files here — you can add more one at a time</p>
+    </div>
+    <ul id="fileList" class="filelist hidden"></ul>
+    <p id="fileTotal" class="counter hidden"><span id="fileUsed"></span><span id="fileCap"></span></p>
+    <p id="fileErr" class="note danger hidden"></p>
+    <div id="fileNote" class="note hidden">
+      <strong>Files are destroyed a little differently from text.</strong>
+      Text is destroyed the moment it is read. If we destroyed a file the instant the
+      download started, an interrupted download would leave the recipient with nothing
+      and no way to try again. So a file is destroyed as soon as the recipient's browser
+      confirms it decrypted successfully — usually within seconds — and in any case no
+      later than <strong>60 minutes</strong> after they open the link.
+    </div>
+
+    <label for="ttl">Destroy if unopened after</label>
+    <select id="ttl">
+      <option value="1h">1 hour</option>
+      <option value="24h" selected>1 day</option>
+      <option value="7d">7 days</option>
+    </select>
+
+    <div class="check">
+      <input type="checkbox" id="usePass">
+      <label for="usePass">Also require a passphrase</label>
+    </div>
+    <div id="passWrap" class="hidden">
+      <input type="password" id="passphrase" placeholder="Passphrase" autocomplete="new-password">
+      <input type="password" id="passphrase2" placeholder="Repeat passphrase" autocomplete="new-password" class="mt-sm">
+      <p id="passMatch" class="note danger hidden">The two passphrases do not match.</p>
+      <div class="note danger">
+        <strong>Type it carefully.</strong> If you mistype the passphrase, <strong>nobody</strong> can ever
+        decrypt this secret — not the recipient, not us. There is no recovery.
+      </div>
+      <div class="note">
+        Send the passphrase by a <strong>different channel</strong> than the link
+        (e.g. link by email, passphrase by phone). If both travel together, it adds nothing.
+      </div>
+    </div>
+
+    <button id="create">Create secret link</button>
+    <p id="err" class="note danger hidden"></p>
+  </section>
+
+  <section id="done" class="hidden">
+    <h2>Your secret is ready</h2>
+
+    <label>Share link — send this to the recipient</label>
+    <div class="field share" id="shareLink"></div>
+    <button id="copyShare" class="tint-share">Copy share link</button>
+    <div class="note danger">
+      This link can be opened <strong>once</strong>. After it is read, the secret is destroyed permanently
+      and cannot be recovered — not by you, not by us.
+    </div>
+
+    <label>Status link — keep this, it is your private receipt</label>
+    <div class="field status" id="statusLink"></div>
+    <button id="copyStatus" class="tint-status">Copy status link</button>
+    <div class="note">
+      <strong>Do not share this one.</strong> It only tells you whether the secret has been read.
+      It can never reveal the content.
+    </div>
+
+    <p id="notCopied" class="note danger">
+      ⚠️ You have not copied the share link yet. It exists <strong>only on this page</strong> —
+      the key is not stored on our server. If you leave without copying it, this secret
+      becomes permanently unreadable by anyone.
+    </p>
+    <button id="again" class="quiet">Create another</button>
+  </section>
+</main>
+
+<footer>
+  <p><a href="/">Home</a> · <a href="/how">How it works</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a></p>
+</footer>
+
+<script type="module" src="/static/create.js"></script>

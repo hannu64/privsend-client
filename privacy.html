@@ -1,0 +1,134 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>privsend — privacy notice</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <p class="tagline">Privacy notice</p>
+</header>
+
+<main>
+  <p class="small muted">Last updated: 20 July 2026 · <a href="/fi/privacy">Suomeksi</a></p>
+
+  <h2>Controller</h2>
+  <div class="field selectable">
+    Zumitomi Oy<br>
+    Business ID (Y-tunnus): 1102239-5<br>
+    Perintötie 1, 01510 Vantaa, Finland<br>
+    <a href="mailto:support@zumitomi.fi">support@zumitomi.fi</a>
+  </div>
+
+  <h2>The short version</h2>
+  <div class="note ok">
+    We have <strong>no accounts</strong>, <strong>no cookies</strong>, <strong>no analytics</strong>,
+    <strong>no trackers</strong>, and <strong>no web server access logs</strong>. We never see your secret,
+    because it is encrypted in your browser before it reaches us — and we never receive the key that would
+    decrypt it.
+  </div>
+
+  <h2>What we process</h2>
+  <ul class="hint">
+    <li>
+      <strong>Ciphertext.</strong> Your message — and, if you attached files, the list describing them — already
+      encrypted by your browser into one sealed package. We cannot read it. It is destroyed the moment it is
+      read, or when it expires.
+    </li>
+    <li>
+      <strong>Encrypted files.</strong> If you attach files (up to 10, 25 MB in total), each is encrypted in your
+      browser and stored as a separate opaque blob on our server. We cannot read those. Against each one we hold only a random
+      reference, its size in bytes, and a deletion deadline. <strong>We do not store the filename, the file type,
+      or even how many files there are</strong> — those live inside the encrypted package above, so we never
+      learn them. A name like “resignation_letter.pdf” would give away a secret without decrypting a byte of it,
+      so we made sure we never see it.
+    </li>
+    <li>
+      <strong>Minimal metadata</strong> so the service can work and your status link can answer: a random link
+      id, a separate random status id, the encryption nonce (and a salt, if you chose a passphrase — neither is
+      secret), whether a passphrase was set, and the created / expiry / opened timestamps.
+      <strong>No sender identity, no recipient identity, and no IP address is ever stored against a secret.</strong>
+    </li>
+    <li>
+      <strong>Your IP address, briefly and in memory only.</strong> To stop abuse we count requests per IP
+      address for a short window. That count lives in the server's memory, is discarded automatically, is
+      <strong>never written to disk</strong>, and is <strong>never linked to any secret</strong>.
+    </li>
+    <li>
+      <strong>Abuse reports.</strong> If someone reports a link, we store the link's id and whatever reason they
+      typed, so we can act on it. Your browser <strong>strips the decryption key before the report is sent</strong>,
+      so a report never reveals a secret's contents to us. We do not store the reporter's IP address.
+    </li>
+  </ul>
+
+  <h2>What we do not do</h2>
+  <ul class="hint">
+    <li>We keep <strong>no web server access logs</strong>. Your visit is not recorded.</li>
+    <li>We use <strong>no cookies</strong> and <strong>no analytics or tracking of any kind</strong>. No third-party scripts run on this site at all.</li>
+    <li>We ask for <strong>no name, email address or phone number</strong>, from anyone.</li>
+    <li>We <strong>do not deliver</strong> your secret or your link. You share it yourself, through a channel of your own choosing, and we never learn who the recipient is.</li>
+    <li>We <strong>never sell or share</strong> personal data, and we do not use it for advertising or profiling.</li>
+  </ul>
+
+  <h2>Why (legal basis)</h2>
+  <p class="hint">
+    Storing ciphertext and its metadata is necessary to <strong>perform the service you asked for</strong>
+    (GDPR Article 6(1)(b)). The short-lived, in-memory rate-limiting count and the handling of abuse reports rest
+    on our <strong>legitimate interest</strong> in keeping the service secure, available, and lawful
+    (Article 6(1)(f)).
+  </p>
+
+  <h2>How long we keep it</h2>
+  <ul class="hint">
+    <li><strong>Ciphertext:</strong> destroyed the instant a secret is read, or when it expires (you choose 1 hour, 1 day, or 7 days) — whichever comes first.</li>
+    <li>
+      <strong>Encrypted files:</strong> destroyed as soon as the recipient's browser confirms it has decrypted
+      them — normally within seconds — and in every case <strong>within 60 minutes</strong> of the secret being
+      read. Files are the one thing we keep a little longer than the secret itself, and it is deliberate:
+      destroying a file the moment its download <em>starts</em> would mean a dropped connection leaves the
+      recipient with nothing and no way to try again. If we remove a secret after an abuse report, its files go
+      <strong>immediately</strong>, with no such window.
+    </li>
+    <li>
+      <strong>Files you never sent:</strong> a file is uploaded while you are still writing, before the link
+      exists. If you close the tab and never create the link, that encrypted file is deleted automatically
+      <strong>within 1 hour</strong>. No link to it was ever made, so no one could have opened it.
+    </li>
+    <li><strong>Metadata:</strong> deleted <strong>7 days</strong> after the secret is read, expires, or is removed. After that, your status link stops working, because there is nothing left.</li>
+    <li><strong>Rate-limiting counts:</strong> minutes, in memory only.</li>
+    <li><strong>Abuse reports:</strong> kept while we deal with them, and then for up to <strong>6 months</strong> after we act, so we can show that we acted on notice. After that they are deleted automatically.</li>
+  </ul>
+
+  <h2>Where it is</h2>
+  <p class="hint">
+    On our server in <strong>Tuusula, Finland</strong>, hosted by Hetzner Online GmbH (Germany), who act as our
+    processor. Data stays in the <strong>European Union</strong>. Traffic to and from the site is encrypted with
+    TLS.
+  </p>
+
+  <h2>Your rights</h2>
+  <p class="hint">
+    You have the right to access, correct, erase and restrict processing of your personal data, to object to it,
+    and to data portability. We must be honest about a limitation here: <strong>because we deliberately hold no
+    identifying information about you, we usually cannot tell which data is yours</strong> — that is the point of
+    the design, and it means we may be unable to act on a request we cannot connect to you (GDPR Article 11).
+    You can always destroy a secret yourself simply by opening its link, and every secret destroys itself anyway.
+  </p>
+  <p class="hint">
+    Write to <a href="mailto:support@zumitomi.fi">support@zumitomi.fi</a> with any privacy question. If you are
+    unhappy with our answer, you may complain to the Finnish Data Protection Ombudsman
+    (<a href="https://tietosuoja.fi/en/home">tietosuoja.fi</a>).
+  </p>
+
+  <p class="linkrow"><a href="/">Back to privsend</a></p>
+</main>
+
+<footer>
+  <p><a href="/">Home</a> · <a href="/how">How it works</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a></p>
+</footer>

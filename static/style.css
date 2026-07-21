@@ -1,0 +1,370 @@
+/* SPDX-FileCopyrightText: 2026 Zumitomi Oy */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
+:root {
+  --bg: #0f1116;
+  --panel: #171a21;
+  --panel-2: #1e222b;
+  --line: #2a2f3a;
+  --text: #e8ebf0;
+  --muted: #98a0ae;
+  --accent: #f81d45;
+  --accent-dim: #b31533;
+  --ok: #34c77b;
+  --warn: #f0a92e;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem 4rem;
+}
+
+header { text-align: center; margin-bottom: 1.75rem; }
+
+.brand {
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.brand span { color: var(--accent); }
+
+.tagline { color: var(--muted); margin: .35rem 0 0; font-size: .95rem; }
+
+main {
+  width: 100%;
+  max-width: 620px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+h2 { margin: 0 0 .35rem; font-size: 1.15rem; }
+.hint { color: var(--muted); font-size: .9rem; margin: 0 0 1rem; }
+
+label { display: block; font-weight: 600; font-size: .9rem; margin: 1.1rem 0 .4rem; }
+
+textarea, input[type="text"], input[type="password"], select {
+  width: 100%;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: .7rem .8rem;
+  font: inherit;
+  font-size: .95rem;
+}
+textarea { min-height: 150px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+textarea:focus, input:focus, select:focus { outline: 2px solid var(--accent-dim); border-color: transparent; }
+
+button {
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: .85rem 1rem;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+button:hover:not(:disabled) { background: var(--accent-dim); }
+button:disabled { opacity: .55; cursor: not-allowed; }
+
+button.secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); }
+button.secondary:hover:not(:disabled) { background: var(--line); }
+
+.row { display: flex; gap: .75rem; align-items: center; }
+.row > * { flex: 1; }
+
+.check { display: flex; align-items: center; gap: .55rem; margin-top: 1.1rem; }
+.check input { width: auto; flex: 0; }
+.check label { margin: 0; font-weight: 500; }
+
+/* link/result blocks */
+.field {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: .7rem .8rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .82rem;
+  word-break: break-all;
+  user-select: all;
+}
+
+.note {
+  border-left: 3px solid var(--warn);
+  background: rgba(240, 169, 46, .07);
+  padding: .7rem .9rem;
+  border-radius: 0 8px 8px 0;
+  font-size: .88rem;
+  color: #e6d3ae;
+  margin-top: .6rem;
+}
+.note.danger { border-left-color: var(--accent); background: rgba(248, 29, 69, .07); color: #f0c2cc; }
+.note.ok     { border-left-color: var(--ok);     background: rgba(52, 199, 123, .07); color: #bfe9d4; }
+
+.secret-out {
+  background: #0b0d11;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .92rem;
+  max-height: 40vh;
+  overflow: auto;
+}
+
+.big-state { text-align: center; padding: 1.25rem 0; }
+.big-state .icon { font-size: 2.6rem; line-height: 1; }
+.big-state h2 { margin-top: .6rem; }
+
+.hidden { display: none !important; }
+.muted { color: var(--muted); }
+.small { font-size: .85rem; }
+
+footer {
+  margin-top: 2rem;
+  color: var(--muted);
+  font-size: .82rem;
+  text-align: center;
+  max-width: 620px;
+}
+footer a { color: var(--muted); }
+
+.spinner {
+  display: inline-block;
+  width: 1em; height: 1em;
+  border: 2px solid rgba(255,255,255,.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  vertical-align: -.15em;
+  margin-right: .5em;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* passphrase field + reveal toggle */
+.pw-wrap { position: relative; display: block; }
+.pw-wrap input { padding-right: 2.9rem; }
+.pw-toggle {
+  position: absolute;
+  right: .35rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.2rem;
+  margin: 0;
+  padding: .3rem;
+  background: transparent;
+  border: 0;
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: .75;
+}
+.pw-toggle:hover { background: transparent; opacity: 1; }
+
+/* live size counter under the textarea */
+.counter {
+  display: flex;
+  justify-content: space-between;
+  font-size: .8rem;
+  color: var(--muted);
+  margin-top: .35rem;
+}
+.counter.over { color: var(--accent); font-weight: 600; }
+
+/* The FILES total was easy to miss — it looked just like the text-length counter,
+ * so testers added files without noticing they were near the limit (feedback,
+ * 2026-07). Make it a real signal: larger, centred and bold, GREEN while there is
+ * room and RED the instant the 25 MB total is exceeded. Only #fileTotal changes;
+ * the text-length counter (#counter) is fine as it is. */
+#fileTotal {
+  justify-content: center;
+  gap: .35rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ok);
+  margin-top: .6rem;
+}
+#fileTotal.over { color: var(--accent); }
+
+/* file lists — the compose picker and the reveal downloads share this */
+.filelist { list-style: none; padding: 0; margin: .5rem 0 0; }
+.filelist li {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .55rem .75rem;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  margin-bottom: .4rem;
+  font-size: .9rem;
+}
+/* The filename takes the slack and truncates; everything else keeps its size.
+   min-width:0 is what actually permits the shrink -- a flex item defaults to
+   min-width:auto, which refuses to go below its content and would let a long
+   filename shove the Download button off the row. */
+.filelist li > span:first-child {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.filelist li > .soft, .filelist li > button { flex-shrink: 0; }
+.filelist li.over { border-color: var(--accent); }
+.filelist li.done { opacity: .6; }
+.filelist li.failed { border-color: var(--accent); }
+/* A per-row error note must not sit in the flex row; let it wrap underneath. */
+.filelist li { flex-wrap: wrap; }
+.filelist li .note { flex-basis: 100%; margin: .5rem 0 0; }
+
+.soft { color: var(--muted); font-size: .85em; }
+
+button.compact { width: auto; padding: .35rem .8rem; font-size: .85rem; margin: 0; }
+
+.dropzone {
+  border: 1.5px dashed var(--line);
+  border-radius: 8px;
+  padding: .9rem;
+  transition: border-color .15s, background .15s;
+}
+.dropzone.over {
+  border-color: var(--accent);
+  background: rgba(248, 29, 69, .06);
+}
+.drop-hint {
+  margin: .55rem 0 0;
+  font-size: .82rem;
+  color: var(--muted);
+  text-align: center;
+}
+/* The dashed zone already reads as a drop target; a second border inside it is
+   just noise. */
+.dropzone input[type="file"] { border: 0; background: transparent; padding: 0; }
+
+input[type="file"] {
+  width: 100%;
+  padding: .6rem;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: .9rem;
+}
+input[type="file"]::file-selector-button {
+  margin-right: .75rem;
+  padding: .35rem .8rem;
+  background: var(--line);
+  color: var(--text);
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.linkrow { text-align: center; margin-top: 1.25rem; }
+.linkrow a { color: var(--accent); text-decoration: none; font-weight: 600; }
+.linkrow a:hover { text-decoration: underline; }
+
+/* Links in body text. Without this they fall back to the browser default
+   (dark blue), which is unreadable on our near-black background -- a contrast
+   failure, not merely an ugly one. */
+a {
+  color: #ff6b85;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+a:hover { color: #ff90a4; }
+
+/* The footer stays deliberately quiet, but must still be legible. */
+footer a { color: var(--muted); }
+footer a:hover { color: var(--text); }
+
+.linkrow a { text-decoration: none; }
+
+/* ---------------------------------------------------------------------------
+ * The "your secret is ready" page.
+ *
+ * The two links here are semantic OPPOSITES -- one you give away, one you must
+ * keep -- and one of them (the share link) is destroyed forever if the user
+ * fails to copy it. So they get distinct accents carried consistently across the
+ * field, the button and the note, and the hierarchy is:
+ *
+ *   Copy share link   (strong red tint)   - critical; losing it loses the secret
+ *   Copy status link  (soft amber tint)   - useful, not critical
+ *   Create another    (grey)              - the quiet exit
+ *
+ * Tinted rather than solid: a solid red button directly above a red warning box
+ * reads as heavy and muddles "important action" with "danger".
+ * ------------------------------------------------------------------------- */
+
+.field.share  { border-left: 3px solid rgba(248, 29, 69, .65); }
+.field.status { border-left: 3px solid rgba(240, 169, 46, .65); }
+
+button.tint-share {
+  background: rgba(248, 29, 69, .16);
+  border: 1px solid rgba(248, 29, 69, .55);
+  color: #ff8fa3;
+}
+button.tint-share:hover:not(:disabled) {
+  background: rgba(248, 29, 69, .28);
+  border-color: rgba(248, 29, 69, .85);
+  color: #ffc0cc;
+}
+
+button.tint-status {
+  background: rgba(240, 169, 46, .10);
+  border: 1px solid rgba(240, 169, 46, .45);
+  color: #f2c684;
+}
+button.tint-status:hover:not(:disabled) {
+  background: rgba(240, 169, 46, .20);
+  border-color: rgba(240, 169, 46, .7);
+  color: #ffdcab;
+}
+
+/* The exit recedes. It is the least important thing on this page. */
+button.quiet {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-weight: 600;
+}
+button.quiet:hover:not(:disabled) { background: var(--panel-2); color: var(--text); }
+
+/* The wordmark links home from every page. Deliberately styled to look exactly
+   like the plain wordmark -- no colour, no underline, no hover shift. It should
+   be discoverable by trying it, not by shouting. */
+a.brand-link,
+a.brand-link:hover,
+a.brand-link:visited {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Utility classes. These exist because our CSP is style-src 'self' with no
+   'unsafe-inline' -- so a style="..." attribute is BLOCKED and silently does
+   nothing. Keeping the CSP strict is worth more than the convenience of inline
+   styles, so the styles come here instead. */
+.mt-sm    { margin-top: .6rem; }
+.mt-md    { margin-top: .9rem; }
+.selectable { user-select: text; }
+.textarea-sm { min-height: 100px; }

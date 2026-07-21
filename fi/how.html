@@ -1,0 +1,124 @@
+<html lang="fi">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>privsend — miten se toimii</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <p class="tagline">Miten se toimii</p>
+</header>
+
+<main>
+  <p class="small muted"><a href="/how">In English</a></p>
+
+  <p class="hint">
+    privsendillä lähetät salaisuuden — salasanan, yksityisen viestin tai tiedostoja — niin että vain se
+    henkilö, jolle annat linkin, voi avata sen <strong>vain kerran</strong>, ja sen jälkeen se on poissa. Kaikki
+    salataan <strong>omalla laitteellasi</strong> ennen kuin se lähtee, joten
+    <strong>emme koskaan näe sen sisältöä</strong>.
+  </p>
+
+  <h2>Salaisuuden lähettäminen</h2>
+  <ol class="hint">
+    <li><strong>Kirjoita salaisuutesi</strong> — viesti, salasana, mitä tahansa — Secret-kenttään. Se
+      salataan heti tässä selaimessasi (enintään noin 256 kilotavua; laskuri näyttää jäljellä olevan
+      tilan). Me saamme vain salatun version.</li>
+    <li><strong>Lisää halutessasi tiedostoja</strong> <span class="soft">(valinnainen)</span> — enintään
+      10 minkä tahansa tyyppistä tiedostoa, kuvia tai asiakirjoja, yhteensä 25 megatavua. Ne salataan
+      samalla tavalla.</li>
+    <li><strong>Valitse, kuinka kauan se on voimassa</strong> — jos kukaan ei avaa sitä, se tuhoutuu
+      itsestään tunnin, vuorokauden tai 7 vuorokauden kuluttua.</li>
+    <li><strong>Lisää salalause</strong> <span class="soft">(valinnainen, lisäsuoja)</span> — sana tai
+      lause, joka vastaanottajan on myös kirjoitettava avatakseen salaisuuden. Lähetä se
+      <strong>eri reittiä</strong> kuin linkki.</li>
+    <li><strong>Luo linkki.</strong> Salaisuuden avaava avain sijaitsee linkin ”#”-merkin jälkeisessä
+      osassa. Selaimet <strong>eivät koskaan lähetä tätä osaa millekään palvelimelle</strong> — joten me
+      emme koskaan saa avainta emmekä voi <strong>periaatteessakaan</strong> lukea salaisuuttasi.</li>
+    <li><strong>Lähetä linkki itse.</strong> Kopioi se ja välitä vastaanottajallesi haluamallasi tavalla —
+      viestillä, sähköpostilla, henkilökohtaisesti. privsend <strong>ei lähetä eikä toimita linkkiäsi tai
+      salaisuuttasi puolestasi</strong>, joten emme koskaan saa tietää, kuka vastaanottaja on. Jos asetit
+      salalauseen, lähetä se eri tavalla.</li>
+  </ol>
+  <p class="hint">
+    Saat myös <strong>tilalinkin</strong> (status link) — yksityisen kuittauksen vain sinulle. Säilytä se;
+    se kertoo ainoastaan, <em>onko</em> salaisuus luettu, eikä voi koskaan paljastaa, mitä siinä oli.
+  </p>
+
+  <h2>Salaisuuden avaaminen</h2>
+  <p class="hint">
+    Jos joku lähetti sinulle privsend-linkin, avaa se, niin näet lyhyen sivun, jonka mukaan salaisuus
+    odottaa. <strong>Mitään ei ole vielä tapahtunut</strong> — pelkkä sivulle saapuminen ei avaa eikä
+    tuhoa mitään. Kun olet valmis ja voit tallentaa saamasi, napsauta <strong>Reveal</strong>.
+  </p>
+  <ul class="hint">
+    <li>Salaisuus haetaan ja <strong>tuhotaan palvelimeltamme samalla hetkellä</strong>, joten linkki
+      toimii vain <strong>kerran</strong>.</li>
+    <li>Tarvitset <strong>koko linkin</strong> (ja salalauseen, jos sellainen asetettiin). Ilman niitä
+      kukaan ei voi purkaa salausta — et sinä, ei lähettäjä, emme me.</li>
+    <li>Tekstin voit lukea ja kopioida heti. Mahdolliset tiedostot latautuvat loppuun lyhyen lisäajan
+      kuluessa — <strong>enintään 60 minuutin</strong> — ja ne tuhotaan sen jälkeen.</li>
+    <li>Pidä sivu auki, kunnes olet tallentanut kaiken. Sivun päivittäminen tai linkin avaaminen uudelleen
+      ilmoittaa ”ei enää saatavilla”, koska silloin se on todella poissa.</li>
+  </ul>
+  <p class="hint">
+    Entä jos linkkiä ei avata lainkaan? Se <strong>tuhoutuu itsestään</strong> lähettäjän valitsemana
+    ajankohtana.
+  </p>
+
+  <h2>Miksi voit luottaa siihen</h2>
+  <ul class="hint">
+    <li><strong>Salattu laitteellasi.</strong> Salaisuutesi salataan ennen kuin se lähtee selaimestasi, ja
+      puretaan vasta vastaanottajan selaimessa. Meillä on hallussamme vain <strong>salattua</strong> tietoa.</li>
+    <li><strong>Avain ei koskaan tavoita meitä.</strong> Se kulkee linkin ”#”-osassa, jota selaimet eivät
+      lähetä palvelimille — joten meidän puolellamme ei ole mitään, joka <em>voisi</em> lukea
+      salaisuutesi.</li>
+    <li><strong>Lukeminen on tietoinen teko.</strong> Pelkkä linkin avaaminen ei kuluta sitä — vain
+      ihmisen napsautus <em>Reveal</em>-painikkeeseen kuluttaa. Juuri tämä estää sähköpostiskannereita ja
+      linkkien esikatseluja tuhoamasta salaisuutta ennen kuin vastaanottajasi ehtii paikalle.</li>
+  </ul>
+
+  <h2>Hyvä pitää mielessä</h2>
+  <ul class="hint">
+    <li><strong>privsend ei ole tallennustila eikä varmuuskopio.</strong> Jokainen salaisuus tuhotaan, kun
+      se luetaan tai kun se vanhenee — kumpi tapahtuu ensin. Älä koskaan tee privsendistä minkään ainoaa
+      kopiota.</li>
+    <li><strong>Väärin kirjoitettua tai kadonnutta linkkiä tai salalausetta ei voi palauttaa</strong> — ei
+      kukaan, emme mekään. Tämä on tarkoituksellista, ei vika: jos me voisimme palauttaa sen, voisi joku
+      muukin.</li>
+  </ul>
+
+  <h2>Ei mitään asennettavaa</h2>
+  <p class="hint">
+    privsend on <strong>verkkosovellus</strong>: mitään ei tarvitse ladata, ei ole sovelluskauppaa eikä
+    <strong>käyttäjätiliä</strong> — ei käyttäjänimeä, ei sähköpostia, ei puhelinnumeroa, ei koskaan. Se
+    toimii missä tahansa nykyaikaisessa selaimessa ja millä tahansa laitteella. Juuri sitä tarvitset, kun
+    sovelluksen asentaminen on hankalaa tai mahdotonta: työkone, jaettu tietokone tai paikka, jossa
+    sovelluskaupat ovat rajoitettuja.
+  </p>
+  <p class="hint">
+    Jos käytät privsendiä usein, voit <strong>lisätä sen kotinäytöllesi</strong> ja avata sen kuin tavallisen
+    sovelluksen. <strong>Androidilla</strong> valitse selaimen valikosta <em>Asenna sovellus</em> (tai
+    <em>Lisää aloitusnäyttöön</em>); <strong>iPhonella tai iPadilla</strong> napauta <em>Jaa</em> ja sitten
+    <em>Lisää Koti-valikkoon</em>. Se on yhä sama yksityinen verkkosovellus — ei ylimääräisiä
+    käyttöoikeuksia, eikä sinusta silti tallenneta mitään.
+  </p>
+
+  <p class="linkrow"><a href="/">＋ Lähetä salaisuus</a></p>
+
+  <p class="hint small muted">
+    Haluatko tarkemmat yksityiskohdat tai lakitekstit? Katso
+    <a href="/fi/privacy">tietosuojaselosteemme</a> ja <a href="/fi/terms">käyttöehtomme</a>.
+  </p>
+</main>
+
+<footer>
+  <p><a href="/">Etusivu</a> · <a href="/fi/how">Miten se toimii</a> · <a href="/fi/terms">Käyttöehdot</a> · <a href="/fi/privacy">Tietosuoja</a> · <a href="/report">Ilmoita linkistä</a> · <a href="/how">In English</a></p>
+</footer>
