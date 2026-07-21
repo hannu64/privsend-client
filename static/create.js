@@ -3,7 +3,7 @@
 
 import { newSecretKey, encryptBytes, sealManifest } from './crypto.js';
 import { attachReveal, fmtBytes, setBusy } from './ui.js';
-import { SITE_ORIGIN, api } from './config.js';
+import { SITE_ORIGIN, api, homeHref } from './config.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -402,7 +402,9 @@ function confirmLeave() {
 }
 
 $('again').addEventListener('click', () => {
-  if (confirmLeave()) location.href = '/';
+  // homeHref is '/' on the website and '/index.html' in the extension (no server
+  // routing there), so "Create another" reloads the compose page in both.
+  if (confirmLeave()) location.href = homeHref;
 });
 
 // Also catch closing the tab / navigating away entirely.

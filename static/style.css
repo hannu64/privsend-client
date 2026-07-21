@@ -368,3 +368,22 @@ a.brand-link:visited {
 .mt-md    { margin-top: .9rem; }
 .selectable { user-select: text; }
 .textarea-sm { min-height: 100px; }
+
+/* Extension-only trust banner. ext.js injects a .ext-banner element ONLY when the
+   page runs as the installed browser extension (chrome-extension://). On the
+   website nothing ever carries this class, so this rule is inert there. Green is
+   the site's positive/secure signal (red is reserved for warnings). */
+.ext-banner {
+  width: 100%;
+  max-width: 620px;
+  margin: 0 0 1.5rem;
+  padding: .75rem 1rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--ok);
+  border-radius: var(--radius);
+  background: rgba(52, 199, 123, .08);
+  font-size: .88rem;
+  line-height: 1.45;
+}
+.ext-banner strong { display: block; color: var(--ok); margin-bottom: .15rem; }
+.ext-banner span   { color: var(--muted); }

@@ -19,11 +19,16 @@
 // point it elsewhere, which is precisely the point: the crypto that runs is the
 // installed, audited copy, and the server it uses is fixed.
 const EXTENSION_ORIGINS = ['chrome-extension:', 'moz-extension:', 'safari-web-extension:'];
-const IN_EXTENSION = EXTENSION_ORIGINS.includes(location.protocol);
+export const IN_EXTENSION = EXTENSION_ORIGINS.includes(location.protocol);
 
 // The origin used to BUILD links (the share link, the status link). Same-origin
 // on the web; production in the extension.
 export const SITE_ORIGIN = IN_EXTENSION ? 'https://privsend.app' : location.origin;
+
+// Where a "home" / brand link should point. On the website the server routes "/"
+// to index.html; in the extension there is no server routing, so a bare "/" would
+// hit the extension root and 404 -- link straight to the file instead.
+export const homeHref = IN_EXTENSION ? '/index.html' : '/';
 
 // Turn a server-relative API path ('/api/secret') into the URL to fetch. On the
 // web it is the identity function -- it returns the path untouched, so the fetch
