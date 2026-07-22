@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "PrivSend — one-time encrypted secrets",
-  "version": "1.0.0",
-  "version_name": "1.0.0 (2026-07-22)",
-  "description": "Send end-to-end-encrypted, one-time secrets and files. The encryption runs on your device from this installed, audited copy — the server only ever sees ciphertext.",
+  "version": "1.0.1",
+  "version_name": "1.0.1 (2026-07-22)",
+  "description": "One-time encrypted secrets and files. The encryption runs on your device, in this installed copy; the server sees only ciphertext.",
   "browser_specific_settings": {
     "gecko": {
       "id": "support@zumitomi.fi",
