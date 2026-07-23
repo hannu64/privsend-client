@@ -84,7 +84,7 @@ async function check() {
       `the moment a download begins: if it were, a download that dropped halfway would leave the ` +
       `recipient with nothing and no way to try again. ` +
       `${n === 1 ? 'It is' : 'They are'} destroyed as soon as the recipient's browser confirms the ` +
-      `download arrived intact — usually within seconds — and in any case no later than 30 minutes ` +
+      `download arrived intact — usually within seconds — and in any case no later than 60 minutes ` +
       `after collection. Check again shortly and this will say "destroyed".`);
   } else if (state === 'opened') {
     const when = opened_at ? new Date(opened_at).toLocaleString() : 'an unknown time';

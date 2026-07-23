@@ -47,10 +47,11 @@
 // WHY THE INDIRECTION: filenames are sensitive on their own. Nobody needs to
 // decrypt "resignation_letter.pdf" to learn the secret. So the name, the type, the
 // size, the ref and the per-file nonce all live INSIDE the encrypted manifest --
-// never as a column the server could read. The server sees opaque blobs of a
-// declared length and an encrypted manifest, and that is genuinely all it can
-// know: not what the files are called, not what they are, not even how many there
-// are.
+// never as a column the server could read. The server sees one opaque blob of a
+// declared length per file, plus an encrypted manifest, and that is very nearly all
+// it can know: not what the files are called, not what they are, not their contents.
+// It does count the blobs, so it knows HOW MANY files a secret carries -- but
+// nothing about them.
 //
 // The manifest is small, so it stays inline in Postgres and the reveal page can
 // show the message and the file list instantly, before any file is fetched.

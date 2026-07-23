@@ -35,14 +35,16 @@ nothing is hand-rolled.
 - The decryption key. It lives only in the part of the link after the `#` — the URL
   *fragment* — which browsers never transmit. The server cannot log what it is never
   sent.
-- File names, types, or even how many files there are: those live inside the
-  encrypted manifest, so the server sees only opaque blobs.
+- File names and types, and any file's contents: those live inside the encrypted
+  manifest, so the server sees only opaque blobs — never what a file is called or
+  what it holds.
 - Who the recipient is. privsend never delivers anything; you pass the link on
   yourself, through a channel of your choosing.
 
 **The server does hold, because it must:** the ciphertext, a random link id and a
 separate status id, the nonce (and a salt if you used a passphrase — neither is
-secret), whether a passphrase was set, each blob's size in bytes, and
+secret), whether a passphrase was set, each blob's size in bytes (so it does know how
+many files a secret carries), and
 created/expiry/opened timestamps. No identity, and no IP address, is ever stored
 against a secret.
 

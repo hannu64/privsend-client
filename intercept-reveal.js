@@ -26,6 +26,11 @@
 // not run on extension origins).
 (() => {
   const id = location.pathname.split('/').pop();
+  // A bare /s/ with no id after it is not a share link. Leave it alone rather than
+  // redirect to the bundled reveal page (which would only hit its empty-link guard)
+  // and needlessly advertise that the extension is installed. Only a real /s/{id}
+  // is intercepted.
+  if (!id) return;
   // location.hash carries its own leading '#', or is '' when the link has no key.
   // Append it verbatim: the bundled reveal page reads the key from the fragment in
   // exactly the same way the website does, with no reformatting. A missing key

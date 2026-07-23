@@ -44,10 +44,11 @@
     <li>
       <strong>Encrypted files.</strong> If you attach files (up to 10, 25 MB in total), each is encrypted in your
       browser and stored as a separate opaque blob on our server. We cannot read those. Against each one we hold only a random
-      reference, its size in bytes, and a deletion deadline. <strong>We do not store the filename, the file type,
-      or even how many files there are</strong> — those live inside the encrypted package above, so we never
-      learn them. A name like “resignation_letter.pdf” would give away a secret without decrypting a byte of it,
-      so we made sure we never see it.
+      reference, its size in bytes, and a deletion deadline — so, because that is one record per file, we
+      <strong>do</strong> know <em>how many</em> files a secret carries. But <strong>we never store the filename
+      or the file type</strong>, and the contents are encrypted, so we never see what any file is or what it is
+      called. Those details live inside the encrypted package above. A name like “resignation_letter.pdf” would
+      give away a secret without decrypting a byte of it, so we made sure we never see it.
     </li>
     <li>
       <strong>Minimal metadata</strong> so the service can work and your status link can answer: a random link
