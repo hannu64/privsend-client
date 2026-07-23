@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "PrivSend — one-time encrypted secrets",
-  "version": "1.0.1",
-  "version_name": "1.0.1 (2026-07-22)",
+  "version": "1.0.2",
+  "version_name": "1.0.2 (2026-07-23)",
   "description": "One-time encrypted secrets and files. The encryption runs on your device, in this installed copy; the server sees only ciphertext.",
   "browser_specific_settings": {
     "gecko": {
