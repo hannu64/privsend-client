@@ -387,3 +387,21 @@ a.brand-link:visited {
 }
 .ext-banner strong { display: block; color: var(--ok); margin-bottom: .15rem; }
 .ext-banner span   { color: var(--muted); }
+/* The banner's one link, out to /verify on the live site. Kept visually quieter
+   than the accent links elsewhere: it is an offer to read further, not a call to
+   action competing with the compose form below it. */
+.ext-banner a { display: inline-block; margin-top: .35rem; color: var(--ok); text-decoration: none; font-weight: 600; }
+.ext-banner a:hover { text-decoration: underline; }
+
+/* Inline literals -- file names, extension ids, about:debugging and the like.
+   Only /verify uses these today; the rule is harmless everywhere else. Wrapping
+   is allowed because an extension id is 32 unbroken characters and must not push
+   a phone's layout sideways. */
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .9em;
+  background: rgba(255, 255, 255, .06);
+  padding: .1em .35em;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}

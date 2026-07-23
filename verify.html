@@ -1,0 +1,177 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>privsend — how to verify</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <p class="tagline">How to verify this is safe</p>
+</header>
+
+<main>
+  <p class="small muted"><a href="/fi/verify">Suomeksi</a></p>
+
+  <p class="hint">
+    A privacy tool you cannot inspect is just a promise. This page is how you check ours
+    instead of taking our word for it — starting with a two-minute look and ending with a
+    setup where you do not have to trust our server at all.
+  </p>
+  <p class="hint">
+    If you only want to know <em>what privsend does</em>, the plain-language
+    <a href="/how">How it works</a> is the better page. This one is about
+    <strong>proof</strong>.
+  </p>
+
+  <h2>What you are actually trusting</h2>
+  <p class="hint">
+    All the encryption happens in your own browser. So the only question that really matters
+    is: <strong>is the code doing the encrypting the code we published?</strong> There are two
+    different answers, and we would rather state them plainly than blur them.
+  </p>
+  <ul class="hint">
+    <li><strong>On the website</strong>, your browser downloads that code from our server
+      every visit. We publish it, and a strict Content-Security-Policy means no third party
+      — no CDN, no analytics, no outside origin — can inject or replace it. But a server that
+      had been compromised, or legally compelled, could in principle serve <em>one</em>
+      targeted person a modified script. Publishing the code makes that
+      <strong>detectable</strong>; it does not make it <strong>impossible</strong>.</li>
+    <li><strong>With the browser extension</strong>, the code is installed on your device and
+      versioned. It is <strong>never re-fetched</strong>. Our server sends you encrypted data
+      and nothing else — it has no way to hand you different code, targeted or otherwise. That
+      closes the gap completely.</li>
+  </ul>
+  <p class="hint">
+    We are not going to pretend the first case is as strong as the second. It is not. That is
+    exactly why the extension exists.
+  </p>
+
+  <h2>1 · Read the code</h2>
+  <p class="hint">
+    The entire browser client is public, under the
+    <strong>GNU AGPL-3.0</strong>:
+    <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">github.com/hannu64/privsend-client</a>.
+  </p>
+  <ul class="hint">
+    <li><strong>Start with <code>static/crypto.js</code>.</strong> It is the whole security
+      surface. Every key is generated there, every byte is encrypted and decrypted there, and
+      nothing cryptographic happens anywhere else. If you audit one file, audit that one.</li>
+    <li><strong>There is no build step.</strong> Nothing is bundled, minified or transpiled, so
+      the files in the repository are the exact files your browser runs — you never have to
+      reproduce a build to compare. That is a deliberate design choice, not an omission.</li>
+    <li><strong>No dependencies.</strong> The cryptography is the browser's own WebCrypto:
+      AES-256-GCM with a fresh nonce each time, and PBKDF2 with 600 000 iterations when you add
+      a passphrase. Nothing is hand-rolled, and there is no third-party library to trust.</li>
+  </ul>
+
+  <h2>2 · Check the code your browser ran</h2>
+  <p class="hint">
+    On the website, you can compare what you were actually served against what we published.
+    Open your browser's developer tools, look at
+    <a href="/static/crypto.js" target="_blank" rel="noopener">/static/crypto.js</a> as it was
+    delivered to you, and read it beside the copy in the repository. They should match
+    character for character.
+  </p>
+  <p class="hint">
+    Be clear about the limit, though: this tells you about <em>this</em> visit, on
+    <em>this</em> device. It is a spot check, not a guarantee, and repeating it before every
+    secret is not a reasonable thing to ask of anyone. Which brings us to the part that
+    actually solves it.
+  </p>
+
+  <h2>3 · Install the extension — the strongest version</h2>
+  <p class="hint">
+    The extension <strong>is</strong> the client. Same code, same repository — but installed,
+    so the encryption runs from your copy rather than one delivered fresh each visit. Both
+    sending and receiving run locally: open a privsend link with the extension present and it
+    is decrypted by your installed copy, not by a page the server hands you at that moment.
+  </p>
+  <p class="note ok">
+    <strong>Chrome, Edge, Opera, Brave, Vivaldi</strong> —
+    <a href="https://chromewebstore.google.com/detail/jbnbgboabjehjkjhloeeihjamibmjokd" target="_blank" rel="noopener">install from the Chrome Web Store</a>.
+    A Firefox version is under review at addons.mozilla.org and will be linked here once it is
+    published.
+  </p>
+  <p class="hint">
+    You will know it is active: extension pages carry a green <strong>“Running locally”</strong>
+    banner, and the footer shows the exact build you have installed. The website never shows
+    that banner — the claim would not be true there, so the code that displays it cannot run
+    there.
+  </p>
+  <p class="hint">
+    The extension talks only to privsend.app, has no background process, collects nothing, and
+    cannot read any other site you visit. It is the same handful of files you just read.
+  </p>
+
+  <h2>4 · Verify the extension itself</h2>
+  <p class="hint">
+    Installing from a store means trusting the store to ship what we submitted. If you would
+    rather not, you do not have to.
+  </p>
+  <p class="hint">
+    <strong>The strongest option — skip the store.</strong> Download the repository, and load
+    it directly as an unpacked extension. Then the code you run <em>is</em> the code you read,
+    with no packaging step in between and nothing to compare.
+  </p>
+  <ul class="hint">
+    <li><strong>Chromium browsers:</strong> open the extensions page, turn on
+      <em>Developer mode</em>, choose <em>Load unpacked</em>, and select the folder.</li>
+    <li><strong>Firefox:</strong> open <code>about:debugging</code> → <em>This Firefox</em> →
+      <em>Load Temporary Add-on</em>, and select the folder's <code>manifest.json</code>.</li>
+  </ul>
+  <p class="hint">
+    <strong>Or check what the store gave you.</strong> Every published version is tagged in the
+    repository, so there is an exact anchor to diff against — the footer build stamp on any
+    extension page tells you which one you have. Chrome keeps installed extensions as ordinary
+    files on disk, under a folder named for the extension id
+    (<code>jbnbgboabjehjkjhloeeihjamibmjokd</code>) and then the version; the location varies by
+    platform, typically under your Chrome profile directory. Compare that folder with the
+    matching tag. One honest caveat: Chrome adds a <code>_metadata</code> folder of its own for
+    integrity checking, so expect that as an extra — everything else should match.
+  </p>
+
+  <h2>What verification cannot tell you</h2>
+  <p class="hint">
+    Being straight about the edges is part of being trustworthy. Even a perfectly verified
+    client does not protect you from:
+  </p>
+  <ul class="hint">
+    <li><strong>A compromised device.</strong> If the machine you type or read on is
+      compromised, the plaintext is on screen and no amount of encryption in transit helps.
+      This is true of every end-to-end encrypted tool, ours included.</li>
+    <li><strong>Metadata.</strong> That <em>a</em> secret existed, roughly how large it was, how
+      many files it carried, and when it was created and opened, is visible to our server. The
+      contents are not. Our <a href="/privacy">privacy notice</a> lists exactly what is
+      held.</li>
+    <li><strong>A hostile sender.</strong> privsend proves a file came from whoever held the
+      key. It does not vouch for what that file <em>is</em>. Treat a received file as you would
+      any file from that sender.</li>
+    <li><strong>The other end.</strong> You can verify your own client. You cannot verify the
+      person you send to, or what they do with the secret after they open it.</li>
+  </ul>
+
+  <h2>Found a problem?</h2>
+  <p class="hint">
+    Please email <strong>support@zumitomi.fi</strong> before posting publicly, so a flaw cannot
+    be exploited before it is fixed. We aim to fix reported issues within a few days and are
+    glad to credit you. If four days pass without a fix, you are free to disclose it publicly —
+    that commitment is in writing, in the repository, so it is not ours to quietly revise.
+  </p>
+
+  <p class="linkrow"><a href="/">＋ Send a secret</a></p>
+
+  <p class="hint small muted">
+    See also <a href="/how">How it works</a>, our <a href="/privacy">privacy notice</a> and
+    <a href="/terms">terms</a>.
+  </p>
+</main>
+
+<footer>
+  <p><a href="/">Home</a> · <a href="/how">How it works</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Source code</a></p>
+</footer>

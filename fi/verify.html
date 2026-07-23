@@ -1,0 +1,185 @@
+<html lang="fi">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>privsend — näin varmistat</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <p class="tagline">Näin varmistat, että tämä on turvallista</p>
+</header>
+
+<main>
+  <p class="small muted"><a href="/verify">In English</a></p>
+
+  <p class="hint">
+    Yksityisyyden suojaan tarkoitettu palvelu, jota et voi itse tarkastaa, on pelkkä lupaus.
+    Tällä sivulla kerromme, miten voit tarkastaa meidät sen sijaan, että uskoisit sanaamme —
+    ensin parin minuutin silmäyksellä ja lopulta niin, ettei sinun tarvitse luottaa
+    palvelimeemme lainkaan.
+  </p>
+  <p class="hint">
+    Jos haluat vain tietää, <em>mitä privsend tekee</em>, lue selkokielinen
+    <a href="/fi/how">Miten se toimii</a>. Tämä sivu käsittelee <strong>todistamista</strong>.
+  </p>
+
+  <h2>Mihin oikeastaan luotat</h2>
+  <p class="hint">
+    Kaikki salaus tapahtuu omassa selaimessasi. Siksi ainoa todella merkityksellinen kysymys
+    on: <strong>onko salauksen tekevä koodi sitä koodia, jonka olemme julkaisseet?</strong>
+    Vastauksia on kaksi erilaista, ja sanomme ne mieluummin suoraan kuin hämärrämme eron.
+  </p>
+  <ul class="hint">
+    <li><strong>Verkkosivustolla</strong> selaimesi lataa tuon koodin palvelimeltamme joka
+      käyntikerralla. Julkaisemme koodin, ja tiukka Content-Security-Policy estää kaikkia
+      ulkopuolisia — sisällönjakeluverkkoja, analytiikkaa, mitä tahansa muuta lähdettä —
+      lisäämästä tai korvaamasta sitä. Mutta palvelin, joka olisi murrettu tai johon
+      kohdistuisi viranomaispakko, voisi periaatteessa tarjoilla <em>yhdelle</em> valitulle
+      henkilölle muutetun version. Koodin julkaiseminen tekee sellaisesta
+      <strong>havaittavaa</strong>; se ei tee siitä <strong>mahdotonta</strong>.</li>
+    <li><strong>Selainlaajennuksen kanssa</strong> koodi on asennettuna laitteellesi ja
+      versioitu. Sitä <strong>ei koskaan haeta uudelleen</strong>. Palvelimemme lähettää
+      sinulle vain salattua tietoa — sillä ei ole mitään keinoa antaa sinulle toisenlaista
+      koodia, ei kohdennetusti eikä muutenkaan. Tämä sulkee aukon kokonaan.</li>
+  </ul>
+  <p class="hint">
+    Emme aio esittää, että ensimmäinen tapaus olisi yhtä vahva kuin toinen. Se ei ole. Juuri
+    siksi laajennus on olemassa.
+  </p>
+
+  <h2>1 · Lue koodi</h2>
+  <p class="hint">
+    Koko selainpuolen ohjelmakoodi on julkinen <strong>GNU AGPL-3.0</strong> -lisenssillä:
+    <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">github.com/hannu64/privsend-client</a>.
+  </p>
+  <ul class="hint">
+    <li><strong>Aloita tiedostosta <code>static/crypto.js</code>.</strong> Se on koko
+      turvallisuuden ydin. Jokainen avain luodaan siellä, jokainen tavu salataan ja puretaan
+      siellä, eikä mitään salaukseen liittyvää tapahdu missään muualla. Jos tarkastat yhden
+      tiedoston, tarkasta se.</li>
+    <li><strong>Käännösvaihetta ei ole.</strong> Mitään ei paketoida, pakata eikä muunneta,
+      joten koodivarastossa olevat tiedostot ovat täsmälleen ne tiedostot, joita selaimesi
+      suorittaa — sinun ei tarvitse toistaa mitään käännöstä voidaksesi vertailla. Tämä on
+      tietoinen suunnitteluratkaisu, ei puute.</li>
+    <li><strong>Ei ulkoisia kirjastoja.</strong> Salaus on selaimen oma WebCrypto:
+      AES-256-GCM, joka kerta uudella kertakäyttöisellä alkuarvolla, ja PBKDF2 600 000
+      kierroksella, jos lisäät salalauseen. Mitään ei ole tehty itse, eikä luotettavaksi jää
+      yhtään ulkopuolista kirjastoa.</li>
+  </ul>
+
+  <h2>2 · Tarkista koodi, jonka selaimesi suoritti</h2>
+  <p class="hint">
+    Verkkosivustolla voit verrata sitä, mitä sinulle todella tarjoiltiin, siihen mitä olemme
+    julkaisseet. Avaa selaimesi kehittäjätyökalut, katso sinulle toimitettu
+    <a href="/static/crypto.js" target="_blank" rel="noopener">/static/crypto.js</a> ja lue se
+    rinnakkain koodivaraston version kanssa. Niiden pitäisi vastata toisiaan merkilleen.
+  </p>
+  <p class="hint">
+    Ole kuitenkin selvillä rajoituksesta: tämä kertoo <em>tästä</em> käyntikerrasta
+    <em>tällä</em> laitteella. Se on pistokoe, ei takuu, eikä sen toistaminen ennen jokaista
+    salaisuutta ole kohtuullista vaatia keneltäkään. Mikä johtaa siihen kohtaan, joka
+    todella ratkaisee asian.
+  </p>
+
+  <h2>3 · Asenna laajennus — vahvin vaihtoehto</h2>
+  <p class="hint">
+    Laajennus <strong>on</strong> sama sovellus. Sama koodi, sama koodivarasto — mutta
+    asennettuna, joten salaus suoritetaan sinun kopiostasi eikä joka käyntikerralla erikseen
+    toimitetusta. Sekä lähettäminen että vastaanottaminen tapahtuvat paikallisesti: kun avaat
+    privsend-linkin laajennuksen ollessa asennettuna, salaus puretaan asennetussa kopiossasi
+    eikä sivulla, jonka palvelin antaa sinulle sillä hetkellä.
+  </p>
+  <p class="note ok">
+    <strong>Chrome, Edge, Opera, Brave, Vivaldi</strong> —
+    <a href="https://chromewebstore.google.com/detail/jbnbgboabjehjkjhloeeihjamibmjokd" target="_blank" rel="noopener">asenna Chrome Web Storesta</a>.
+    Firefox-versio on arvioitavana addons.mozilla.org-palvelussa, ja linkitämme sen tähän heti
+    kun se on julkaistu.
+  </p>
+  <p class="hint">
+    Tunnistat sen käytössä olevaksi: laajennuksen sivuilla näkyy vihreä
+    <strong>”Running locally”</strong> -palkki (”toimii paikallisesti”), ja alatunnisteessa
+    näkyy täsmälleen se versio, jonka olet asentanut. Verkkosivustolla tuo palkki ei näy
+    koskaan — siellä väite ei pitäisi paikkaansa, joten sen näyttävä koodi ei voi siellä edes
+    suorittua.
+  </p>
+  <p class="hint">
+    Laajennus on yhteydessä vain privsend.app-palveluun, sillä ei ole taustaprosessia, se ei
+    kerää mitään eikä se pääse lukemaan muita sivustoja, joilla käyt. Se on samat harvat
+    tiedostot, jotka juuri luit.
+  </p>
+
+  <h2>4 · Varmista itse laajennus</h2>
+  <p class="hint">
+    Kaupasta asentaminen tarkoittaa luottamista siihen, että kauppa toimittaa sen, minkä
+    lähetimme sinne. Jos et halua luottaa siihenkään, sinun ei tarvitse.
+  </p>
+  <p class="hint">
+    <strong>Vahvin vaihtoehto — ohita kauppa.</strong> Lataa koodivarasto ja ota se käyttöön
+    suoraan pakkaamattomana laajennuksena. Silloin suorittamasi koodi <em>on</em> lukemasi
+    koodi, ilman välissä olevaa paketointivaihetta eikä vertailtavaa jää.
+  </p>
+  <ul class="hint">
+    <li><strong>Chromium-selaimet:</strong> avaa laajennusten sivu, kytke päälle
+      <em>Kehittäjätila</em>, valitse <em>Lataa pakkaamaton</em> ja osoita kansio.</li>
+    <li><strong>Firefox:</strong> avaa <code>about:debugging</code> → <em>Tämä Firefox</em> →
+      <em>Lataa väliaikainen lisäosa</em> ja valitse kansion <code>manifest.json</code>.</li>
+  </ul>
+  <p class="hint">
+    <strong>Tai tarkista, mitä kauppa antoi sinulle.</strong> Jokainen julkaistu versio on
+    merkitty koodivarastoon versiotunnisteella, joten vertailukohta on täsmällinen — minkä
+    tahansa laajennussivun alatunnisteen versioleima kertoo, mikä versio sinulla on. Chrome
+    säilyttää asennetut laajennukset tavallisina tiedostoina levyllä, kansiossa joka on
+    nimetty laajennuksen tunnisteen (<code>jbnbgboabjehjkjhloeeihjamibmjokd</code>) ja sitten
+    version mukaan; sijainti vaihtelee käyttöjärjestelmittäin, tyypillisesti Chrome-profiilisi
+    hakemiston alla. Vertaa tuota kansiota vastaavaan versiotunnisteeseen. Yksi rehellinen
+    varaus: Chrome lisää oman <code>_metadata</code>-kansionsa eheystarkistuksia varten, joten
+    odota sitä ylimääräisenä — kaiken muun pitäisi täsmätä.
+  </p>
+
+  <h2>Mitä varmistaminen ei kerro</h2>
+  <p class="hint">
+    Rehellisyys reunatapauksista kuuluu luotettavuuteen. Täydellisestikään varmistettu sovellus
+    ei suojaa sinua seuraavilta:
+  </p>
+  <ul class="hint">
+    <li><strong>Murrettu laite.</strong> Jos kone, jolla kirjoitat tai luet, on murrettu, teksti
+      on selväkielisenä ruudulla eikä siirron aikainen salaus auta mitään. Tämä pätee jokaiseen
+      päästä päähän salaavaan palveluun, myös meihin.</li>
+    <li><strong>Metatiedot.</strong> Palvelimemme näkee, että <em>jokin</em> salaisuus on ollut
+      olemassa, suunnilleen kuinka suuri se oli, kuinka monta tiedostoa siihen kuului ja milloin
+      se luotiin ja avattiin. Sisältöä se ei näe. <a href="/fi/privacy">Tietosuojaselosteemme</a>
+      luettelee täsmälleen, mitä säilytetään.</li>
+    <li><strong>Vihamielinen lähettäjä.</strong> privsend todistaa, että tiedosto tuli siltä,
+      jolla oli avain. Se ei takaa, <em>mikä</em> tuo tiedosto on. Suhtaudu saamaasi tiedostoon
+      kuten mihin tahansa kyseiseltä lähettäjältä tulleeseen tiedostoon.</li>
+    <li><strong>Toinen pää.</strong> Voit varmistaa oman sovelluksesi. Et voi varmistaa
+      henkilöä, jolle lähetät, etkä sitä, mitä hän tekee salaisuudella avattuaan sen.</li>
+  </ul>
+
+  <h2>Löysitkö ongelman?</h2>
+  <p class="hint">
+    Lähetä sähköpostia osoitteeseen <strong>support@zumitomi.fi</strong> ennen julkista
+    kertomista, jottei puutetta ehditä käyttää hyväksi ennen kuin se on korjattu. Pyrimme
+    korjaamaan ilmoitetut ongelmat muutamassa päivässä ja mainitsemme mielellämme löytäjän.
+    Jos neljä päivää kuluu ilman korjausta, saat kertoa asiasta vapaasti julkisesti — tämä
+    sitoumus on kirjattuna koodivarastoon, joten emme voi hiljaisesti muuttaa sitä.
+  </p>
+
+  <p class="linkrow"><a href="/">＋ Lähetä salaisuus</a></p>
+
+  <p class="hint small muted">
+    Katso myös <a href="/fi/how">Miten se toimii</a>,
+    <a href="/fi/privacy">tietosuojaselosteemme</a> ja <a href="/fi/terms">käyttöehtomme</a>.
+  </p>
+</main>
+
+<footer>
+  <p><a href="/">Etusivu</a> · <a href="/fi/how">Miten se toimii</a> · <a href="/fi/terms">Käyttöehdot</a> · <a href="/fi/privacy">Tietosuoja</a> · <a href="/report">Ilmoita linkistä</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Lähdekoodi</a> · <a href="/verify">In English</a></p>
+</footer>

@@ -94,9 +94,20 @@ To load it unpacked and review it for yourself:
 - **Firefox**: open `about:debugging` → *This Firefox* → *Load Temporary Add-on*, and
   select this folder's `manifest.json`.
 
-The toolbar button opens the compose page in a full tab. (Store-published builds, and
-a fuller walkthrough of how to verify that a copy you were given is genuine, are on
-the way.)
+The toolbar button opens the compose page in a full tab.
+
+**Published builds.** The extension is on the
+[Chrome Web Store](https://chromewebstore.google.com/detail/jbnbgboabjehjkjhloeeihjamibmjokd)
+— which covers Chrome, Edge, Opera, Brave and Vivaldi — and a Firefox build is under
+review at addons.mozilla.org. Every published version is **tagged in this repository**,
+so the bytes that went to a store have an exact anchor here to diff against, and the
+build stamp in the extension's own footer tells you which version you are running. If
+you would rather not trust a store at all, load this folder unpacked as above and the
+question does not arise.
+
+A fuller walkthrough — the levels of checking, what a store copy looks like next to a
+tag, and what verification honestly cannot tell you — is at
+[privsend.app/verify](https://privsend.app/verify).
 
 ## What this does *not* protect
 

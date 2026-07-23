@@ -27,7 +27,16 @@ if (IN_EXTENSION) {
     'The code on this page — including the encryption — is the copy installed in your ' +
     'browser, not downloaded from a server. Only encrypted data is ever sent to privsend.app.';
 
-  banner.append(head, body);
+  // A way out to the full explanation, for anyone who wants to know what "running
+  // locally" actually buys them and how to check it themselves. Deliberately the
+  // only link here. Note it is written as a site-absolute path: the rewrite loop
+  // below then points it at the live site in a new tab, exactly like every other
+  // informational link, so this needs no special handling.
+  const more = document.createElement('a');
+  more.setAttribute('href', '/verify');
+  more.textContent = 'How is this verified? →';
+
+  banner.append(head, body, more);
   document.body.insertBefore(banner, document.body.firstChild);
 
   // 2) Internal links can't use the website's server-side routing here. Send the
