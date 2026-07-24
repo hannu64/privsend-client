@@ -405,3 +405,43 @@ code {
   border-radius: 4px;
   overflow-wrap: anywhere;
 }
+
+/* ------------------------------------------------------ language variants
+ * The reveal and status pages carry BOTH languages on ONE URL, because the
+ * reader of those pages did not choose the URL -- the sender did -- and a
+ * /fi/s/{id} would announce the sender's language to anyone who saw the link.
+ *
+ * This rule only ever HIDES. It never sets `display` on the visible variant, so
+ * each element keeps whatever display its own classes and the browser give it --
+ * a <label> stays block, a <span> stays inline. Setting display here (even to
+ * `revert`) would quietly flatten those. <html lang> is written into the served
+ * file, so the correct half is right from the first paint, with no flash.
+ */
+html[lang="en"] .lang-fi,
+html[lang="fi"] .lang-en { display: none; }
+
+.langbar {
+  display: flex;
+  gap: .4rem;
+  justify-content: center;
+  margin-top: .6rem;
+}
+.langbar button {
+  width: auto;
+  margin: 0;
+  padding: .2rem .6rem;
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.langbar button:hover { color: var(--text); border-color: rgba(255,255,255,.3); }
+.langbar button.active {
+  color: var(--text);
+  border-color: var(--accent);
+  background: rgba(248, 29, 69, .10);
+}

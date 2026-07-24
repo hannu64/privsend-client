@@ -1,3 +1,4 @@
+<html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- A share URL must NEVER be indexed. The decryption key is safe (it lives in the
@@ -20,6 +21,19 @@
 
 <header>
   <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <!--
+    BOTH LANGUAGES, ONE URL.
+
+    The recipient did not choose this page's address -- the sender did -- and the
+    two of them need not share a language. A /fi/s/{id} would also announce to
+    anyone who saw the link that the sender was Finnish, which is exactly the sort
+    of metadata this service exists not to leak. So the page carries both and lets
+    the reader pick. Nothing about that choice is stored or sent anywhere.
+  -->
+  <div class="langbar">
+    <button type="button" id="lang-en">English</button>
+    <button type="button" id="lang-fi">Suomeksi</button>
+  </div>
 </header>
 
 <main>
@@ -35,68 +49,110 @@
   -->
   <section id="gate" class="big-state">
     <div class="icon">🔒</div>
-    <h2>A secret is waiting for you</h2>
-    <p class="hint">
+    <h2 class="lang-en">A secret is waiting for you</h2>
+    <h2 class="lang-fi">Sinulle on salaisuus</h2>
+    <p class="hint lang-en">
       It can be read <strong>once</strong>. The moment you reveal it, it is destroyed on the server forever.
       Make sure you can save it now.
     </p>
+    <p class="hint lang-fi">
+      Sen voi lukea <strong>kerran</strong>. Sillä hetkellä kun paljastat sen, se tuhotaan palvelimelta
+      lopullisesti. Varmista, että pystyt tallentamaan sen nyt.
+    </p>
     <p id="sizeHint" class="note hidden"></p>
     <button id="reveal">Reveal secret</button>
-    <p class="small muted mt-md">
+    <p class="small muted mt-md lang-en">
       Nothing has been opened yet — this page has not touched the secret.
     </p>
-    <p class="small muted"><a href="/how" target="_blank" rel="noopener">What is privsend? Is this safe? →</a></p>
+    <p class="small muted mt-md lang-fi">
+      Mitään ei ole vielä avattu — tämä sivu ei ole koskenut salaisuuteen.
+    </p>
+    <p class="small muted lang-en"><a href="/how" target="_blank" rel="noopener">What is privsend? Is this safe? →</a></p>
+    <p class="small muted lang-fi"><a href="/fi/how" target="_blank" rel="noopener">Mikä privsend on? Onko tämä turvallista? →</a></p>
   </section>
 
   <section id="passSection" class="hidden">
-    <h2>Passphrase required</h2>
-    <p class="hint">The sender protected this secret with a passphrase, sent to you separately.</p>
+    <h2 class="lang-en">Passphrase required</h2>
+    <h2 class="lang-fi">Salalause vaaditaan</h2>
+    <p class="hint lang-en">The sender protected this secret with a passphrase, sent to you separately.</p>
+    <p class="hint lang-fi">Lähettäjä suojasi tämän salaisuuden salalauseella, joka on lähetetty sinulle erikseen.</p>
     <input type="password" id="passphrase" placeholder="Passphrase" autocomplete="off">
     <button id="unlock">Unlock</button>
     <p id="passErr" class="note danger hidden"></p>
   </section>
 
   <section id="out" class="hidden">
-    <h2>The secret</h2>
+    <h2 class="lang-en">The secret</h2>
+    <h2 class="lang-fi">Salaisuus</h2>
     <div id="msgWrap">
       <div class="secret-out" id="plaintext"></div>
       <button id="copy" class="secondary">Copy to clipboard</button>
     </div>
 
     <div id="filesWrap" class="hidden">
-      <label>Files</label>
+      <label class="lang-en">Files</label>
+      <label class="lang-fi">Tiedostot</label>
       <ul id="dlList" class="filelist"></ul>
       <div class="note danger" id="filesPending">
-        <strong>Keep this page open until every file is saved.</strong>
-        This tab holds the only key to them — the server destroyed its copy the instant you
-        revealed the secret. If a download fails, just press <strong>Download</strong> again
-        right here. Reloading this page, or opening the link again in another tab, will say
-        “no longer available” and the files will be lost for good.
-        <br><br>
-        You do not need to do anything else: each file is destroyed automatically the moment
-        your browser confirms it arrived intact.
+        <span class="lang-en">
+          <strong>Keep this page open until every file is saved.</strong>
+          This tab holds the only key to them — the server destroyed its copy the instant you
+          revealed the secret. If a download fails, just press <strong>Download</strong> again
+          right here. Reloading this page, or opening the link again in another tab, will say
+          “no longer available” and the files will be lost for good.
+          <br><br>
+          You do not need to do anything else: each file is destroyed automatically the moment
+          your browser confirms it arrived intact.
+        </span>
+        <span class="lang-fi">
+          <strong>Pidä tämä sivu auki, kunnes jokainen tiedosto on tallennettu.</strong>
+          Tällä välilehdellä on niiden ainoa avain — palvelin tuhosi oman kopionsa sillä hetkellä,
+          kun paljastit salaisuuden. Jos lataus epäonnistuu, paina vain <strong>Lataa</strong>
+          uudelleen tässä samassa näkymässä. Sivun lataaminen uudelleen tai linkin avaaminen
+          toisessa välilehdessä vastaa ”ei enää saatavilla”, ja tiedostot menetetään lopullisesti.
+          <br><br>
+          Muuta sinun ei tarvitse tehdä: jokainen tiedosto tuhotaan automaattisesti sillä hetkellä,
+          kun selaimesi vahvistaa sen saapuneen ehjänä.
+        </span>
       </div>
       <button id="destroyNow" class="secondary">Destroy all files now</button>
-      <p id="filesDone" class="note hidden">All files have been destroyed on the server. ✓</p>
+      <p id="filesDone" class="note hidden">
+        <span class="lang-en">All files have been destroyed on the server. ✓</span>
+        <span class="lang-fi">Kaikki tiedostot on tuhottu palvelimelta. ✓</span>
+      </p>
     </div>
 
     <div class="note danger">
-      This secret has now been <strong>destroyed on the server</strong>. Closing or reloading this page
-      will lose it forever. Save it somewhere safe before you leave.
+      <span class="lang-en">
+        This secret has now been <strong>destroyed on the server</strong>. Closing or reloading this page
+        will lose it forever. Save it somewhere safe before you leave.
+      </span>
+      <span class="lang-fi">
+        Tämä salaisuus on nyt <strong>tuhottu palvelimelta</strong>. Sivun sulkeminen tai uudelleen
+        lataaminen menettää sen lopullisesti. Tallenna se turvalliseen paikkaan ennen kuin poistut.
+      </span>
     </div>
-  <p class="linkrow"><a href="/">＋ Send a secret of your own</a></p>
+  <p class="linkrow lang-en"><a href="/">＋ Send a secret of your own</a></p>
+  <p class="linkrow lang-fi"><a href="/fi">＋ Lähetä oma salaisuutesi</a></p>
   </section>
 
   <section id="gone" class="hidden big-state">
     <div class="icon">💨</div>
-    <h2>This secret is no longer available</h2>
+    <h2 class="lang-en">This secret is no longer available</h2>
+    <h2 class="lang-fi">Tämä salaisuus ei ole enää saatavilla</h2>
     <p class="hint" id="goneMsg"></p>
+    <!-- A song lyric is left in the language it was sung in. -->
     <p id="lockoutQuote" class="small muted hidden">♪ “Keep a-knockin’, but you can’t come in” — Little Richard, 1957</p>
-    <p class="small muted">
+    <p class="small muted lang-en">
       Secrets are destroyed the first time they are read, and expire on their own.
       Ask the sender to create a new one.
     </p>
-  <p class="linkrow"><a href="/">＋ Send a secret of your own</a></p>
+    <p class="small muted lang-fi">
+      Salaisuudet tuhotaan heti ensimmäisellä lukukerralla, ja ne vanhenevat itsestään.
+      Pyydä lähettäjää luomaan uusi.
+    </p>
+  <p class="linkrow lang-en"><a href="/">＋ Send a secret of your own</a></p>
+  <p class="linkrow lang-fi"><a href="/fi">＋ Lähetä oma salaisuutesi</a></p>
   </section>
 
   <section id="busy" class="hidden big-state">
@@ -106,7 +162,8 @@
 </main>
 
 <footer>
-  <p><a href="/">Home</a> · <a href="/how">How it works</a> · <a href="/verify">How to verify</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Source code</a></p>
+  <p class="lang-en"><a href="/">Home</a> · <a href="/how">How it works</a> · <a href="/verify">How to verify</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Source code</a></p>
+  <p class="lang-fi"><a href="/fi">Etusivu</a> · <a href="/fi/how">Miten se toimii</a> · <a href="/fi/verify">Näin varmistat</a> · <a href="/fi/terms">Käyttöehdot</a> · <a href="/fi/privacy">Tietosuoja</a> · <a href="/report">Ilmoita linkistä</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Lähdekoodi</a></p>
 </footer>
 
 <script type="module" src="/static/reveal.js"></script>

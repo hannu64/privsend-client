@@ -1,3 +1,4 @@
+<html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- The receipt URL must NEVER be indexed either: /status/{id} in a search result
@@ -17,7 +18,14 @@
 
 <header>
   <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
-  <p class="tagline">Your private receipt</p>
+  <p class="tagline lang-en">Your private receipt</p>
+  <p class="tagline lang-fi">Yksityinen kuittisi</p>
+  <!-- Both languages on one URL, for the same reason as the reveal page: this
+       address was generated, not chosen, and it must not encode a language. -->
+  <div class="langbar">
+    <button type="button" id="lang-en">English</button>
+    <button type="button" id="lang-fi">Suomeksi</button>
+  </div>
 </header>
 
 <main>
@@ -29,21 +37,36 @@
   <button id="refresh" class="secondary">Check again</button>
 
   <div class="note">
-    Checking this page does <strong>not</strong> open or consume the secret, and this link
-    can never reveal its content.
+    <span class="lang-en">
+      Checking this page does <strong>not</strong> open or consume the secret, and this link
+      can never reveal its content.
+    </span>
+    <span class="lang-fi">
+      Tämän sivun tarkistaminen <strong>ei</strong> avaa eikä kuluta salaisuutta, eikä tämä linkki
+      voi koskaan paljastaa sen sisältöä.
+    </span>
   </div>
 
   <div class="note" id="retention">
-    This receipt stays available for <strong>7 days</strong> after the secret is opened or expires.
-    After that it is deleted permanently, and this link will stop working — we keep no record
-    of secrets once they are done.
+    <span class="lang-en">
+      This receipt stays available for <strong>7 days</strong> after the secret is opened or expires.
+      After that it is deleted permanently, and this link will stop working — we keep no record
+      of secrets once they are done.
+    </span>
+    <span class="lang-fi">
+      Tämä kuitti on saatavilla <strong>7 vuorokautta</strong> sen jälkeen, kun salaisuus avataan tai
+      vanhenee. Sen jälkeen se poistetaan pysyvästi ja tämä linkki lakkaa toimimasta — emme säilytä
+      salaisuuksista mitään tietoa sen jälkeen, kun ne ovat ohi.
+    </span>
   </div>
 
-  <p class="linkrow"><a href="/">＋ Send a secret</a></p>
+  <p class="linkrow lang-en"><a href="/">＋ Send a secret</a></p>
+  <p class="linkrow lang-fi"><a href="/fi">＋ Lähetä salaisuus</a></p>
 </main>
 
 <footer>
-  <p><a href="/">Home</a> · <a href="/how">How it works</a> · <a href="/verify">How to verify</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Source code</a></p>
+  <p class="lang-en"><a href="/">Home</a> · <a href="/how">How it works</a> · <a href="/verify">How to verify</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Source code</a></p>
+  <p class="lang-fi"><a href="/fi">Etusivu</a> · <a href="/fi/how">Miten se toimii</a> · <a href="/fi/verify">Näin varmistat</a> · <a href="/fi/terms">Käyttöehdot</a> · <a href="/fi/privacy">Tietosuoja</a> · <a href="/report">Ilmoita linkistä</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Lähdekoodi</a></p>
 </footer>
 
 <script type="module" src="/static/status.js"></script>

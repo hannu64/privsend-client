@@ -4,6 +4,7 @@
 import { openSecret, decryptBytes } from './crypto.js';
 import { attachReveal, fmtBytes, setBusy } from './ui.js';
 import { api, secretId } from './config.js';
+import { t, initLangToggle, onLangChange } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 const show = (id) => $(id).classList.remove('hidden');
@@ -33,21 +34,51 @@ let payload = null;
 // weak connection, can move to another device now; once revealed, this link is
 // spent. Old/text-only links omit it, and then we simply show no size.
 const declaredSize = Number(location.hash.slice(1).split('.')[2]);
-if (Number.isFinite(declaredSize) && declaredSize > 0) {
-  $('sizeHint').textContent =
-    `📦 About ${fmtBytes(declaredSize)} will be downloaded. Make sure this device has room and a ` +
-    `steady connection before you reveal it — the secret can only be opened once.`;
-  show('sizeHint');
+const hasDeclaredSize = Number.isFinite(declaredSize) && declaredSize > 0;
+
+/* ---------------------------------------------------------------- language
+ * The fixed prose of this page exists twice in the HTML and the stylesheet
+ * shows the right half, so it costs nothing to switch. What the CSS cannot
+ * touch is text this script GENERATED and is still showing -- the size hint,
+ * a "no longer available" line, a wrong-passphrase counter. Each state that
+ * writes such a line registers HOW to write it again, and a language change
+ * simply re-runs that.
+ */
+let regenerate = () => {};
+function generated(write) {
+  regenerate = write;
+  write();
 }
 
-function busy(msg) {
-  $('busyMsg').textContent = msg;
+// Labels that live on controls rather than in prose.
+function relabel() {
+  document.title = t.reveal.pageTitle;
+  $('reveal').textContent = t.reveal.revealBtn;
+  $('unlock').textContent = t.reveal.unlockBtn;
+  $('passphrase').placeholder = t.reveal.passPlaceholder;
+  $('copy').textContent = t.reveal.copyOut;
+  $('destroyNow').textContent = t.reveal.destroyAll;
+  if (hasDeclaredSize) $('sizeHint').textContent = t.reveal.sizeHint(fmtBytes(declaredSize));
+}
+
+onLangChange(() => { relabel(); regenerate(); });
+// autodetect: the recipient never chose this URL, so their own browser locale is
+// the only hint we have about what they read. Read, never stored, never sent.
+initLangToggle({ autodetect: true });
+relabel();
+
+// The sender put the download size in the fragment, so this is known before the
+// secret is touched -- and the server still never learns it.
+if (hasDeclaredSize) show('sizeHint');
+
+function busy(write) {
+  generated(() => { $('busyMsg').textContent = write(); });
   hide('gate'); hide('passSection'); hide('out'); hide('gone');
   show('busy');
 }
 
-function gone(msg) {
-  $('goneMsg').textContent = msg;
+function gone(write) {
+  generated(() => { $('goneMsg').textContent = write(); });
   hide('gate'); hide('passSection'); hide('out'); hide('busy');
   show('gone');
 }
@@ -106,7 +137,7 @@ function renderFiles(files) {
 
     const btn = document.createElement('button');
     btn.className = 'secondary compact';
-    btn.textContent = 'Download';
+    btn.textContent = t.reveal.download;
     btn.addEventListener('click', () => downloadFile(f, btn, li));
 
     li.append(name, size, btn);
@@ -117,16 +148,16 @@ function renderFiles(files) {
 async function downloadFile(file, btn, li) {
   btn.disabled = true;
   const label = btn.textContent;
-  btn.textContent = 'Downloading…';
+  btn.textContent = t.reveal.downloading;
 
   try {
     const res = await fetch(api(`/api/blob/${encodeURIComponent(file.ref)}`));
     if (!res.ok) {
-      throw new Error('This file is no longer available on the server.');
+      throw new Error(t.reveal.fileGone);
     }
     const ciphertext = new Uint8Array(await res.arrayBuffer());
 
-    btn.textContent = 'Decrypting…';
+    btn.textContent = t.reveal.decrypting;
     // THE MOMENT THAT MATTERS. If this returns, AES-GCM has verified the
     // authentication tag -- which means every byte arrived, unaltered. A download
     // that dropped at 90% fails here instead of quietly producing a broken file,
@@ -140,7 +171,7 @@ async function downloadFile(file, btn, li) {
     // memory now, so the server copy has no further purpose.
     await burn(file.ref);
 
-    btn.textContent = 'Saved ✓';
+    btn.textContent = t.reveal.saved;
     li.classList.add('done');
   } catch (e) {
     // Destroy NOTHING on failure -- this is precisely what the grace window is
@@ -158,10 +189,7 @@ async function downloadFile(file, btn, li) {
     // available" -- correctly, because the secret really was one-time. Their
     // instinct on a failed download is to reload, and that instinct destroys the
     // file. Say so before they act on it.
-    msg.textContent = friendlyError(e) +
-      ' Nothing was destroyed — press Download again. ' +
-      'Do NOT reload or leave this page: it holds the only key to these files, ' +
-      'and re-opening the link in a new tab will not work.';
+    msg.textContent = friendlyError(e) + t.reveal.dlRetry;
     li.append(msg);
   }
 }
@@ -172,15 +200,15 @@ async function downloadFile(file, btn, li) {
 function friendlyError(e) {
   const raw = e?.message || '';
   if (/fetch|network|load failed/i.test(raw)) {
-    return 'The connection dropped during the download.';
+    return t.reveal.errConnection;
   }
   if (/no longer available/i.test(raw)) return raw;
   if (/decrypt|tag|operation/i.test(raw)) {
     // A GCM failure here almost always means a truncated transfer, not a broken
     // file: the tag catches a download that ended early.
-    return 'The file did not arrive intact — the download was cut short.';
+    return t.reveal.errTruncated;
   }
-  return raw || 'The download failed.';
+  return raw || t.reveal.errGeneric;
 }
 
 function save(name, bytes) {
@@ -219,10 +247,10 @@ async function burn(ref) {
 $('destroyNow').addEventListener('click', async () => {
   const btn = $('destroyNow');
   btn.disabled = true;
-  setBusy(btn, 'Destroying…');
+  setBusy(btn, t.reveal.destroying);
   for (const ref of Array.from(pending)) await burn(ref);
   btn.disabled = false;
-  btn.textContent = 'Destroy all files now';
+  btn.textContent = t.reveal.destroyAll;
 });
 
 /*
@@ -236,24 +264,31 @@ $('reveal').addEventListener('click', async () => {
   // mangled -- truncated by a chat app, or copied without the fragment), then
   // fetching would destroy a secret we could never decrypt. Refuse instead.
   if (!fragment) {
-    gone('This link is missing its decryption key — the part after the “#”. ' +
-         'Nothing was opened. Ask the sender to re-send the complete link.');
+    gone(() => t.reveal.missingKey);
     return;
   }
 
-  busy('Retrieving and destroying…');
+  busy(() => t.reveal.retrieving);
 
   let res;
   try {
     res = await fetch(api(`/api/secret/${encodeURIComponent(id)}`));
   } catch {
-    gone('Could not reach the server. Nothing was opened; try again.');
+    gone(() => t.reveal.unreachable);
     return;
   }
 
   if (!res.ok) {
     const j = await res.json().catch(() => ({}));
-    gone(j.error || 'This secret is no longer available.');
+    // 410 Gone is the ordinary ending -- already opened, or expired -- and it is
+    // by far the most common thing this page ever says. The server's own wording
+    // is English only, so answer that case from our own table and keep the
+    // server's text for the genuinely unexpected ones.
+    if (res.status === 410) {
+      gone(() => t.reveal.gone410);
+    } else {
+      gone(() => j.error || t.reveal.unavailable);
+    }
     return;
   }
 
@@ -279,7 +314,7 @@ async function decryptAndShow(passphrase) {
   if (payload.has_passphrase && !passphrase) return;
 
   hide('passErr');
-  busy('Decrypting…');
+  busy(() => t.reveal.decrypting);
   // Yield a frame so the spinner actually paints before PBKDF2 (600k iterations)
   // occupies the main thread.
   await new Promise((r) => setTimeout(r, 30));
@@ -312,18 +347,14 @@ async function decryptAndShow(passphrase) {
       payload = null;
       aesKey = null;
       show('lockoutQuote'); // the wink -- secondary to the help above it
-      gone('Ten wrong passphrases — this secret has been cleared from this page. It was ' +
-           'already destroyed on the server when it was opened, so it cannot be retrieved. ' +
-           'Ask the sender to create a new one.');
+      gone(() => t.reveal.lockout);
       return;
     }
 
     // The secret is already burned server-side, so we do NOT send them away: the
     // payload is still here in memory and a retry costs nothing.
     show('passSection');
-    $('passErr').textContent =
-      `Wrong passphrase. You can keep trying — this secret is only in this tab now, so ` +
-      `don't reload. ${left} ${left === 1 ? 'try' : 'tries'} left.`;
+    generated(() => { $('passErr').textContent = t.reveal.wrongPass(left); });
     $('passErr').classList.remove('hidden');
     // #5: CLEAR the field rather than selecting it. Relying on select() to make
     // the next keystroke overwrite the old value did not hold in practice -- the
@@ -344,10 +375,10 @@ $('copy').addEventListener('click', async () => {
   try {
     await navigator.clipboard.writeText($('plaintext').textContent);
     copied = true;
-    b.textContent = 'Copied ✓';
-    setTimeout(() => (b.textContent = 'Copy to clipboard'), 1600);
+    b.textContent = t.copied;
+    setTimeout(() => (b.textContent = t.reveal.copyOut), 1600);
   } catch {
-    b.textContent = 'Press Ctrl/Cmd-C to copy';
+    b.textContent = t.copyManually;
   }
 });
 
