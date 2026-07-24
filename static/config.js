@@ -28,7 +28,16 @@ export const SITE_ORIGIN = IN_EXTENSION ? 'https://privsend.app' : location.orig
 // Where a "home" / brand link should point. On the website the server routes "/"
 // to index.html; in the extension there is no server routing, so a bare "/" would
 // hit the extension root and 404 -- link straight to the file instead.
-export const homeHref = IN_EXTENSION ? '/index.html' : '/';
+//
+// It is also language-aware: the compose page has a Finnish twin at /fi, and
+// "Create another" on the Finnish page must come back to the Finnish page rather
+// than dump a Finnish speaker into English mid-task. Routing is this module's
+// job, so the language check lives here rather than being threaded through the
+// callers.
+const FI_PAGE = document.documentElement.lang === 'fi';
+export const homeHref = IN_EXTENSION
+  ? (FI_PAGE ? '/fi/index.html' : '/index.html')
+  : (FI_PAGE ? '/fi' : '/');
 
 // Turn a server-relative API path ('/api/secret') into the URL to fetch. On the
 // web it is the identity function -- it returns the path untouched, so the fetch

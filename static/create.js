@@ -4,6 +4,7 @@
 import { newSecretKey, encryptBytes, sealManifest } from './crypto.js';
 import { attachReveal, fmtBytes, setBusy } from './ui.js';
 import { SITE_ORIGIN, api, homeHref } from './config.js';
+import { t } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -49,7 +50,7 @@ attachReveal($('passphrase2'));
  * character is accepted; there is no restricted character set.
  */
 const encoder = new TextEncoder();
-$('cap').textContent = `limit ${fmtBytes(MAX_PLAINTEXT)}`;
+$('cap').textContent = t.cap(fmtBytes(MAX_PLAINTEXT));
 
 function used() {
   return encoder.encode(secret.value).length;
@@ -140,16 +141,14 @@ function filesTotal() {
 // symptom; this says what it means and what to do about it.
 function fileProblem() {
   if (picked.length > MAX_FILES) {
-    return `Too many files — ${picked.length} chosen, the limit is ${MAX_FILES}.`;
+    return t.tooManyFiles(picked.length, MAX_FILES);
   }
   const big = picked.find((f) => f.size > MAX_FILE);
   if (big) {
-    return `File too large — “${big.name}” is ${fmtBytes(big.size)}, and the limit is ` +
-           `${fmtBytes(MAX_FILE)} for one file. Remove it, or send it another way.`;
+    return t.fileTooBig(big.name, fmtBytes(big.size), fmtBytes(MAX_FILE));
   }
   if (filesTotal() > MAX_FILES_TOTAL) {
-    return `Files too large — ${fmtBytes(filesTotal())} in total, and the limit is ` +
-           `${fmtBytes(MAX_FILES_TOTAL)} for one secret. Remove one, or send them separately.`;
+    return t.filesTooBig(fmtBytes(filesTotal()), fmtBytes(MAX_FILES_TOTAL));
   }
   return '';
 }
@@ -172,7 +171,7 @@ function renderFiles() {
 
     const rm = document.createElement('button');
     rm.className = 'secondary compact';
-    rm.textContent = 'Remove';
+    rm.textContent = t.remove;
     rm.addEventListener('click', () => {
       picked = picked.filter((p) => p !== f);
       renderFiles();
@@ -201,7 +200,7 @@ function fail(msg) {
   err.textContent = msg;
   err.classList.remove('hidden');
   btn.disabled = false;
-  btn.textContent = 'Create secret link';
+  btn.textContent = t.create;
 }
 
 btn.addEventListener('click', async () => {
@@ -212,27 +211,27 @@ btn.addEventListener('click', async () => {
   // A secret may now be files with no covering message, so an empty box is only
   // an error when there is nothing else to send.
   if (!plaintext.trim() && picked.length === 0) {
-    return fail('Please enter a secret or attach a file first.');
+    return fail(t.needSomething);
   }
   if (used() > MAX_PLAINTEXT) {
-    return fail(`That secret is ${fmtBytes(used())}, over the ${fmtBytes(MAX_PLAINTEXT)} limit.`);
+    return fail(t.secretTooBig(fmtBytes(used()), fmtBytes(MAX_PLAINTEXT)));
   }
   if (picked.length > MAX_FILES) {
-    return fail(`That is ${picked.length} files; the limit is ${MAX_FILES}.`);
+    return fail(t.countTooMany(picked.length, MAX_FILES));
   }
   const over = picked.find((f) => f.size > MAX_FILE);
   if (over) {
-    return fail(`“${over.name}” is ${fmtBytes(over.size)}, over the ${fmtBytes(MAX_FILE)} limit for one file.`);
+    return fail(t.oneTooBig(over.name, fmtBytes(over.size), fmtBytes(MAX_FILE)));
   }
   if (filesTotal() > MAX_FILES_TOTAL) {
-    return fail(`Those files total ${fmtBytes(filesTotal())}, over the ${fmtBytes(MAX_FILES_TOTAL)} limit.`);
+    return fail(t.totalTooBig(fmtBytes(filesTotal()), fmtBytes(MAX_FILES_TOTAL)));
   }
 
   const usePass = $('usePass').checked;
   const passphrase = usePass ? $('passphrase').value : '';
 
   if (usePass) {
-    if (!passphrase) return fail('Please enter a passphrase, or uncheck the box.');
+    if (!passphrase) return fail(t.needPassphrase);
     // #1: a mistyped passphrase makes the secret PERMANENTLY undecryptable, by
     // anyone. Confirming it is the only defence -- so we refuse to proceed on a
     // mismatch rather than merely warning.
@@ -244,7 +243,7 @@ btn.addEventListener('click', async () => {
   }
 
   btn.disabled = true;
-  setBusy(btn, 'Encrypting…');
+  setBusy(btn, t.encrypting);
 
   try {
     // ONE key for the whole secret: the manifest and every file are encrypted
@@ -265,16 +264,16 @@ btn.addEventListener('click', async () => {
     let downloadBytes = 0;
     for (const [i, file] of picked.entries()) {
       setBusy(btn, picked.length > 1
-        ? `Encrypting file ${i + 1} of ${picked.length}…`
-        : 'Encrypting file…');
+        ? t.encryptingFileN(i + 1, picked.length)
+        : t.encryptingFile);
 
       const bytes = new Uint8Array(await file.arrayBuffer());
       const { nonce, ciphertext } = await encryptBytes(aesKey, bytes);
       downloadBytes += ciphertext.length;
 
       setBusy(btn, picked.length > 1
-        ? `Uploading file ${i + 1} of ${picked.length}…`
-        : 'Uploading file…');
+        ? t.uploadingFileN(i + 1, picked.length)
+        : t.uploadingFile);
       const ref = await uploadBlob(ciphertext);
 
       // The name and type are recorded ONLY here, inside what will become the
@@ -284,7 +283,7 @@ btn.addEventListener('click', async () => {
       manifestFiles.push({ name: file.name, size: file.size, type: file.type, ref, nonce });
     }
 
-    setBusy(btn, 'Encrypting…');
+    setBusy(btn, t.encrypting);
     const body = await sealManifest(aesKey, salt, passphrase, plaintext, manifestFiles);
 
     const res = await fetch(api('/api/secret'), {
@@ -298,7 +297,7 @@ btn.addEventListener('click', async () => {
     });
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
-      return fail(j.error || 'Could not create the secret. Please try again.');
+      return fail(j.error || t.createFailed);
     }
     const { id, status_id } = await res.json();
 
@@ -315,8 +314,8 @@ btn.addEventListener('click', async () => {
 
     $('shareLink').textContent = share;
     $('statusLink').textContent = status;
-    wireCopy('copyShare', share, 'Copy share link', markCopied);
-    wireCopy('copyStatus', status, 'Copy status link');
+    wireCopy('copyShare', share, t.copyShare, markCopied);
+    wireCopy('copyStatus', status, t.copyStatus);
 
     // The share link exists ONLY here. The decryption key lives in the '#'
     // fragment, which the server has never seen and cannot reproduce -- so if the
@@ -348,7 +347,7 @@ btn.addEventListener('click', async () => {
     // of an immediate scroll.
     requestAnimationFrame(() => window.scrollTo(0, 0));
   } catch (e) {
-    fail(e.message || 'Encryption failed.');
+    fail(e.message || t.encryptFailed);
   }
 });
 
@@ -365,7 +364,7 @@ async function uploadBlob(ciphertext) {
   });
   if (!res.ok) {
     const j = await res.json().catch(() => ({}));
-    throw new Error(j.error || 'Could not upload the file. Please try again.');
+    throw new Error(j.error || t.uploadFailed);
   }
   const { ref } = await res.json();
   return ref;
@@ -376,11 +375,11 @@ function wireCopy(btnId, text, label, onCopied) {
   b.onclick = async () => {
     try {
       await navigator.clipboard.writeText(text);
-      b.textContent = 'Copied ✓';
+      b.textContent = t.copied;
       if (onCopied) onCopied();
       setTimeout(() => (b.textContent = label), 1600);
     } catch {
-      b.textContent = 'Press Ctrl/Cmd-C to copy';
+      b.textContent = t.copyManually;
     }
   };
 }
@@ -393,12 +392,7 @@ function markCopied() {
 
 function confirmLeave() {
   if (copied) return true;
-  return window.confirm(
-    'You have not copied the share link.\n\n' +
-    'The decryption key exists only on this page — it is not stored on our server. ' +
-    'If you leave now, this secret can never be read by anyone.\n\n' +
-    'Leave anyway?'
-  );
+  return window.confirm(t.leaveWarning);
 }
 
 $('again').addEventListener('click', () => {

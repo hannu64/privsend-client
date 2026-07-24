@@ -1,0 +1,112 @@
+<html lang="fi">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>privsend — lähetä salaisuus, joka tuhoaa itsensä</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/fi"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <p class="tagline">Salataan selaimessasi. Emme pysty lukemaan sitä.<br>Lähetät linkin itse. Luetaan kerran, sitten tuhotaan.</p>
+  <p class="small muted"><a href="/fi/how">Uusi täällä? Näin privsend toimii →</a> · <a href="/">In English</a></p>
+</header>
+
+<main>
+  <section id="compose">
+    <h2>Luo salaisuus</h2>
+    <p class="hint">Tekstisi salataan <strong>tällä laitteella</strong>. Meille päätyy vain salakirjoitus — emme pysty lukemaan sitä.</p>
+
+    <label for="secret">Salaisuus</label>
+    <textarea id="secret" placeholder="Liitä salasana, avain tai viesti…" autocomplete="off" spellcheck="false"></textarea>
+    <div class="counter" id="counter">
+      <span id="used">0 B</span>
+      <span id="cap"></span>
+    </div>
+
+    <label for="files">Tiedostot <span class="soft">(valinnainen)</span></label>
+    <div id="drop" class="dropzone">
+      <input type="file" id="files" multiple>
+      <p class="drop-hint">tai raahaa tiedostot tähän — voit lisätä niitä yksi kerrallaan</p>
+    </div>
+    <ul id="fileList" class="filelist hidden"></ul>
+    <p id="fileTotal" class="counter hidden"><span id="fileUsed"></span><span id="fileCap"></span></p>
+    <p id="fileErr" class="note danger hidden"></p>
+    <div id="fileNote" class="note hidden">
+      <strong>Tiedostot tuhotaan hieman eri tavalla kuin teksti.</strong>
+      Teksti tuhoutuu sillä hetkellä, kun se luetaan. Jos tuhoaisimme tiedoston heti
+      latauksen alkaessa, keskeytynyt lataus jättäisi vastaanottajan tyhjin käsin
+      eikä uutta yritystä olisi. Siksi tiedosto tuhotaan heti, kun vastaanottajan
+      selain vahvistaa purkaneensa sen onnistuneesti — yleensä sekunneissa — ja
+      joka tapauksessa viimeistään <strong>60 minuutin</strong> kuluttua siitä,
+      kun hän avaa linkin.
+    </div>
+
+    <label for="ttl">Tuhoutuu avaamattomana</label>
+    <select id="ttl">
+      <option value="1h">tunnin kuluttua</option>
+      <option value="24h" selected>vuorokauden kuluttua</option>
+      <option value="7d">7 vuorokauden kuluttua</option>
+    </select>
+
+    <div class="check">
+      <input type="checkbox" id="usePass">
+      <label for="usePass">Vaadi lisäksi salalause</label>
+    </div>
+    <div id="passWrap" class="hidden">
+      <input type="password" id="passphrase" placeholder="Salalause" autocomplete="new-password">
+      <input type="password" id="passphrase2" placeholder="Toista salalause" autocomplete="new-password" class="mt-sm">
+      <p id="passMatch" class="note danger hidden">Salalauseet eivät täsmää.</p>
+      <div class="note danger">
+        <strong>Kirjoita se huolellisesti.</strong> Jos kirjoitat salalauseen väärin, <strong>kukaan</strong>
+        ei voi enää koskaan purkaa tätä salaisuutta — ei vastaanottaja eikä me. Palautusta ei ole.
+      </div>
+      <div class="note">
+        Lähetä salalause <strong>eri reittiä</strong> kuin linkki
+        (esimerkiksi linkki sähköpostilla, salalause puhelimitse). Jos molemmat kulkevat yhdessä, se ei suojaa miltään.
+      </div>
+    </div>
+
+    <button id="create">Luo salaisuuslinkki</button>
+    <p id="err" class="note danger hidden"></p>
+  </section>
+
+  <section id="done" class="hidden">
+    <h2>Salaisuutesi on valmis</h2>
+
+    <label>Jakolinkki — lähetä tämä vastaanottajalle</label>
+    <div class="field share" id="shareLink"></div>
+    <button id="copyShare" class="tint-share">Kopioi jakolinkki</button>
+    <div class="note danger">
+      Tämän linkin voi avata <strong>kerran</strong>. Kun salaisuus on luettu, se tuhotaan pysyvästi
+      eikä sitä voi palauttaa — et sinä etkä me.
+    </div>
+
+    <label>Tilalinkki — säilytä tämä, se on yksityinen kuittisi</label>
+    <div class="field status" id="statusLink"></div>
+    <button id="copyStatus" class="tint-status">Kopioi tilalinkki</button>
+    <div class="note">
+      <strong>Älä jaa tätä linkkiä.</strong> Se kertoo vain, onko salaisuus luettu.
+      Se ei voi koskaan paljastaa sisältöä.
+    </div>
+
+    <p id="notCopied" class="note danger">
+      ⚠️ Et ole vielä kopioinut jakolinkkiä. Se on olemassa <strong>vain tällä sivulla</strong> —
+      avainta ei tallenneta palvelimellemme. Jos poistut kopioimatta sitä, tästä salaisuudesta
+      tulee pysyvästi lukukelvoton kenellekään.
+    </p>
+    <button id="again" class="quiet">Luo uusi</button>
+  </section>
+</main>
+
+<footer>
+  <p><a href="/fi">Etusivu</a> · <a href="/fi/how">Miten se toimii</a> · <a href="/fi/verify">Näin varmistat</a> · <a href="/fi/terms">Käyttöehdot</a> · <a href="/fi/privacy">Tietosuoja</a> · <a href="/report">Ilmoita linkistä</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Lähdekoodi</a> · <a href="/">In English</a></p>
+</footer>
+
+<script type="module" src="/static/create.js"></script>
+<script type="module" src="/static/ext.js"></script>
