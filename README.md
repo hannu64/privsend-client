@@ -98,8 +98,9 @@ The toolbar button opens the compose page in a full tab.
 
 **Published builds.** The extension is on the
 [Chrome Web Store](https://chromewebstore.google.com/detail/jbnbgboabjehjkjhloeeihjamibmjokd)
-— which covers Chrome, Edge, Opera, Brave and Vivaldi — and a Firefox build is under
-review at addons.mozilla.org. Every published version is **tagged in this repository**,
+— which covers Chrome, Edge, Opera, Brave and Vivaldi — and on
+[Firefox Add-ons](https://addons.mozilla.org/firefox/addon/privsend/). Every published
+version is **tagged in this repository**,
 so the bytes that went to a store have an exact anchor here to diff against, and the
 build stamp in the extension's own footer tells you which version you are running. If
 you would rather not trust a store at all, load this folder unpacked as above and the
