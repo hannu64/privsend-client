@@ -202,6 +202,14 @@ footer a { color: var(--muted); }
 }
 .pw-toggle:hover { background: transparent; opacity: 1; }
 
+/* The Drops passphrase is a text field masked by CSS, not a type=password field -- so
+   browser password managers do not offer to store it or autofill it (a stored passphrase
+   plus a glimpsed device would give up the whole inbox). It still shows dots and paste
+   still works. The reveal toggle adds .revealed to lift the mask. Supported across current
+   Chrome, Safari, Edge and Firefox via the -webkit- prefix. */
+input[data-reveal="css"] { -webkit-text-security: disc; text-security: disc; }
+input[data-reveal="css"].revealed { -webkit-text-security: none; text-security: none; }
+
 /* live size counter under the textarea */
 .counter {
   display: flex;

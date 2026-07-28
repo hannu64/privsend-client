@@ -27,10 +27,12 @@
       <a href="/drops/how">How it works →</a>
     </p>
 
-    <label for="passphrase">Passphrase <span class="soft">(protects your private key — choose a strong one and keep it safe)</span></label>
-    <input type="password" id="passphrase" placeholder="Choose a strong passphrase" autocomplete="new-password">
-    <input type="password" id="passphrase2" placeholder="Repeat passphrase" autocomplete="new-password" class="mt-sm">
+    <label for="passphrase">Passphrase <span class="soft">(the only key to your inbox — at least 12 characters, or four everyday words)</span></label>
+    <input type="text" id="passphrase" data-reveal="css" placeholder="e.g.  amber tractor velvet moon" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <input type="text" id="passphrase2" data-reveal="css" placeholder="Repeat passphrase" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" class="mt-sm">
+    <p id="passHint" class="note hidden"></p>
     <p id="passMatch" class="note danger hidden">The two passphrases do not match.</p>
+    <p class="note">Your browser will not offer to remember this — on purpose. It is the one key that isn’t already sitting on your device, so keep it in your head (or your own password notes).</p>
     <div class="note danger">
       <strong>There is no recovery.</strong> This passphrase is the only key to everything sent to
       your address. If you forget it, <strong>nobody</strong> — not the sender, not us — can ever

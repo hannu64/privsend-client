@@ -8,12 +8,24 @@
 
 import { generateRecipientKeypair, wrapPrivateKey, publicKeyFingerprint, b64Encode } from './crypto.js';
 import { attachReveal, setBusy } from './ui.js';
+import { passphraseProblem } from './passphrase.js';
 import { SITE_ORIGIN, api } from './config.js';
 
 const $ = (id) => document.getElementById(id);
 
 attachReveal($('passphrase'));
 attachReveal($('passphrase2'));
+
+// Live strength feedback while typing -- a gentle nudge, not a block; the hard block is at
+// submit. Empty clears it; otherwise show either the specific problem or a plain "strong".
+const passHint = $('passHint');
+$('passphrase').addEventListener('input', () => {
+  const v = $('passphrase').value;
+  if (!v) { passHint.textContent = ''; passHint.className = 'note hidden'; return; }
+  const problem = passphraseProblem(v);
+  passHint.textContent = problem || 'Looks good ✓';
+  passHint.className = problem ? 'note' : 'note ok';
+});
 
 const btn = $('create');
 let consoleUrl = '';
@@ -35,6 +47,10 @@ btn.addEventListener('click', async () => {
 
   const pass = $('passphrase').value;
   if (!pass) return fail('Choose a passphrase first.');
+  // Hard-block a weak passphrase here, where it is chosen: once the SECRET link leaks this is
+  // the only thing between a stranger and the inbox, attacked offline with no rate limit.
+  const weak = passphraseProblem(pass);
+  if (weak) return fail(weak);
   // A mistyped passphrase makes the whole inbox permanently unreadable, so we refuse
   // to proceed on a mismatch rather than warn — the same rule create.js applies.
   if (pass !== $('passphrase2').value) {

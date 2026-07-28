@@ -85,7 +85,7 @@
         <button id="checkPre" class="compact">Check for new messages</button>
       </div>
       <label for="passphrase">Passphrase</label>
-      <input type="password" id="passphrase" placeholder="Your passphrase" autocomplete="current-password">
+      <input type="text" id="passphrase" data-reveal="css" placeholder="Your passphrase" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
       <button id="unlockBtn">Unlock inbox</button>
       <p id="unlockErr" class="note danger hidden"></p>
     </section>
@@ -120,9 +120,9 @@
           Changes the key to this inbox without touching a single message, and your SECRET link stays
           the same. You must know your current passphrase — there is still <strong>no recovery</strong>.
         </p>
-        <input type="password" id="curPass" placeholder="Current passphrase" autocomplete="current-password">
-        <input type="password" id="newPass" placeholder="New passphrase" autocomplete="new-password" class="mt-sm">
-        <input type="password" id="newPass2" placeholder="Repeat new passphrase" autocomplete="new-password" class="mt-sm">
+        <input type="text" id="curPass" data-reveal="css" placeholder="Current passphrase" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <input type="text" id="newPass" data-reveal="css" placeholder="New passphrase" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" class="mt-sm">
+        <input type="text" id="newPass2" data-reveal="css" placeholder="Repeat new passphrase" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" class="mt-sm">
         <div class="toolbar">
           <button id="savePass" class="compact">Change passphrase</button>
         </div>

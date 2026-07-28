@@ -9,6 +9,7 @@
 
 import { unwrapPrivateKey, openDrop, publicKeyFingerprint, rewrapPrivateKey } from './crypto.js';
 import { attachReveal } from './ui.js';
+import { passphraseProblem } from './passphrase.js';
 import { api } from './config.js';
 
 const $ = (id) => document.getElementById(id);
@@ -371,6 +372,10 @@ $('savePass').addEventListener('click', async () => {
   const cur = $('curPass').value, nw = $('newPass').value, nw2 = $('newPass2').value;
   if (!cur || !nw) { showPassStatus('Fill in your current and new passphrase.', false); return; }
   if (nw !== nw2) { showPassStatus('The two new passphrases do not match.', false); return; }
+  // Same hard block as the create page: a passphrase change must not swap a strong key for a
+  // weak one. The wrong-current-passphrase check happens locally in rewrapPrivateKey below.
+  const weak = passphraseProblem(nw);
+  if (weak) { showPassStatus(weak, false); return; }
   const btn = $('savePass');
   btn.disabled = true;
   let wrapped;

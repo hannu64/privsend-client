@@ -20,11 +20,25 @@ export function attachReveal(input) {
   btn.textContent = '👁';
   wrap.appendChild(btn);
 
+  // Two kinds of field carry a reveal toggle:
+  //   * a CSS-masked text field (data-reveal="css") -- the Drops passphrase. It is
+  //     deliberately NOT a type=password field, so browser password managers do not treat
+  //     it as a credential to store or autofill: a passphrase saved in the manager plus a
+  //     glimpsed device would hand over the whole inbox at once. The dots are drawn by CSS
+  //     (-webkit-text-security); revealing lifts the mask by adding the `revealed` class.
+  //   * a legacy type=password field (the original secret-sharing pages) -- revealing swaps
+  //     the type, exactly as before.
+  const cssMasked = input.dataset.reveal === 'css';
   btn.addEventListener('click', () => {
-    const showing = input.type === 'text';
-    input.type = showing ? 'password' : 'text';
-    btn.textContent = showing ? '👁' : '🙈';
-    btn.setAttribute('aria-label', showing ? 'Show passphrase' : 'Hide passphrase');
+    let revealed;
+    if (cssMasked) {
+      revealed = input.classList.toggle('revealed');
+    } else {
+      revealed = input.type !== 'text';
+      input.type = revealed ? 'text' : 'password';
+    }
+    btn.textContent = revealed ? '🙈' : '👁';
+    btn.setAttribute('aria-label', revealed ? 'Hide passphrase' : 'Show passphrase');
     input.focus();
   });
   return btn;
