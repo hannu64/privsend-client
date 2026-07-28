@@ -1,0 +1,124 @@
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>privsend — how Drops work</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <p class="tagline">How Drops work</p>
+  <p class="small muted"><a href="/drops">Create a drop address →</a> · <a href="/">← Send a secret instead</a></p>
+</header>
+
+<main>
+  <section>
+    <h2>What a Drop is</h2>
+    <p class="hint">
+      A normal privsend secret goes <strong>outward</strong>: you write something, and you send the
+      link to one person. A <strong>Drop</strong> is the reverse. You publish one stable address, and
+      <strong>anyone — with no account — can send an encrypted message to you</strong>. You read it
+      later. Think of it as a private, encrypted “contact me”: a tip line, a whistleblower inbox, an
+      intake box that only you can open.
+    </p>
+
+    <h2>Your two links do opposite jobs</h2>
+    <p class="hint">When you create a drop address you get two links. Keeping them straight is the one thing that matters most.</p>
+    <div class="note danger">
+      <strong>🔑 Your SECRET console link</strong> (<code>…/SECRET#…</code>) is your private way in. With
+      it <em>and</em> your passphrase you read your messages. <strong>Never share it.</strong> The word
+      <strong>SECRET</strong> is written into the link on purpose: if you ever glance at a link you are
+      about to paste and see it, stop — that one is not for sharing.
+    </div>
+    <div class="note">
+      <strong>📣 Your public drop address</strong> (<code>…/public/…</code>) is what you hand out. Put it
+      on your profile, your site, a business card. Anyone who has it can write to you, and nothing more —
+      it cannot read your inbox or reveal a single message.
+    </div>
+
+    <h2>Your passphrase is a second lock</h2>
+    <p class="hint">
+      Reading a message needs <strong>both</strong> your console link (something you have) and your
+      passphrase (something you know). If someone finds your console link, they still cannot read
+      anything without the passphrase; if someone learns your passphrase, it is useless without the
+      link. That is deliberate — it is what protects your inbox if one of the two ever leaks.
+    </p>
+    <p class="hint">
+      And if someone <em>does</em> sit at your console guessing passphrases, the next time you unlock we
+      tell you how many failed attempts have been made since you last read — not counting your own. If
+      that number is not you, it is a sign your console link has leaked, and a nudge to retire it (below).
+      We count only the guesses made here, and we keep no record of who made them: no address, no
+      identity, just a number that resets when you get in.
+    </p>
+    <div class="note danger">
+      There is <strong>no recovery</strong>. Your passphrase never reaches us — not even as a hash — so
+      if you forget it, nobody, including us, can ever read your messages again. You <strong>can</strong>
+      change it from inside your inbox while you still know it, but it cannot be recovered once forgotten.
+      Choose it carefully and store it safely.
+    </div>
+
+    <h2>The fingerprint lets senders check they reached you</h2>
+    <p class="hint">
+      Your drop page serves your public key, and a sender’s browser encrypts to it. The one thing a
+      hostile or compelled server could tamper with is <strong>which key it serves</strong>. Your
+      <strong>fingerprint</strong> is the defence: publish it somewhere people already trust to be you,
+      and a careful sender can confirm the address served them the right key before they write.
+    </p>
+
+    <h2>What we can and cannot see</h2>
+    <p class="hint">
+      Every message is encrypted in the sender’s browser to your key. We store only ciphertext, your
+      public key, and your private key <em>encrypted under your passphrase</em> — which we can never
+      open. We do not know who you are, and we do not know who wrote to you. A sender is anonymous
+      unless they sign the message themselves.
+    </p>
+
+    <h2>Messages don’t wait forever</h2>
+    <p class="hint">
+      When you create your address you choose how long each message is kept — 7, 30, or 90 days. After
+      that a message is destroyed automatically, whether or not you have read it. You can also delete any
+      message yourself the moment you have read it.
+    </p>
+
+    <h2>Is a drop address still watched?</h2>
+    <p class="hint">
+      A drop address has no account and no notifications — we hold no email, no phone number, nothing that
+      could tell the owner a message arrived. So a sender cannot know for certain that anyone is still
+      reading, and if you send something time-critical it is worth nudging the recipient another way if you
+      safely can. Two owner-controlled settings help with this, and both are built to say as little as possible:
+    </p>
+    <p class="hint">
+      <strong>Last active (off by default).</strong> The owner can choose to show senders a rough, coarse
+      hint — “within the last week”, “within the last 3 months” — of when they last <strong>unlocked and
+      read</strong> their inbox. It updates only on a real read with the passphrase, never when the link is
+      merely opened, so it cannot be faked by someone who has lost access and is only coming to try guesses.
+      It is kept only to weekly accuracy, only while they leave it on, and it never reveals who they are or
+      anything about the messages. If they never turn it on, senders simply see that it cannot be shown.
+    </p>
+    <p class="hint">
+      <strong>On hold.</strong> The owner can pause an address. A paused address stops accepting new
+      messages and looks, to a sender, exactly like one that was never watched — it does not announce that
+      the pause was deliberate. Everything already received stays safely in the owner’s inbox.
+    </p>
+    <p class="hint">
+      <strong>If a link is exposed.</strong> Hold pauses an address but can be switched back on by whoever
+      holds the console link. If a SECRET link is ever compromised, the owner can instead <strong>delete the
+      address permanently</strong> — it and every message in it are destroyed, the link stops working, and
+      senders see the same “does not exist” as for an address that never existed. Delete needs only the
+      console link, <strong>not</strong> the passphrase, so an owner who is locked out — a leaked link they
+      can no longer read, or a passphrase they have lost — can still retire the address and start fresh.
+    </p>
+
+    <p class="linkrow"><a href="/drops">Create a drop address →</a></p>
+  </section>
+</main>
+
+<footer>
+  <p><a href="/">Home</a> · <a href="/drops">Create a drop address</a> · <a href="/how">How privsend works</a> · <a href="/verify">How to verify</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Source code</a></p>
+</footer>

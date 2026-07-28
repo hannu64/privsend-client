@@ -86,12 +86,22 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 button.secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); }
 button.secondary:hover:not(:disabled) { background: var(--line); }
 
+/* destructive action (permanent delete): outlined in the accent so it reads as
+   dangerous and is clearly distinct from the filled primary button. */
+button.danger { background: var(--panel-2); color: var(--accent); border: 1px solid var(--accent); }
+button.danger:hover:not(:disabled) { background: var(--accent); color: #fff; }
+
 .row { display: flex; gap: .75rem; align-items: center; }
 .row > * { flex: 1; }
 
 .check { display: flex; align-items: center; gap: .55rem; margin-top: 1.1rem; }
 .check input { width: auto; flex: 0; }
 .check label { margin: 0; font-weight: 500; }
+
+/* collapsible inbox settings (hold + last-seen) */
+.settings { margin: 1.3rem 0; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); padding: .3rem .9rem; }
+.settings > summary { cursor: pointer; font-weight: 600; font-size: .9rem; padding: .55rem 0; list-style-position: inside; }
+.settings[open] > summary { margin-bottom: .3rem; border-bottom: 1px solid var(--line); }
 
 /* link/result blocks */
 .field {
@@ -133,6 +143,19 @@ button.secondary:hover:not(:disabled) { background: var(--line); }
 .big-state { text-align: center; padding: 1.25rem 0; }
 .big-state .icon { font-size: 2.6rem; line-height: 1; }
 .big-state h2 { margin-top: .6rem; }
+
+/* ---- Drops: the recipient's inbox list ---- */
+.toolbar { display: flex; justify-content: flex-end; margin: 1rem 0 .25rem; }
+.droplist { list-style: none; padding: 0; margin: .5rem 0 0; display: flex; flex-direction: column; gap: .8rem; }
+.droplist li {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: .7rem .8rem;
+  background: var(--panel-2);
+}
+.dropmsg-head { display: flex; justify-content: space-between; align-items: center; gap: .6rem; margin-bottom: .55rem; }
+.dropmsg-time { font-size: .8rem; color: var(--muted); }
+.droplist .secret-out { max-height: 30vh; }
 
 .hidden { display: none !important; }
 .muted { color: var(--muted); }
@@ -239,6 +262,11 @@ footer a { color: var(--muted); }
 .soft { color: var(--muted); font-size: .85em; }
 
 button.compact { width: auto; padding: .35rem .8rem; font-size: .85rem; margin: 0; }
+/* "unsaved changes" halo: draws the eye to a manual Save when settings differ from stored */
+button.pending { box-shadow: 0 0 0 4px rgba(248, 29, 69, .3); }
+
+/* section divider inside the "Manage this address" panel */
+hr { border: none; border-top: 1px solid var(--line); margin: 1.3rem 0; }
 
 .dropzone {
   border: 1.5px dashed var(--line);
@@ -365,6 +393,7 @@ a.brand-link:visited {
    nothing. Keeping the CSP strict is worth more than the convenience of inline
    styles, so the styles come here instead. */
 .mt-sm    { margin-top: .6rem; }
+.mt-lg    { margin-top: 1.6rem; }
 .mt-md    { margin-top: .9rem; }
 .selectable { user-select: text; }
 .textarea-sm { min-height: 100px; }

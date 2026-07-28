@@ -1,0 +1,164 @@
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>privsend — your drop inbox</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <p class="tagline">Your drop inbox</p>
+  <p class="small muted"><a href="/drops/how">How Drops works →</a></p>
+</header>
+
+<main>
+  <section id="loading" class="big-state">
+    <div class="icon"><span class="spinner"></span></div>
+    <h2>Loading…</h2>
+  </section>
+
+  <section id="invalid" class="hidden big-state">
+    <div class="icon">🚫</div>
+    <h2>This console link is not valid</h2>
+    <p class="hint">The link may be mistyped or incomplete, or the address may have been removed. The secret part of the link comes after the “#” — make sure you copied the whole thing.</p>
+    <p class="linkrow"><a href="/drops">Create a drop address</a></p>
+  </section>
+
+  <section id="console" class="hidden">
+    <h2>Your drop inbox</h2>
+
+    <div id="disabledBanner" class="note danger hidden">
+      <strong>This address is closed to new messages.</strong> You can still read and delete what is already here.
+    </div>
+
+    <label>📣 Your public drop address <span class="soft">(safe to share)</span></label>
+    <div class="field status" id="publicAddr"></div>
+
+    <label>Your key fingerprint</label>
+    <div class="field" id="fingerprint"></div>
+    <div class="note">
+      Publish this fingerprint somewhere people already trust to be you. A careful sender can then
+      confirm the address served them the right key before they write — the one thing a compelled
+      server could otherwise tamper with.
+    </div>
+
+    <details id="settings" class="settings">
+      <summary>Inbox settings — hold &amp; last-seen</summary>
+
+      <div class="check">
+        <input type="checkbox" id="setHold">
+        <label for="setHold">Put my inbox on hold</label>
+      </div>
+      <p class="note">
+        While on hold, your address stops accepting new messages and shows senders a neutral
+        “not accepting messages” page — it does not reveal that you paused it deliberately.
+        Everything already in your inbox stays here to read and delete.
+      </p>
+
+      <div class="check">
+        <input type="checkbox" id="setDisclose">
+        <label for="setDisclose">Show senders roughly when I was last active</label>
+      </div>
+      <p class="note">
+        If you opt in, we keep a log — only to weekly accuracy — of when you last <strong>unlock and
+        read</strong> your inbox. It updates only on a successful unlock with your passphrase, never
+        when the link is merely opened, so coming here to try a passphrase you have lost never signals
+        “active”. We still do not know who you are or the context of the messages.
+      </p>
+
+      <div class="toolbar">
+        <button id="saveSettings" class="compact">Save settings</button>
+      </div>
+      <p id="settingsStatus" class="note ok hidden"></p>
+    </details>
+
+    <section id="unlock">
+      <p class="hint" id="count"></p>
+      <p id="idleNote" class="note hidden">Locked after 15 minutes of inactivity. Enter your passphrase to read again.</p>
+      <div class="toolbar">
+        <button id="checkPre" class="compact">Check for new messages</button>
+      </div>
+      <label for="passphrase">Passphrase</label>
+      <input type="password" id="passphrase" placeholder="Your passphrase" autocomplete="current-password">
+      <button id="unlockBtn">Unlock inbox</button>
+      <p id="unlockErr" class="note danger hidden"></p>
+    </section>
+
+    <section id="messages" class="hidden">
+      <div id="intrusionWarning" class="note danger hidden"></div>
+      <div class="toolbar">
+        <button id="refresh" class="compact">Check for new messages</button>
+      </div>
+      <ul id="list" class="droplist"></ul>
+      <p id="empty" class="hint hidden">No messages yet. Share your drop address and they will appear here.</p>
+
+      <details id="manage" class="settings mt-lg">
+        <summary>Manage this address</summary>
+
+        <label for="setRetention">Keep each message for</label>
+        <select id="setRetention">
+          <option value="7">7 days</option>
+          <option value="30">30 days</option>
+          <option value="90">90 days</option>
+        </select>
+        <p class="note">Applies only to messages that arrive from now on — anything already in your inbox keeps the deadline it was given.</p>
+        <div class="toolbar">
+          <button id="saveRetention" class="compact">Save retention</button>
+        </div>
+        <p id="retentionStatus" class="note ok hidden"></p>
+
+        <hr>
+
+        <label for="curPass">Change your passphrase</label>
+        <p class="note">
+          Changes the key to this inbox without touching a single message, and your SECRET link stays
+          the same. You must know your current passphrase — there is still <strong>no recovery</strong>.
+        </p>
+        <input type="password" id="curPass" placeholder="Current passphrase" autocomplete="current-password">
+        <input type="password" id="newPass" placeholder="New passphrase" autocomplete="new-password" class="mt-sm">
+        <input type="password" id="newPass2" placeholder="Repeat new passphrase" autocomplete="new-password" class="mt-sm">
+        <div class="toolbar">
+          <button id="savePass" class="compact">Change passphrase</button>
+        </div>
+        <p id="passStatus" class="note hidden"></p>
+      </details>
+    </section>
+
+    <!-- The compromised-link / lost-passphrase kill switch. Deliberately OUTSIDE #messages so
+         it is reachable BEFORE unlocking: the person who most needs to retire an address is
+         one who is locked out (lost passphrase, or a leaked link they cannot read but must
+         kill). Deleting needs only the console link, never the passphrase (store.DeleteDrop). -->
+    <details id="danger" class="settings">
+      <summary>Delete this address permanently</summary>
+      <p class="note danger">
+        Use this if your SECRET link has been exposed, or if you have lost your passphrase — you do
+        <strong>not</strong> need your passphrase for this. It <strong>permanently</strong> destroys this
+        address and every message in it: the link stops working, senders see “does not exist”, and there
+        is <strong>no undo</strong>. (Hold only pauses new messages and can be switched back on.)
+      </p>
+      <div class="toolbar">
+        <button id="destroy" class="danger compact">Delete this address permanently</button>
+      </div>
+      <p id="destroyStatus" class="note danger hidden"></p>
+    </details>
+  </section>
+
+  <section id="destroyed" class="hidden big-state">
+    <div class="icon">🗑️</div>
+    <h2>This address has been deleted</h2>
+    <p class="hint">The address and every message in it are gone, and this link no longer works. You can create a new drop address whenever you like.</p>
+    <p class="linkrow"><a href="/drops">Create a drop address</a></p>
+  </section>
+</main>
+
+<footer>
+  <p><a href="/">Home</a> · <a href="/drops/how">How Drops works</a> · <a href="/how">How privsend works</a> · <a href="/verify">How to verify</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Source code</a></p>
+</footer>
+
+<script type="module" src="/static/inbox.js"></script>

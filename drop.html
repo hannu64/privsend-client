@@ -1,0 +1,78 @@
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>privsend — send a private message</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <p class="tagline">Send an encrypted message.<br>Only the recipient can read it.</p>
+</header>
+
+<main>
+  <section id="loading" class="big-state">
+    <div class="icon"><span class="spinner"></span></div>
+    <h2>Loading…</h2>
+  </section>
+
+  <section id="gone" class="hidden big-state">
+    <div class="icon">🚫</div>
+    <h2>This drop address does not exist</h2>
+    <p class="hint">Check the link, or ask the recipient for a current one.</p>
+  </section>
+
+  <section id="closed" class="hidden big-state">
+    <div class="icon">🔒</div>
+    <h2>Not accepting messages</h2>
+    <p class="hint">This address is closed right now. Try again later, or reach the recipient another way.</p>
+  </section>
+
+  <section id="compose" class="hidden">
+    <h2>Send a private message</h2>
+    <p class="hint">
+      Your message is encrypted <strong>on this device</strong> to the recipient's key. We only ever
+      receive ciphertext — we cannot read it, and neither can anyone but the recipient. You stay
+      anonymous unless you sign your message yourself.
+    </p>
+
+    <p id="liveness" class="note"></p>
+    <p class="note">
+      We do not know who the receiver is and we do not have any contact details to inform about a new
+      message. If you can safely ask the receiver to check their inbox, then please do.
+    </p>
+
+    <label>You are sending to key</label>
+    <div class="field" id="fingerprint"></div>
+    <p class="note">If the recipient gave you a fingerprint to check, confirm it matches this fingerprint before you send.</p>
+
+    <label for="message">Message</label>
+    <textarea id="message" placeholder="Write your message…" autocomplete="off" spellcheck="false"></textarea>
+    <div class="counter" id="counter">
+      <span id="used">0 B</span>
+      <span id="cap"></span>
+    </div>
+
+    <button id="send">Encrypt &amp; send</button>
+    <p id="err" class="note danger hidden"></p>
+  </section>
+
+  <section id="done" class="hidden big-state">
+    <div class="icon">✅</div>
+    <h2>Delivered</h2>
+    <p class="hint">Your message was encrypted and delivered. The recipient will read it the next time they open their inbox. Nothing here identifies you.</p>
+    <p class="linkrow"><a href="#" id="again">Send another message</a></p>
+  </section>
+</main>
+
+<footer>
+  <p><a href="/">Home</a> · <a href="/drops/how">How Drops works</a> · <a href="/how">How privsend works</a> · <a href="/verify">How to verify</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Source code</a></p>
+</footer>
+
+<script type="module" src="/static/drop.js"></script>

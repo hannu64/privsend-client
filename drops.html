@@ -1,0 +1,93 @@
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>privsend — create a drop address</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <p class="tagline">A drop address lets anyone send <strong>you</strong> an encrypted message —<br>no account, encrypted in their browser, readable only by you.</p>
+  <p class="small muted"><a href="/drops/how">How Drops works →</a> · <a href="/">← Send a secret instead</a></p>
+</header>
+
+<main>
+  <section id="create-form">
+    <h2>Create a drop address</h2>
+    <p class="hint">
+      We generate a key pair <strong>on this device</strong>. Your public key is published at your
+      drop address so people can write to you; your private key is encrypted with the passphrase
+      below before it is stored. We only ever hold ciphertext — we cannot read your messages.
+      <a href="/drops/how">How it works →</a>
+    </p>
+
+    <label for="passphrase">Passphrase <span class="soft">(protects your private key — choose a strong one and keep it safe)</span></label>
+    <input type="password" id="passphrase" placeholder="Choose a strong passphrase" autocomplete="new-password">
+    <input type="password" id="passphrase2" placeholder="Repeat passphrase" autocomplete="new-password" class="mt-sm">
+    <p id="passMatch" class="note danger hidden">The two passphrases do not match.</p>
+    <div class="note danger">
+      <strong>There is no recovery.</strong> This passphrase is the only key to everything sent to
+      your address. If you forget it, <strong>nobody</strong> — not the sender, not us — can ever
+      read your messages again. You <strong>can</strong> change it later from inside your inbox, but
+      only while you still know it.
+    </div>
+
+    <label for="retention">Keep each message for</label>
+    <select id="retention">
+      <option value="7">7 days</option>
+      <option value="30" selected>30 days</option>
+      <option value="90">90 days</option>
+    </select>
+    <p class="note">A message is destroyed automatically once it reaches this age, whether or not you have read it.</p>
+
+    <button id="create">Create my drop address</button>
+    <p id="err" class="note danger hidden"></p>
+  </section>
+
+  <section id="done" class="hidden">
+    <h2>Your drop address is ready</h2>
+    <p class="hint">You now have two links. They do <strong>opposite</strong> jobs — keep them straight.</p>
+
+    <label>🔑 Your SECRET console link — <strong>never share this</strong></label>
+    <div class="field share" id="consoleLink"></div>
+    <button id="copyConsole" class="tint-share">Copy SECRET console link</button>
+    <div class="note danger">
+      This is your private way in — anyone who has this link <em>and</em> your passphrase can read
+      your messages. <strong>Never share it.</strong> Bookmark it or store it somewhere safe: it
+      carries a secret that exists <strong>only on this page</strong>, so we can never send it to you
+      again. (The word <strong>SECRET</strong> is in the link on purpose — if you ever paste a link
+      and see it, stop: that one is not for sharing.)
+    </div>
+
+    <label>📣 Your public drop address — <strong>safe to share</strong></label>
+    <div class="field status" id="publicAddr"></div>
+    <button id="copyAddr" class="tint-status">Copy public drop address</button>
+    <div class="note">This is what people write to. Put it on your profile, your site, or hand it out — anyone who has it can send you an encrypted message, with no account. The word <strong>public</strong> is in the link so you can tell the two apart at a glance.</div>
+
+    <label>Your key fingerprint</label>
+    <div class="field" id="fingerprint"></div>
+    <div class="note">
+      Publish this fingerprint somewhere people already trust to be you. A careful sender can then
+      confirm the address served them the right key before they write — the one thing a compelled
+      server could otherwise tamper with.
+    </div>
+
+    <p id="notSaved" class="note danger">
+      ⚠️ You have not copied your SECRET console link yet. It exists <strong>only on this page</strong>.
+      If you leave without saving it, you lose access to this address permanently.
+    </p>
+    <button id="openInbox" class="tint-share" disabled>Open my inbox →</button>
+  </section>
+</main>
+
+<footer>
+  <p><a href="/">Home</a> · <a href="/drops/how">How Drops works</a> · <a href="/how">How privsend works</a> · <a href="/verify">How to verify</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Source code</a></p>
+</footer>
+
+<script type="module" src="/static/drops.js"></script>

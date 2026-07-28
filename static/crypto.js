@@ -346,3 +346,260 @@ function safeName(name) {
   const base = name.split(/[/\\]/).pop().replace(/[\u0000-\u001f\u007f]/g, '').trim();
   return base.slice(0, 200) || 'file';
 }
+
+/* ============================================================================
+ * DROPS — receive from anyone, at a stable address
+ * ============================================================================
+ *
+ * Everything above is privsend's SEND direction: the content key rides in the URL
+ * fragment to a recipient who holds the link. Drops INVERT that. A recipient
+ * publishes a long-lived PUBLIC key at a stable address; anyone -- with no account
+ * and no key of their own -- encrypts a message to that address, and the content
+ * key is SEALED to the recipient's public key instead of being put in a fragment.
+ *
+ * This is the ONLY new cryptography Drops adds. The content itself is encrypted
+ * EXACTLY as a v2 secret is: sealManifest / parseManifest / deriveAesKey above are
+ * reused UNCHANGED -- one fresh 256-bit AES-GCM key per drop, a fresh nonce per
+ * encryption. What changes is the delivery of that one key:
+ *
+ *     send : content key -> URL fragment            (recipient holds the link)
+ *     drop : content key -> sealed to a public key   (recipient holds the private key)
+ *
+ * THE SEAL is a textbook ECIES built from the browser's own WebCrypto: a throwaway
+ * ("ephemeral") P-256 key pair does ECDH against the recipient's public key to
+ * agree a one-time shared secret; HKDF-SHA-256 turns that into an AES-256-GCM key;
+ * that key wraps the drop's content key. Nothing is hand-rolled -- ECDH, HKDF and
+ * AES-GCM are the same vetted primitives used above (§3.3).
+ *
+ * WHY P-256: it is present in EVERY WebCrypto, needs no library, and is
+ * deliberately decoupled from any curve chosen elsewhere in the product, so this
+ * file stays standalone and readable end to end.
+ *
+ * THE ONE TRUST POINT Drops adds: the drop page serves the recipient's PUBLIC key,
+ * so a compelled server could serve a DIFFERENT key and read inbound drops (the
+ * same class of risk as "trust the served crypto.js"). The answer is the same one
+ * the rest of the product uses: publicKeyFingerprint below is published
+ * out-of-band, so a sender can confirm the key they seal to is the recipient's own.
+ */
+
+const CURVE = 'P-256';
+
+// HKDF domain-separation label for the seal. Exactly like 'privsend/v1/aes-key'
+// above, it is baked into every sealed drop the instant this ships: changing it
+// changes every derived wrap-key, making every drop already sitting in an inbox
+// permanently unreadable -- silently. Never change it.
+const SEAL_INFO = 'privsend/drop/v1/seal';
+
+/**
+ * Mint a recipient's long-lived identity: one P-256 key pair.
+ *
+ * Returns the public key as raw bytes (published at the drop address so senders can
+ * seal to it) and the private key as PKCS#8 bytes (to be wrapped under a passphrase
+ * by wrapPrivateKey BEFORE it is ever handed to the server). The private key is
+ * generated extractable for one reason only -- so it can be exported here, once, to
+ * be wrapped. It is never stored or transmitted in the clear.
+ */
+export async function generateRecipientKeypair() {
+  const kp = await crypto.subtle.generateKey(
+    { name: 'ECDH', namedCurve: CURVE }, true, ['deriveBits']
+  );
+  const publicKeyRaw = new Uint8Array(await crypto.subtle.exportKey('raw', kp.publicKey));
+  const privateKeyPkcs8 = new Uint8Array(await crypto.subtle.exportKey('pkcs8', kp.privateKey));
+  return { publicKeyRaw, privateKeyPkcs8 };
+}
+
+// PBKDF2 -> AES-256-GCM key from a passphrase ALONE. Used only to protect the
+// recipient's private key at rest. Unlike deriveAesKey above there is no fragment
+// key to combine with: for a drop recipient the passphrase is the ONLY secret and
+// the sole gate on their inbox, so it must be strong. Same 600k iterations, same
+// SHA-256, so it carries the same cost an attacker must pay per guess.
+async function passphraseKey(passphrase, salt, usages) {
+  const pw = await crypto.subtle.importKey(
+    'raw', enc.encode(passphrase), 'PBKDF2', false, ['deriveKey']
+  );
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: PBKDF2_ITERATIONS, hash: 'SHA-256' },
+    pw, { name: 'AES-GCM', length: KEY_BITS }, false, usages
+  );
+}
+
+/**
+ * Encrypt the recipient's private key under their passphrase, for storage.
+ *
+ * The server only ever sees this blob -- never the key, never the passphrase (§4.2:
+ * the passphrase never reaches the server, not even as a hash). Returns base64
+ * fields ready to store: { enc, nonce, salt }.
+ */
+export async function wrapPrivateKey(privateKeyPkcs8, passphrase) {
+  if (!passphrase) throw new Error('A passphrase is required to protect the private key.');
+  const salt = randomBytes(SALT_BYTES);
+  const key = await passphraseKey(passphrase, salt, ['encrypt']);
+  const { nonce, ciphertext } = await encryptBytes(key, privateKeyPkcs8);
+  return { enc: b64Encode(ciphertext), nonce: b64Encode(nonce), salt: b64Encode(salt) };
+}
+
+/**
+ * Recover the recipient's private key from its wrapped blob and passphrase.
+ *
+ * Returns a non-extractable ECDH CryptoKey usable only for deriveBits -- i.e. only
+ * for unsealing drops, never for being read back out. A wrong passphrase fails the
+ * GCM tag and throws; we cannot and do not distinguish that from a corrupt blob.
+ */
+export async function unwrapPrivateKey(wrapped, passphrase) {
+  const key = await passphraseKey(passphrase, b64Decode(wrapped.salt), ['decrypt']);
+  let pkcs8;
+  try {
+    pkcs8 = await decryptBytes(key, b64Decode(wrapped.nonce), b64Decode(wrapped.enc));
+  } catch {
+    throw new Error('Wrong passphrase, or the stored key is corrupted.');
+  }
+  return crypto.subtle.importKey(
+    'pkcs8', pkcs8, { name: 'ECDH', namedCurve: CURVE }, false, ['deriveBits']
+  );
+}
+
+/**
+ * Change the passphrase that protects the private key, WITHOUT regenerating it or ever
+ * exposing it. Decrypts the wrapped blob with the CURRENT passphrase to recover the
+ * PKCS#8 bytes in memory, then re-wraps those bytes under the NEW passphrase with a fresh
+ * salt and nonce. Returns a new { enc, nonce, salt } to store in place of the old one.
+ *
+ * This is all a passphrase change is: the private key is unchanged, so every message ever
+ * sealed to the matching PUBLIC key stays readable and nothing is re-encrypted. The
+ * recovered PKCS#8 is a local variable that goes out of scope at once -- no extractable
+ * CryptoKey is ever held. A wrong current passphrase fails the GCM tag and throws, exactly
+ * as unwrapPrivateKey does, so a bad guess never reaches the server.
+ */
+export async function rewrapPrivateKey(wrapped, currentPassphrase, newPassphrase) {
+  if (!newPassphrase) throw new Error('A passphrase is required to protect the private key.');
+  const oldKey = await passphraseKey(currentPassphrase, b64Decode(wrapped.salt), ['decrypt']);
+  let pkcs8;
+  try {
+    pkcs8 = await decryptBytes(oldKey, b64Decode(wrapped.nonce), b64Decode(wrapped.enc));
+  } catch {
+    throw new Error('Wrong current passphrase, or the stored key is corrupted.');
+  }
+  return wrapPrivateKey(pkcs8, newPassphrase);
+}
+
+// The seal's KDF. salt is the ephemeral public key: it is fresh for every single
+// seal, so the same recipient key never derives the same wrap-key twice, and it is
+// carried in the clear alongside the ciphertext so the recipient can rederive.
+// (The recipient's static key already enters the secret through the ECDH itself;
+// the ephemeral pub in the salt is what makes each seal independent.)
+async function deriveSealKey(sharedBits, ephPubRaw, usages) {
+  const hkdf = await crypto.subtle.importKey('raw', sharedBits, 'HKDF', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'HKDF', hash: 'SHA-256', salt: ephPubRaw, info: enc.encode(SEAL_INFO) },
+    hkdf, { name: 'AES-GCM', length: KEY_BITS }, false, usages
+  );
+}
+
+// Seal one content key to a recipient's raw public key. Returns the ephemeral
+// public key (the recipient needs it to rederive) plus the wrapped key and its
+// nonce -- all non-secret, all safe to store beside the ciphertext.
+async function seal(recipientPubRaw, rawKey) {
+  const recipientPub = await crypto.subtle.importKey(
+    'raw', recipientPubRaw, { name: 'ECDH', namedCurve: CURVE }, false, []
+  );
+  const eph = await crypto.subtle.generateKey(
+    { name: 'ECDH', namedCurve: CURVE }, true, ['deriveBits']
+  );
+  const ephPubRaw = new Uint8Array(await crypto.subtle.exportKey('raw', eph.publicKey));
+  const shared = new Uint8Array(await crypto.subtle.deriveBits(
+    { name: 'ECDH', public: recipientPub }, eph.privateKey, KEY_BITS
+  ));
+  const wrapKey = await deriveSealKey(shared, ephPubRaw, ['encrypt']);
+  const { nonce, ciphertext } = await encryptBytes(wrapKey, rawKey);
+  return { ephPubRaw, wrapped: ciphertext, wrapNonce: nonce };
+}
+
+// Recover a sealed content key with the recipient's private key. Throws on any
+// tampering or wrong key -- the GCM tag over the wrapped key catches it.
+async function unseal(privateKey, ephPubRaw, wrapped, wrapNonce) {
+  const ephPub = await crypto.subtle.importKey(
+    'raw', ephPubRaw, { name: 'ECDH', namedCurve: CURVE }, false, []
+  );
+  const shared = new Uint8Array(await crypto.subtle.deriveBits(
+    { name: 'ECDH', public: ephPub }, privateKey, KEY_BITS
+  ));
+  const wrapKey = await deriveSealKey(shared, ephPubRaw, ['decrypt']);
+  return decryptBytes(wrapKey, wrapNonce, wrapped);
+}
+
+/**
+ * Seal a drop for a recipient's public key. The Drops mirror of
+ * newSecretKey + sealManifest: mint a fresh content key, encrypt the v2 manifest
+ * under it exactly as any secret, then SEAL that content key to the recipient
+ * rather than returning a fragment. The sender is anonymous and needs no key.
+ *
+ * `recipientPublicB64` is the recipient's raw P-256 public key, base64. `files` is
+ * [] for v1 (text-only); the v2 manifest machinery is reused unchanged, so files
+ * turn on later with NO change here.
+ *
+ * Returns the POST /api/drop/{id} body -- every field non-secret and content-blind.
+ */
+export async function sealDrop(recipientPublicB64, message, files = []) {
+  const recipientPubRaw = b64Decode(recipientPublicB64);
+  const rawKey = randomBytes(KEY_BITS / 8);
+  // No passphrase on the content key: a drop's protection is the asymmetric seal,
+  // not a shared secret the anonymous sender could not have.
+  const aesKey = await deriveAesKey(rawKey, null, null);
+  const sealed = await sealManifest(aesKey, null, null, message, files);
+  const { ephPubRaw, wrapped, wrapNonce } = await seal(recipientPubRaw, rawKey);
+  return {
+    ciphertext: sealed.ciphertext,
+    nonce: sealed.nonce,
+    format_version: sealed.format_version,
+    ephemeral_pub: b64Encode(ephPubRaw),
+    wrapped_key: b64Encode(wrapped),
+    wrap_nonce: b64Encode(wrapNonce),
+  };
+}
+
+/**
+ * Open one drop. The Drops mirror of openSecret's v2 path: unseal the content key
+ * with the recipient's private key, then decrypt and VALIDATE the manifest exactly
+ * as any secret. Returns { message, files }.
+ *
+ * `privateKey` is the CryptoKey from unwrapPrivateKey. `entry` is one inbox row:
+ * { ephemeral_pub, wrapped_key, wrap_nonce, ciphertext, nonce, format_version }.
+ */
+export async function openDrop(privateKey, entry) {
+  if (!READABLE.includes(entry.format_version)) {
+    throw new Error('This drop is from an unsupported version.');
+  }
+  let rawKey;
+  try {
+    rawKey = await unseal(
+      privateKey,
+      b64Decode(entry.ephemeral_pub),
+      b64Decode(entry.wrapped_key),
+      b64Decode(entry.wrap_nonce)
+    );
+  } catch {
+    throw new Error('This drop could not be unsealed for this address.');
+  }
+  const aesKey = await deriveAesKey(rawKey, null, null);
+  let plain;
+  try {
+    plain = dec.decode(await decryptBytes(aesKey, b64Decode(entry.nonce), b64Decode(entry.ciphertext)));
+  } catch {
+    throw new Error('This drop is corrupted and cannot be read.');
+  }
+  // v1 semantics are identical to a secret's: the plaintext IS the message.
+  if (entry.format_version === 'v1') return { message: plain, files: [] };
+  return parseManifest(plain);
+}
+
+/**
+ * A stable fingerprint of a recipient's public key, for out-of-band verification
+ * (the one trust point above): SHA-256 of the raw public key, as lowercase hex.
+ * The console DISPLAYS it so a recipient can publish it; a sender who has it can
+ * confirm the drop page served the right key. Grouping for humans is the UI's job;
+ * this returns the honest full digest.
+ */
+export async function publicKeyFingerprint(recipientPublicB64) {
+  const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', b64Decode(recipientPublicB64)));
+  return [...digest].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
