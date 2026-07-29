@@ -1,0 +1,95 @@
+<html lang="fi">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>privsend — luo vastaanotto-osoite</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/fi"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <p class="tagline">Vastaanotto-osoitteen avulla kuka tahansa voi lähettää <strong>sinulle</strong> salatun viestin —<br>ilman käyttäjätiliä, salattuna heidän selaimessaan, luettavissa vain sinulle.</p>
+  <p class="small muted"><a href="/fi/drops/how">Miten Dropit toimivat →</a> · <a href="/fi">← Lähetä salaisuus sen sijaan</a> · <a href="/drops">In English</a></p>
+</header>
+
+<main>
+  <section id="create-form">
+    <h2>Luo vastaanotto-osoite</h2>
+    <p class="hint">
+      Luomme avainparin <strong>tällä laitteella</strong>. Julkinen avaimesi julkaistaan
+      vastaanotto-osoitteessasi, jotta ihmiset voivat kirjoittaa sinulle; yksityinen avaimesi salataan alla
+      olevalla salalauseella ennen tallennusta. Meille päätyy vain salakirjoitus — emme pysty lukemaan
+      viestejäsi. <a href="/fi/drops/how">Miten se toimii →</a>
+    </p>
+
+    <label for="passphrase">Salalause <span class="soft">(ainoa avain postilaatikkoosi — vähintään 12 merkkiä tai neljä arkista sanaa)</span></label>
+    <input type="text" id="passphrase" data-reveal="css" placeholder="esim.  meripihka traktori sametti kuu" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <input type="text" id="passphrase2" data-reveal="css" placeholder="Toista salalause" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" class="mt-sm">
+    <p id="passHint" class="note hidden"></p>
+    <p id="passMatch" class="note danger hidden">Salalauseet eivät täsmää.</p>
+    <p class="note">Selaimesi ei tarjoudu muistamaan tätä — tarkoituksella. Se on se ainoa avain, joka ei ole jo laitteellasi, joten pidä se päässäsi (tai omissa salasanamuistiinpanoissasi).</p>
+    <div class="note danger">
+      <strong>Palautusta ei ole.</strong> Tämä salalause on ainoa avain kaikkeen, mitä osoitteeseesi
+      lähetetään. Jos unohdat sen, <strong>kukaan</strong> — ei lähettäjä eikä me — ei voi enää koskaan
+      lukea viestejäsi. Voit <strong>vaihtaa</strong> sen myöhemmin postilaatikostasi käsin, mutta vain
+      niin kauan kuin vielä tiedät sen.
+    </div>
+
+    <label for="retention">Säilytä kutakin viestiä</label>
+    <select id="retention">
+      <option value="7">7 vuorokautta</option>
+      <option value="30" selected>30 vuorokautta</option>
+      <option value="90">90 vuorokautta</option>
+    </select>
+    <p class="note">Viesti tuhotaan automaattisesti, kun se saavuttaa tämän iän, luit sen tai et.</p>
+
+    <button id="create">Luo vastaanotto-osoitteeni</button>
+    <p id="err" class="note danger hidden"></p>
+  </section>
+
+  <section id="done" class="hidden">
+    <h2>Vastaanotto-osoitteesi on valmis</h2>
+    <p class="hint">Sinulla on nyt kaksi linkkiä. Ne tekevät <strong>vastakkaista</strong> työtä — pidä ne erillään.</p>
+
+    <label>🔑 Salainen hallintalinkkisi — <strong>älä koskaan jaa tätä</strong></label>
+    <div class="field share" id="consoleLink"></div>
+    <button id="copyConsole" class="tint-share">Kopioi salainen hallintalinkki</button>
+    <div class="note danger">
+      Tämä on yksityinen sisäänpääsysi — kuka tahansa, jolla on tämä linkki <em>ja</em> salalauseesi, voi
+      lukea viestisi. <strong>Älä koskaan jaa sitä.</strong> Lisää se kirjanmerkkeihin tai tallenna
+      turvalliseen paikkaan: se kantaa salaisuutta, joka on olemassa <strong>vain tällä sivulla</strong>,
+      joten emme voi koskaan lähettää sitä sinulle uudelleen. (Sana <strong>SECRET</strong> on linkissä
+      tarkoituksella — jos joskus lähetät linkkiä ja näet sen, pysähdy: se ei ole jaettavaksi.)
+    </div>
+
+    <label>📣 Julkinen vastaanotto-osoitteesi — <strong>turvallinen jaettavaksi</strong></label>
+    <div class="field status" id="publicAddr"></div>
+    <button id="copyAddr" class="tint-status">Kopioi julkinen vastaanotto-osoite</button>
+    <div class="note">Tähän ihmiset kirjoittavat. Laita se profiiliisi, sivustollesi tai jaa se — kuka tahansa, jolla se on, voi lähettää sinulle salatun viestin ilman käyttäjätiliä. Sana <strong>public</strong> on linkissä, jotta erotat ne toisistaan yhdellä silmäyksellä.</div>
+
+    <label>Avaimesi sormenjälki</label>
+    <div class="field" id="fingerprint"></div>
+    <div class="note">
+      Julkaise tämä sormenjälki jossakin, jonka ihmiset jo luottavat olevan sinä. Huolellinen lähettäjä voi
+      sitten varmistaa ennen kirjoittamista, että osoite tarjosi hänelle oikean avaimen — ainoa asia, jota
+      pakotettu palvelin voisi muuten peukaloida.
+    </div>
+
+    <p id="notSaved" class="note danger">
+      ⚠️ Et ole vielä kopioinut salaista hallintalinkkiäsi. Se on olemassa <strong>vain tällä sivulla</strong>.
+      Jos poistut tallentamatta sitä, menetät pääsyn tähän osoitteeseen pysyvästi.
+    </p>
+    <button id="openInbox" class="tint-share" disabled>Avaa postilaatikkoni →</button>
+  </section>
+</main>
+
+<footer>
+  <p><a href="/fi">Etusivu</a> · <a href="/fi/drops/how">Miten Dropit toimivat</a> · <a href="/fi/how">Miten privsend toimii</a> · <a href="/fi/verify">Näin varmistat</a> · <a href="/fi/terms">Käyttöehdot</a> · <a href="/fi/privacy">Tietosuoja</a> · <a href="/report">Ilmoita linkistä</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Lähdekoodi</a> · <a href="/drops">In English</a></p>
+</footer>
+
+<script type="module" src="/static/drops.js"></script>

@@ -13,6 +13,13 @@
 // This is deliberately a small, grep-able check, not a full entropy estimator (no zxcvbn --
 // the client stays tiny and auditable). It enforces real length and rejects the obvious junk;
 // the copy steers people to the easy strong answer, four everyday words.
+//
+// The messages come from i18n.js so the gate speaks the page's language; the RULES are
+// language-independent (length, distinct characters, a repeated-block shape), so what is
+// accepted or rejected is byte-for-byte identical in English and Finnish -- only the
+// wording differs.
+
+import { t } from './i18n.js';
 
 const MIN_LEN = 12;
 
@@ -31,10 +38,10 @@ const COMMON = new Set([
 // "aaaa", "abab", "k7e3m8k7e3m8", "K7e3m8k7e3m8k7e3m8k7e3m8". Such a passphrase is only as
 // strong as the block, no matter how long -- the classic "looks random but isn't" trap.
 function isRepeatedBlock(s) {
-  const t = s.toLowerCase();
-  const n = t.length;
+  const lc = s.toLowerCase();
+  const n = lc.length;
   for (let L = 1; L <= (n >> 1); L++) {
-    if (n % L === 0 && t.slice(0, L).repeat(n / L) === t) return true;
+    if (n % L === 0 && lc.slice(0, L).repeat(n / L) === lc) return true;
   }
   return false;
 }
@@ -49,20 +56,20 @@ function isRepeatedBlock(s) {
 // however long it is, which is the one "feels strong but isn't" case worth catching.
 export function passphraseProblem(pass) {
   if (pass.length < MIN_LEN) {
-    return `Use at least ${MIN_LEN} characters. A dozen varied characters is fine, and four everyday words — like “amber tractor velvet moon” — is easy to remember.`;
+    return t.pass.tooShort(MIN_LEN);
   }
   const stripped = pass.toLowerCase().replace(/\s+/g, '');
   const core = pass.toLowerCase().replace(/[^a-z]/g, '');
   if (COMMON.has(stripped) || (core.length >= 4 && COMMON.has(core))) {
-    return 'That is one of the most common passwords in the world — an attacker tries it first. Choose something only you would think of.';
+    return t.pass.common;
   }
   if (/^\d+$/.test(pass) && pass.length < 16) {
-    return 'Digits alone are easy to guess. Add words or letters, or make it much longer.';
+    return t.pass.digitsOnly;
   }
   // The one "looks strong but isn't" case we still block: a repeated block (or so few distinct
   // characters it amounts to one) carries only the entropy of the little that it repeats.
   if (isRepeatedBlock(pass) || new Set(pass).size < 5) {
-    return 'That repeats too much to be safe — a repeated block is only as strong as the block itself, however long you make it. Use more varied characters, or four everyday words.';
+    return t.pass.repeats;
   }
   return null;
 }

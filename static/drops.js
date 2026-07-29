@@ -10,6 +10,7 @@ import { generateRecipientKeypair, wrapPrivateKey, publicKeyFingerprint, b64Enco
 import { attachReveal, setBusy } from './ui.js';
 import { passphraseProblem } from './passphrase.js';
 import { SITE_ORIGIN, api } from './config.js';
+import { t } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -23,7 +24,7 @@ $('passphrase').addEventListener('input', () => {
   const v = $('passphrase').value;
   if (!v) { passHint.textContent = ''; passHint.className = 'note hidden'; return; }
   const problem = passphraseProblem(v);
-  passHint.textContent = problem || 'Looks good ✓';
+  passHint.textContent = problem || t.pass.ok;
   passHint.className = problem ? 'note' : 'note ok';
 });
 
@@ -35,7 +36,7 @@ function fail(msg) {
   $('err').textContent = msg;
   $('err').classList.remove('hidden');
   btn.disabled = false;
-  btn.textContent = 'Create my drop address';
+  btn.textContent = t.drops.createBtn;
 }
 
 // Present the 64-hex-char digest in readable groups of four.
@@ -46,7 +47,7 @@ btn.addEventListener('click', async () => {
   $('passMatch').classList.add('hidden');
 
   const pass = $('passphrase').value;
-  if (!pass) return fail('Choose a passphrase first.');
+  if (!pass) return fail(t.drops.chooseFirst);
   // Hard-block a weak passphrase here, where it is chosen: once the SECRET link leaks this is
   // the only thing between a stranger and the inbox, attacked offline with no rate limit.
   const weak = passphraseProblem(pass);
@@ -60,7 +61,7 @@ btn.addEventListener('click', async () => {
   }
 
   btn.disabled = true;
-  setBusy(btn, 'Creating…');
+  setBusy(btn, t.drops.creating);
   try {
     const { publicKeyRaw, privateKeyPkcs8 } = await generateRecipientKeypair();
     const pubB64 = b64Encode(publicKeyRaw);
@@ -79,7 +80,7 @@ btn.addEventListener('click', async () => {
     });
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
-      return fail(j.error || 'Could not create the drop address.');
+      return fail(j.error || t.drops.createFailed);
     }
     const { drop_id, owner_token } = await res.json();
 
@@ -94,8 +95,8 @@ btn.addEventListener('click', async () => {
     $('consoleLink').textContent = consoleUrl;
     $('publicAddr').textContent = publicAddr;
     $('fingerprint').textContent = groupFp(await publicKeyFingerprint(pubB64));
-    wireCopy('copyConsole', consoleUrl, 'Copy SECRET console link', markSaved);
-    wireCopy('copyAddr', publicAddr, 'Copy public drop address');
+    wireCopy('copyConsole', consoleUrl, t.drops.copyConsole, markSaved);
+    wireCopy('copyAddr', publicAddr, t.drops.copyAddr);
     $('consoleLink').addEventListener('copy', markSaved);
 
     // The passphrase has done its job (the key is wrapped); do not leave it in the DOM.
@@ -104,9 +105,10 @@ btn.addEventListener('click', async () => {
 
     $('create-form').classList.add('hidden');
     $('done').classList.remove('hidden');
+    protectLinks();
     requestAnimationFrame(() => window.scrollTo(0, 0));
   } catch (e) {
-    fail(e.message || 'Something went wrong creating your address.');
+    fail(e.message || t.drops.createFailed);
   }
 });
 
@@ -115,11 +117,11 @@ function wireCopy(id, text, label, onCopied) {
   b.onclick = async () => {
     try {
       await navigator.clipboard.writeText(text);
-      b.textContent = 'Copied';
+      b.textContent = t.copied;
       if (onCopied) onCopied();
       setTimeout(() => (b.textContent = label), 1600);
     } catch {
-      b.textContent = 'Copy failed — select and copy manually';
+      b.textContent = t.drops.copyFailed;
     }
   };
 }
@@ -135,7 +137,7 @@ function markSaved() {
 }
 
 $('openInbox').addEventListener('click', () => {
-  if (!saved && !window.confirm('Have you saved your console link? Without it you cannot get back in.')) {
+  if (!saved && !window.confirm(t.drops.confirmUnsaved)) {
     return;
   }
   // Going to the inbox means the token now lives in the address bar / history, so
@@ -144,7 +146,25 @@ $('openInbox').addEventListener('click', () => {
   location.href = consoleUrl;
 });
 
-// Closing the tab before saving the console link loses the address forever.
+// Every link on this page LEAVES it — the header brand and sub-nav, the footer, all of
+// them — and the SECRET console link exists ONLY on this page (its token rides in the '#'
+// fragment, which the server never receives), so following any link before the link is
+// copied loses the address for good. The beforeunload guard below catches a close/reload/
+// back on desktop, but that prompt is unreliable-to-absent on mobile and is a poor fit for
+// a deliberate link click anyway. So the moment the "done" panel appears we send every link
+// to a NEW tab: the click still works, but THIS page — the only place the console link
+// lives — stays put. (External links here were already target=_blank; this makes the
+// internal ones behave the same while it matters.)
+function protectLinks() {
+  for (const a of document.querySelectorAll('a')) {
+    a.target = '_blank';
+    a.rel = 'noopener';
+  }
+}
+
+// Closing the tab, reloading, or a back-navigation before saving the console link loses the
+// address forever. This is the desktop net; the new-tab links above are what cover mobile,
+// where this prompt is not dependable.
 window.addEventListener('beforeunload', (e) => {
   if (!$('done').classList.contains('hidden') && !saved) {
     e.preventDefault();

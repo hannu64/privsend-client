@@ -1,0 +1,135 @@
+<html lang="fi">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>privsend — miten Dropit toimivat</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#f81d45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="privsend">
+
+<header>
+  <a class="brand-link" href="/fi"><h1 class="brand">Priv<span>Send</span></h1></a>
+  <p class="tagline">Miten Dropit toimivat</p>
+  <p class="small muted"><a href="/fi/drops">Luo vastaanotto-osoite →</a> · <a href="/fi">← Lähetä salaisuus sen sijaan</a> · <a href="/drops/how">In English</a></p>
+</header>
+
+<main>
+  <section>
+    <h2>Mikä Drop on</h2>
+    <p class="hint">
+      Tavallinen privsend-salaisuus kulkee <strong>ulospäin</strong>: kirjoitat jotakin ja lähetät linkin
+      yhdelle henkilölle. <strong>Drop</strong> on päinvastainen. Julkaiset yhden pysyvän osoitteen, ja
+      <strong>kuka tahansa — ilman käyttäjätiliä — voi lähettää sinulle salatun viestin</strong>. Luet sen
+      myöhemmin. Ajattele sitä yksityisenä, salattuna ”ota yhteyttä” -osoitteena: vinkkilinjana,
+      ilmiantolaatikkona tai vastaanottolaatikkona, jonka vain sinä voit avata.
+    </p>
+
+    <h2>Kaksi linkkiäsi tekevät vastakkaista työtä</h2>
+    <p class="hint">Kun luot vastaanotto-osoitteen, saat kaksi linkkiä. Niiden pitäminen erillään on tärkein yksittäinen asia.</p>
+    <div class="note danger">
+      <strong>🔑 Salainen hallintalinkkisi</strong> (<code>…/SECRET#…</code>) on yksityinen sisäänpääsysi.
+      Sillä <em>ja</em> salalauseellasi luet viestisi. <strong>Älä koskaan jaa sitä.</strong> Sana
+      <strong>SECRET</strong> on kirjoitettu linkkiin tarkoituksella: jos joskus vilkaiset linkkiä, jota olet
+      lähettämässä, ja näet sen, pysähdy — se ei ole jaettavaksi.
+    </div>
+    <div class="note">
+      <strong>📣 Julkinen vastaanotto-osoitteesi</strong> (<code>…/public/…</code>) on se, jonka jaat. Laita se
+      profiiliisi, sivustollesi tai käyntikorttiin. Kuka tahansa, jolla se on, voi kirjoittaa sinulle, eikä
+      muuta — se ei voi lukea postilaatikkoasi eikä paljastaa yhtäkään viestiä.
+    </div>
+
+    <h2>Salalauseesi on toinen lukko</h2>
+    <p class="hint">
+      Viestin lukeminen vaatii <strong>sekä</strong> hallintalinkkisi (jokin, joka sinulla on) <strong>että</strong>
+      salalauseesi (jokin, jonka tiedät). Jos joku löytää hallintalinkkisi, hän ei silti voi lukea mitään ilman
+      salalausetta; jos joku saa selville salalauseesi, se on hyödytön ilman linkkiä. Tämä on tarkoituksellista —
+      se suojaa postilaatikkoasi, jos toinen näistä joskus vuotaa.
+    </p>
+    <p class="hint">
+      Koska vuotanutta hallintalinkkiä voidaan murtaa <strong>offline-tilassa</strong> — niin nopeasti kuin
+      hyökkääjän kone sallii — salalauseesi on täsmälleen niin turvallinen kuin se on vaikea arvata. Siksi
+      pyydämme kunnollisen: <strong>neljä arkista sanaa</strong> (kuten ”meripihka traktori sametti kuu”) on
+      helppo muistaa ja erittäin vaikea murtaa. Emmekä tarkoituksella anna selaimesi muistaa sitä — se on se
+      ainoa avain, joka ei ole jo valmiiksi laitteellasi, joten lainattu tai varastettu laite ei luovuta
+      postilaatikkoasi kaiken muun mukana.
+    </p>
+    <p class="hint">
+      Ja jos joku <em>todella</em> istuu konsolisi ääressä arvaamassa salalauseita: kerromme sinulle seuraavalla
+      avauskerralla, kuinka monta epäonnistunutta yritystä on tehty sen jälkeen, kun viimeksi luit — omiasi
+      laskematta. Jos tuo luku et ole sinä, se on merkki hallintalinkkisi vuotamisesta ja kehotus poistaa se
+      käytöstä (alla). Laskemme vain täällä tehdyt arvaukset, emmekä säilytä mitään tietoa siitä, kuka ne teki:
+      ei osoitetta, ei henkilöllisyyttä, vain luku, joka nollautuu, kun pääset sisään.
+    </p>
+    <div class="note danger">
+      <strong>Palautusta ei ole.</strong> Salalauseesi ei koskaan päädy meille — ei edes tiivisteenä — joten jos
+      unohdat sen, kukaan, me mukaan lukien, ei voi enää koskaan lukea viestejäsi. Voit <strong>vaihtaa</strong>
+      sen postilaatikostasi käsin, kun vielä tiedät sen, mutta unohdettua sitä ei voi palauttaa. Valitse se
+      huolellisesti ja säilytä turvassa.
+    </div>
+
+    <h2>Sormenjälki antaa lähettäjien varmistaa, että he tavoittivat sinut</h2>
+    <p class="hint">
+      Vastaanottosivusi tarjoaa julkisen avaimesi, ja lähettäjän selain salaa sille. Ainoa asia, jota
+      vihamielinen tai pakotettu palvelin voisi peukaloida, on se, <strong>minkä avaimen</strong> se tarjoaa.
+      <strong>Sormenjälkesi</strong> on suoja: julkaise se jossakin, jonka ihmiset jo luottavat olevan sinä, niin
+      huolellinen lähettäjä voi varmistaa ennen kirjoittamista, että osoite tarjosi hänelle oikean avaimen.
+    </p>
+
+    <h2>Mitä näemme ja mitä emme</h2>
+    <p class="hint">
+      Jokainen viesti salataan lähettäjän selaimessa avaimellesi. Säilytämme vain salakirjoitusta, julkisen
+      avaimesi ja <em>salalauseellasi salatun</em> yksityisen avaimesi — jota emme voi koskaan avata. Emme tiedä,
+      kuka olet, emmekä tiedä, kuka sinulle kirjoitti. Lähettäjä on nimetön, ellei hän itse allekirjoita viestiä.
+    </p>
+
+    <h2>Viestit eivät odota ikuisesti</h2>
+    <p class="hint">
+      Kun luot osoitteesi, valitset, kuinka kauan kutakin viestiä säilytetään — 7, 30 tai 90 vuorokautta. Sen
+      jälkeen viesti tuhotaan automaattisesti, luit sen tai et. Voit myös poistaa minkä tahansa viestin itse heti,
+      kun olet lukenut sen.
+    </p>
+
+    <h2>Seurataanko vastaanotto-osoitetta yhä?</h2>
+    <p class="hint">
+      Vastaanotto-osoitteella ei ole käyttäjätiliä eikä ilmoituksia — meillä ei ole sähköpostia, puhelinnumeroa
+      eikä mitään, mikä voisi kertoa omistajalle viestin saapumisesta. Niinpä lähettäjä ei voi tietää varmasti,
+      lukeeko kukaan yhä, ja jos lähetät jotakin aikakriittistä, kannattaa muistuttaa vastaanottajaa toista
+      reittiä, jos voit sen turvallisesti tehdä. Kaksi omistajan hallitsemaa asetusta auttaa tässä, ja molemmat
+      on rakennettu kertomaan mahdollisimman vähän:
+    </p>
+    <p class="hint">
+      <strong>Viimeksi aktiivinen (oletuksena pois päältä).</strong> Omistaja voi halutessaan näyttää lähettäjille
+      karkean, summittaisen vihjeen — ”viimeisen viikon aikana”, ”viimeisen 3 kuukauden aikana” — siitä, milloin
+      hän suunnilleen viimeksi <strong>avasi ja luki</strong> postilaatikkonsa. Hänen oma konsolinsa kirjaa sen
+      vasta avaamisen ja lukemisen jälkeen, joten omistaja, joka on unohtanut salalauseensa ja vain lataa sivun
+      kokeillakseen arvauksia, ei merkitse itseään aktiiviseksi. Se on kuitenkin <strong>parhaan yrityksen
+      mukainen</strong> signaali omistajan konsolista — ”luultavasti yhä seurataan”, ei kryptografinen todiste —
+      joten huolellisen lähettäjän tulisi pitää sitä vihjeenä, ei takuuna. Se pidetään vain viikon tarkkuudella,
+      vain niin kauan kuin omistaja pitää sen päällä, eikä se koskaan paljasta, kuka hän on, tai mitään viesteistä.
+      Jos hän ei koskaan ota sitä käyttöön, lähettäjät näkevät vain, ettei sitä voida näyttää.
+    </p>
+    <p class="hint">
+      <strong>Pidossa.</strong> Omistaja voi keskeyttää osoitteen. Keskeytetty osoite lakkaa ottamasta vastaan
+      uusia viestejä ja näyttää lähettäjälle täsmälleen samalta kuin osoite, jota ei koskaan seurattu — se ei
+      ilmoita, että keskeytys oli tahallinen. Kaikki jo vastaanotettu säilyy turvassa omistajan postilaatikossa.
+    </p>
+    <p class="hint">
+      <strong>Jos linkki paljastuu.</strong> Pito keskeyttää osoitteen, mutta kuka tahansa hallintalinkin haltija
+      voi kytkeä sen takaisin päälle. Jos SECRET-linkki joskus vaarantuu, omistaja voi sen sijaan <strong>poistaa
+      osoitteen pysyvästi</strong> — se ja jokainen sen viesti tuhotaan, linkki lakkaa toimimasta, ja lähettäjät
+      näkevät saman ”ei ole olemassa” kuin osoitteesta, jota ei koskaan ollut. Poistaminen vaatii vain
+      hallintalinkin, <strong>ei</strong> salalausetta, joten omistaja, joka on lukittu ulos — vuotanut linkki,
+      jota hän ei enää voi lukea, tai kadonnut salalause — voi silti poistaa osoitteen käytöstä ja aloittaa alusta.
+    </p>
+
+    <p class="linkrow"><a href="/fi/drops">Luo vastaanotto-osoite →</a></p>
+  </section>
+</main>
+
+<footer>
+  <p><a href="/fi">Etusivu</a> · <a href="/fi/drops">Luo vastaanotto-osoite</a> · <a href="/fi/how">Miten privsend toimii</a> · <a href="/fi/verify">Näin varmistat</a> · <a href="/fi/terms">Käyttöehdot</a> · <a href="/fi/privacy">Tietosuoja</a> · <a href="/report">Ilmoita linkistä</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Lähdekoodi</a> · <a href="/drops/how">In English</a></p>
+</footer>

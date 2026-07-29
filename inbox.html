@@ -13,63 +13,102 @@
 
 <header>
   <a class="brand-link" href="/"><h1 class="brand">Priv<span>Send</span></h1></a>
-  <p class="tagline">Your drop inbox</p>
-  <p class="small muted"><a href="/drops/how">How Drops works →</a></p>
+  <!--
+    BOTH LANGUAGES, ONE URL. The console link is generated once and is language-agnostic,
+    so it cannot carry a choice, and the owner may read either language. A /fi/SECRET#…
+    variant would only add a second link to keep straight. So the page carries both and
+    lets the owner pick; the choice is neither stored nor sent anywhere.
+  -->
+  <div class="langbar">
+    <button type="button" id="lang-en">English</button>
+    <button type="button" id="lang-fi">Suomeksi</button>
+  </div>
+  <p class="tagline lang-en">Your drop inbox</p>
+  <p class="tagline lang-fi">Vastaanottolaatikkosi</p>
+  <p class="small muted lang-en"><a href="/drops/how">How Drops works →</a></p>
+  <p class="small muted lang-fi"><a href="/fi/drops/how">Miten Dropit toimivat →</a></p>
 </header>
 
 <main>
   <section id="loading" class="big-state">
     <div class="icon"><span class="spinner"></span></div>
-    <h2>Loading…</h2>
+    <h2 class="lang-en">Loading…</h2>
+    <h2 class="lang-fi">Ladataan…</h2>
   </section>
 
   <section id="invalid" class="hidden big-state">
     <div class="icon">🚫</div>
-    <h2>This console link is not valid</h2>
-    <p class="hint">The link may be mistyped or incomplete, or the address may have been removed. The secret part of the link comes after the “#” — make sure you copied the whole thing.</p>
-    <p class="linkrow"><a href="/drops">Create a drop address</a></p>
+    <h2 class="lang-en">This console link is not valid</h2>
+    <h2 class="lang-fi">Tämä hallintalinkki ei kelpaa</h2>
+    <p class="hint lang-en">The link may be mistyped or incomplete, or the address may have been removed. The secret part of the link comes after the “#” — make sure you copied the whole thing.</p>
+    <p class="hint lang-fi">Linkki voi olla väärin kirjoitettu tai vaillinainen, tai osoite on voitu poistaa. Linkin salainen osa tulee ”#”-merkin jälkeen — varmista, että kopioit sen kokonaan.</p>
+    <p class="linkrow lang-en"><a href="/drops">Create a drop address</a></p>
+    <p class="linkrow lang-fi"><a href="/fi/drops">Luo vastaanotto-osoite</a></p>
   </section>
 
   <section id="console" class="hidden">
-    <h2>Your drop inbox</h2>
+    <h2 class="lang-en">Your drop inbox</h2>
+    <h2 class="lang-fi">Vastaanottolaatikkosi</h2>
 
     <div id="disabledBanner" class="note danger hidden">
-      <strong>This address is closed to new messages.</strong> You can still read and delete what is already here.
+      <span class="lang-en"><strong>This address is closed to new messages.</strong> You can still read and delete what is already here.</span>
+      <span class="lang-fi"><strong>Tämä osoite ei ota vastaan uusia viestejä.</strong> Voit yhä lukea ja poistaa sen, mikä on jo täällä.</span>
     </div>
 
-    <label>📣 Your public drop address <span class="soft">(safe to share)</span></label>
+    <label class="lang-en">📣 Your public drop address <span class="soft">(safe to share)</span></label>
+    <label class="lang-fi">📣 Julkinen vastaanotto-osoitteesi <span class="soft">(turvallista jakaa)</span></label>
     <div class="field status" id="publicAddr"></div>
 
-    <label>Your key fingerprint</label>
+    <label class="lang-en">Your key fingerprint</label>
+    <label class="lang-fi">Avaimesi sormenjälki</label>
     <div class="field" id="fingerprint"></div>
-    <div class="note">
+    <div class="note lang-en">
       Publish this fingerprint somewhere people already trust to be you. A careful sender can then
       confirm the address served them the right key before they write — the one thing a compelled
       server could otherwise tamper with.
     </div>
+    <div class="note lang-fi">
+      Julkaise tämä sormenjälki jossakin, jonka ihmiset jo luottavat olevan sinä. Huolellinen lähettäjä
+      voi silloin varmistaa ennen kirjoittamista, että osoite tarjosi hänelle oikean avaimen — ainoan
+      asian, jota pakotettu palvelin voisi muuten peukaloida.
+    </div>
 
     <details id="settings" class="settings">
-      <summary>Inbox settings — hold &amp; last-seen</summary>
+      <summary><span class="lang-en">Inbox settings — hold &amp; last-seen</span><span class="lang-fi">Postilaatikon asetukset — pito ja viimeksi nähty</span></summary>
 
       <div class="check">
         <input type="checkbox" id="setHold">
-        <label for="setHold">Put my inbox on hold</label>
+        <label for="setHold" class="lang-en">Put my inbox on hold</label>
+        <label for="setHold" class="lang-fi">Aseta postilaatikkoni pitoon</label>
       </div>
-      <p class="note">
+      <p class="note lang-en">
         While on hold, your address stops accepting new messages and shows senders a neutral
         “not accepting messages” page — it does not reveal that you paused it deliberately.
         Everything already in your inbox stays here to read and delete.
       </p>
+      <p class="note lang-fi">
+        Pidon aikana osoitteesi lakkaa ottamasta vastaan uusia viestejä ja näyttää lähettäjille
+        neutraalin ”ei ota vastaan viestejä” -sivun — se ei paljasta, että keskeytit sen tahallasi.
+        Kaikki jo postilaatikossasi oleva säilyy täällä luettavaksi ja poistettavaksi.
+      </p>
 
       <div class="check">
         <input type="checkbox" id="setDisclose">
-        <label for="setDisclose">Show senders roughly when I was last active</label>
+        <label for="setDisclose" class="lang-en">Show senders roughly when I was last active</label>
+        <label for="setDisclose" class="lang-fi">Näytä lähettäjille suunnilleen, milloin olin viimeksi aktiivinen</label>
       </div>
-      <p class="note">
+      <p class="note lang-en">
         If you opt in, we keep a log — only to weekly accuracy — of when you last <strong>unlock and
         read</strong> your inbox. It updates only on a successful unlock with your passphrase, never
         when the link is merely opened, so coming here to try a passphrase you have lost never signals
         “active”. We still do not know who you are or the context of the messages.
+      </p>
+      <p class="note lang-fi">
+        Jos otat tämän käyttöön, pidämme kirjaa — vain viikon tarkkuudella — siitä, milloin viimeksi
+        <strong>avaat ja luet</strong> postilaatikkosi. Se päivittyy vain, kun avaus onnistuu
+        salalauseellasi, ei koskaan pelkästä linkin avaamisesta, joten tänne tuleminen kokeilemaan
+        kadonnutta salalausetta ei koskaan viesti ”aktiivista”. Emme silti tiedä, kuka olet, emmekä
+        viestien asiayhteyttä.
       </p>
 
       <div class="toolbar">
@@ -80,11 +119,15 @@
 
     <section id="unlock">
       <p class="hint" id="count"></p>
-      <p id="idleNote" class="note hidden">Locked after 15 minutes of inactivity. Enter your passphrase to read again.</p>
+      <p id="idleNote" class="note hidden">
+        <span class="lang-en">Locked after 15 minutes of inactivity. Enter your passphrase to read again.</span>
+        <span class="lang-fi">Lukittu 15 minuutin käyttämättömyyden jälkeen. Anna salalauseesi lukeaksesi uudelleen.</span>
+      </p>
       <div class="toolbar">
         <button id="checkPre" class="compact">Check for new messages</button>
       </div>
-      <label for="passphrase">Passphrase</label>
+      <label for="passphrase" class="lang-en">Passphrase</label>
+      <label for="passphrase" class="lang-fi">Salalause</label>
       <input type="text" id="passphrase" data-reveal="css" placeholder="Your passphrase" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
       <button id="unlockBtn">Unlock inbox</button>
       <p id="unlockErr" class="note danger hidden"></p>
@@ -96,18 +139,23 @@
         <button id="refresh" class="compact">Check for new messages</button>
       </div>
       <ul id="list" class="droplist"></ul>
-      <p id="empty" class="hint hidden">No messages yet. Share your drop address and they will appear here.</p>
+      <p id="empty" class="hint hidden">
+        <span class="lang-en">No messages yet. Share your drop address and they will appear here.</span>
+        <span class="lang-fi">Ei vielä viestejä. Jaa vastaanotto-osoitteesi, niin ne ilmestyvät tähän.</span>
+      </p>
 
       <details id="manage" class="settings mt-lg">
-        <summary>Manage this address</summary>
+        <summary><span class="lang-en">Manage this address</span><span class="lang-fi">Hallitse tätä osoitetta</span></summary>
 
-        <label for="setRetention">Keep each message for</label>
+        <label for="setRetention" class="lang-en">Keep each message for</label>
+        <label for="setRetention" class="lang-fi">Säilytä kutakin viestiä</label>
         <select id="setRetention">
           <option value="7">7 days</option>
           <option value="30">30 days</option>
           <option value="90">90 days</option>
         </select>
-        <p class="note">Applies only to messages that arrive from now on — anything already in your inbox keeps the deadline it was given.</p>
+        <p class="note lang-en">Applies only to messages that arrive from now on — anything already in your inbox keeps the deadline it was given.</p>
+        <p class="note lang-fi">Koskee vain tästä lähtien saapuvia viestejä — kaikki jo postilaatikossasi oleva säilyttää sille annetun määräajan.</p>
         <div class="toolbar">
           <button id="saveRetention" class="compact">Save retention</button>
         </div>
@@ -115,10 +163,15 @@
 
         <hr>
 
-        <label for="curPass">Change your passphrase</label>
-        <p class="note">
+        <label for="curPass" class="lang-en">Change your passphrase</label>
+        <label for="curPass" class="lang-fi">Vaihda salalauseesi</label>
+        <p class="note lang-en">
           Changes the key to this inbox without touching a single message, and your SECRET link stays
           the same. You must know your current passphrase — there is still <strong>no recovery</strong>.
+        </p>
+        <p class="note lang-fi">
+          Vaihtaa tämän postilaatikon avaimen koskematta yhteenkään viestiin, ja SECRET-linkkisi pysyy
+          samana. Sinun on tiedettävä nykyinen salalauseesi — <strong>palautusta ei silti ole</strong>.
         </p>
         <input type="text" id="curPass" data-reveal="css" placeholder="Current passphrase" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
         <input type="text" id="newPass" data-reveal="css" placeholder="New passphrase" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" class="mt-sm">
@@ -135,12 +188,18 @@
          one who is locked out (lost passphrase, or a leaked link they cannot read but must
          kill). Deleting needs only the console link, never the passphrase (store.DeleteDrop). -->
     <details id="danger" class="settings">
-      <summary>Delete this address permanently</summary>
-      <p class="note danger">
+      <summary><span class="lang-en">Delete this address permanently</span><span class="lang-fi">Poista tämä osoite pysyvästi</span></summary>
+      <p class="note danger lang-en">
         Use this if your SECRET link has been exposed, or if you have lost your passphrase — you do
         <strong>not</strong> need your passphrase for this. It <strong>permanently</strong> destroys this
         address and every message in it: the link stops working, senders see “does not exist”, and there
         is <strong>no undo</strong>. (Hold only pauses new messages and can be switched back on.)
+      </p>
+      <p class="note danger lang-fi">
+        Käytä tätä, jos SECRET-linkkisi on paljastunut tai olet menettänyt salalauseesi — et
+        <strong>tarvitse</strong> salalausetta tähän. Se <strong>tuhoaa pysyvästi</strong> tämän osoitteen
+        ja jokaisen sen viestin: linkki lakkaa toimimasta, lähettäjät näkevät ”ei ole olemassa”, eikä
+        <strong>peruutusta ole</strong>. (Pito vain keskeyttää uudet viestit ja voidaan kytkeä takaisin päälle.)
       </p>
       <div class="toolbar">
         <button id="destroy" class="danger compact">Delete this address permanently</button>
@@ -151,14 +210,18 @@
 
   <section id="destroyed" class="hidden big-state">
     <div class="icon">🗑️</div>
-    <h2>This address has been deleted</h2>
-    <p class="hint">The address and every message in it are gone, and this link no longer works. You can create a new drop address whenever you like.</p>
-    <p class="linkrow"><a href="/drops">Create a drop address</a></p>
+    <h2 class="lang-en">This address has been deleted</h2>
+    <h2 class="lang-fi">Tämä osoite on poistettu</h2>
+    <p class="hint lang-en">The address and every message in it are gone, and this link no longer works. You can create a new drop address whenever you like.</p>
+    <p class="hint lang-fi">Osoite ja jokainen sen viesti ovat poissa, eikä tämä linkki enää toimi. Voit luoda uuden vastaanotto-osoitteen milloin tahansa.</p>
+    <p class="linkrow lang-en"><a href="/drops">Create a drop address</a></p>
+    <p class="linkrow lang-fi"><a href="/fi/drops">Luo vastaanotto-osoite</a></p>
   </section>
 </main>
 
 <footer>
-  <p><a href="/">Home</a> · <a href="/drops/how">How Drops works</a> · <a href="/how">How privsend works</a> · <a href="/verify">How to verify</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Source code</a></p>
+  <p class="lang-en"><a href="/">Home</a> · <a href="/drops/how">How Drops works</a> · <a href="/how">How privsend works</a> · <a href="/verify">How to verify</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/report">Report a link</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Source code</a></p>
+  <p class="lang-fi"><a href="/fi">Etusivu</a> · <a href="/fi/drops/how">Miten Dropit toimivat</a> · <a href="/fi/how">Miten privsend toimii</a> · <a href="/fi/verify">Näin varmistat</a> · <a href="/fi/terms">Käyttöehdot</a> · <a href="/fi/privacy">Tietosuoja</a> · <a href="/report">Ilmoita linkistä</a> · <a href="https://github.com/hannu64/privsend-client" target="_blank" rel="noopener">Lähdekoodi</a></p>
 </footer>
 
 <script type="module" src="/static/inbox.js"></script>

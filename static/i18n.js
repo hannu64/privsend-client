@@ -144,6 +144,120 @@ TABLES.en = {
     'If you leave now, this secret can never be read by anyone.\n\n' +
     'Leave anyway?',
 
+  // The PUBLIC drop page (/public/{id}). Like reveal, it carries both languages on one
+  // URL and a toggle: the sender did not choose this address -- the owner published it --
+  // and a /fi/public/{id} would announce the owner's language to anyone who saw the link.
+  drop: {
+    pageTitle: 'privsend — send a private message',
+    sendBtn: 'Encrypt & send',
+    encrypting: 'Encrypting…',
+    placeholder: 'Write your message…',
+    writeFirst: 'Please write a message first.',
+    tooLong: 'Message is too long.',
+    sendFailed: 'Could not send the message.',
+    // The recipient's opt-in "still watched" signal, worded honestly: the owner's own
+    // console sets it after a read, so it is a hint, not a proof (2026-07-29 review).
+    lastActive: (bucket) =>
+      `The owner's console was last active in this inbox ${bucket} — a rough hint, not a guarantee.`,
+    lastUnknown:
+      "We can't tell you whether this inbox is still being watched — the owner hasn't chosen to show that.",
+    // Keyed by the server's coarse last_seen CODE (see api.lastSeenBucket).
+    buckets: {
+      week: 'within the last week',
+      month: 'within the last month',
+      quarter: 'within the last 3 months',
+      half: 'within the last 6 months',
+      older: 'more than 6 months ago',
+    },
+  },
+
+  // The passphrase strength gate (passphrase.js), shared by the create page and the
+  // console's change-passphrase. A FLOOR, not a verdict on quality -- see passphrase.js.
+  pass: {
+    ok: 'Looks good ✓',
+    tooShort: (min) =>
+      `Use at least ${min} characters. A dozen varied characters is fine, and four everyday words — like “amber tractor velvet moon” — is easy to remember.`,
+    common: 'That is one of the most common passwords in the world — an attacker tries it first. Choose something only you would think of.',
+    digitsOnly: 'Digits alone are easy to guess. Add words or letters, or make it much longer.',
+    repeats: 'That repeats too much to be safe — a repeated block is only as strong as the block itself, however long you make it. Use more varied characters, or four everyday words.',
+  },
+
+  // The create-a-drop-address page (/drops and /fi/drops). URL-chosen language, no toggle.
+  drops: {
+    pageTitle: 'privsend — create a drop address',
+    createBtn: 'Create my drop address',
+    creating: 'Creating…',
+    chooseFirst: 'Choose a passphrase first.',
+    createFailed: 'Could not create the drop address.',
+    copyConsole: 'Copy SECRET console link',
+    copyAddr: 'Copy public drop address',
+    copyFailed: 'Copy failed — select and copy manually',
+    confirmUnsaved: 'Have you saved your console link? Without it you cannot get back in.',
+  },
+
+  // The recipient's console (/SECRET#token: inbox.html + inbox.js). A TOGGLE page: the one
+  // SECRET link is generated language-agnostic, so it cannot encode a choice -- and nothing
+  // is persisted -- so like reveal it carries both languages on one URL, a visible toggle,
+  // and the browser locale as the opening guess. Fixed prose lives twice in the HTML; the
+  // text this table holds is what the script WRITES at runtime and must re-render on a toggle.
+  inbox: {
+    pageTitle: 'privsend — your drop inbox',
+    checkNew: 'Check for new messages',
+    unlockBtn: 'Unlock inbox',
+    passPlaceholder: 'Your passphrase',
+    saveSettings: 'Save settings',
+    saveChanges: 'Save changes',
+    saveRetention: 'Save retention',
+    changePass: 'Change passphrase',
+    deleteAddr: 'Delete this address permanently',
+    curPassPh: 'Current passphrase',
+    newPassPh: 'New passphrase',
+    newPass2Ph: 'Repeat new passphrase',
+    days7: '7 days',
+    days30: '30 days',
+    days90: '90 days',
+    deleteBtn: 'Delete',
+    emptyMsg: '(empty message)',
+    undecryptable: '[This message could not be decrypted.]',
+    fpUnavailable: '(unavailable)',
+
+    countEmpty: 'No messages in your inbox yet. Enter your passphrase to open it.',
+    countSome: (n) =>
+      `Your inbox holds ${n} message${n === 1 ? '' : 's'} in total. ` +
+      `Enter your passphrase to read ${n === 1 ? 'it' : 'them'}.`,
+
+    enterPass: 'Enter your passphrase.',
+    wrongPass: 'Wrong passphrase.',
+
+    // The failed-unlock intrusion warning. `others` are attempts from another session or
+    // device -- the real intrusion signal; `mine` are this tab's own wrong guesses, shown
+    // so a genuine "others" count can never be mistaken for one's own fumbling, or vice versa.
+    intrusionOthers: (others, mine) => {
+      const o = others >= 999 ? '999+' : String(others);
+      return `⚠️ Since you last read your messages: ${o} failed passphrase attempt${others === 1 ? '' : 's'} from another session or device`
+        + (mine > 0 ? `, plus ${mine} you just made in this one` : '')
+        + `. If those other attempts were not you, your SECRET link may be exposed — consider “Delete this address permanently” below, then share a fresh drop address.`;
+    },
+    intrusionMineOnly: (mine) =>
+      `You just made ${mine} failed passphrase attempt${mine === 1 ? '' : 's'}, and there were no other attempts since you last read — nothing to worry about.`,
+
+    settingsSaved: 'Settings saved.',
+    settingsSavedPending: 'Settings saved. Senders will see your “last active” time once you unlock and read your inbox.',
+    settingsFailed: 'Could not save settings. Please try again.',
+
+    retentionSaved: (days) => `Saved. New messages will be kept for ${days} days.`,
+    retentionFailed: 'Could not save. Please try again.',
+
+    passFill: 'Fill in your current and new passphrase.',
+    passMismatch: 'The two new passphrases do not match.',
+    passWrongCur: 'Wrong current passphrase.',
+    passChanged: 'Passphrase changed. Use the new one from now on.',
+    passSaveFailed: 'Could not save the change. Please try again.',
+
+    confirmDestroy: 'Permanently delete this address and every message in it? This cannot be undone.',
+    destroyFailed: 'Could not delete the address. Please try again.',
+  },
+
   reveal: {
     pageTitle: 'privsend — a secret is waiting',
     revealBtn: 'Reveal secret',
@@ -263,6 +377,120 @@ TABLES.fi = {
     'Salauksen purkava avain on olemassa vain tällä sivulla — sitä ei tallenneta ' +
     'palvelimellemme. Jos poistut nyt, kukaan ei voi enää koskaan lukea tätä salaisuutta.\n\n' +
     'Poistutaanko silti?',
+
+  // Julkinen vastaanottosivu (/public/{id}). Kuten paljastussivu, se kantaa molempia kieliä
+  // yhdessä osoitteessa ja tarjoaa valitsimen: lähettäjä ei valinnut tätä osoitetta —
+  // omistaja julkaisi sen — ja /fi/public/{id} paljastaisi omistajan kielen kenelle tahansa,
+  // joka näkee linkin.
+  drop: {
+    pageTitle: 'privsend — lähetä yksityinen viesti',
+    sendBtn: 'Salaa ja lähetä',
+    encrypting: 'Salataan…',
+    placeholder: 'Kirjoita viestisi…',
+    writeFirst: 'Kirjoita ensin viesti.',
+    tooLong: 'Viesti on liian pitkä.',
+    sendFailed: 'Viestin lähettäminen ei onnistunut.',
+    lastActive: (bucket) =>
+      `Omistajan konsoli oli tässä postilaatikossa aktiivinen ${bucket} — karkea vihje, ei takuu.`,
+    lastUnknown:
+      'Emme voi kertoa, seurataanko tätä postilaatikkoa yhä — omistaja ei ole valinnut sen näyttämistä.',
+    // Avaimena palvelimen karkea last_seen-KOODI (ks. api.lastSeenBucket).
+    buckets: {
+      week: 'viimeisen viikon aikana',
+      month: 'viimeisen kuukauden aikana',
+      quarter: 'viimeisen 3 kuukauden aikana',
+      half: 'viimeisen 6 kuukauden aikana',
+      older: 'yli 6 kuukautta sitten',
+    },
+  },
+
+  // Salalauseen vahvuustarkistus (passphrase.js), jaettu luontisivun ja konsolin
+  // salalauseen vaihdon kesken. LATTIA, ei arvio laadusta — ks. passphrase.js.
+  pass: {
+    ok: 'Näyttää hyvältä ✓',
+    tooShort: (min) =>
+      `Käytä vähintään ${min} merkkiä. Tusina vaihtelevaa merkkiä riittää, ja neljä arkista sanaa — kuten ”meripihka traktori sametti kuu” — on helppo muistaa.`,
+    common: 'Tämä on yksi maailman yleisimmistä salasanoista — hyökkääjä kokeilee sitä ensimmäisenä. Valitse jokin, jonka vain sinä keksisit.',
+    digitsOnly: 'Pelkät numerot on helppo arvata. Lisää sanoja tai kirjaimia, tai tee siitä paljon pidempi.',
+    repeats: 'Tämä toistuu liikaa ollakseen turvallinen — toistuva lohko on vain yhtä vahva kuin lohko itse, olipa se kuinka pitkä tahansa. Käytä vaihtelevampia merkkejä tai neljää arkista sanaa.',
+  },
+
+  // Vastaanotto-osoitteen luontisivu (/drops ja /fi/drops). Kieli valitaan osoitteesta, ei valitsinta.
+  drops: {
+    pageTitle: 'privsend — luo vastaanotto-osoite',
+    createBtn: 'Luo vastaanotto-osoitteeni',
+    creating: 'Luodaan…',
+    chooseFirst: 'Valitse ensin salalause.',
+    createFailed: 'Vastaanotto-osoitteen luominen ei onnistunut.',
+    copyConsole: 'Kopioi salainen hallintalinkki',
+    copyAddr: 'Kopioi julkinen vastaanotto-osoite',
+    copyFailed: 'Kopiointi epäonnistui — valitse ja kopioi käsin',
+    confirmUnsaved: 'Oletko tallentanut hallintalinkkisi? Ilman sitä et pääse takaisin sisään.',
+  },
+
+  // Vastaanottajan konsoli (/SECRET#token: inbox.html + inbox.js). VALITSINSIVU: yksi
+  // SECRET-linkki luodaan kielineutraalina, eikä mitään tallenneta — joten kuten paljastussivu
+  // se kantaa molempia kieliä yhdessä osoitteessa, näkyvän valitsimen ja selaimen kielen
+  // aloitusarvauksena. Kiinteä teksti on HTML:ssä kahtena; tämä taulu on se, minkä skripti
+  // KIRJOITTAA ajon aikana ja mikä on piirrettävä uudelleen kieltä vaihdettaessa.
+  inbox: {
+    pageTitle: 'privsend — vastaanottolaatikkosi',
+    checkNew: 'Tarkista uudet viestit',
+    unlockBtn: 'Avaa postilaatikko',
+    passPlaceholder: 'Salalauseesi',
+    saveSettings: 'Tallenna asetukset',
+    saveChanges: 'Tallenna muutokset',
+    saveRetention: 'Tallenna säilytysaika',
+    changePass: 'Vaihda salalause',
+    deleteAddr: 'Poista tämä osoite pysyvästi',
+    curPassPh: 'Nykyinen salalause',
+    newPassPh: 'Uusi salalause',
+    newPass2Ph: 'Toista uusi salalause',
+    days7: '7 vuorokautta',
+    days30: '30 vuorokautta',
+    days90: '90 vuorokautta',
+    deleteBtn: 'Poista',
+    emptyMsg: '(tyhjä viesti)',
+    undecryptable: '[Tätä viestiä ei voitu purkaa.]',
+    fpUnavailable: '(ei saatavilla)',
+
+    countEmpty: 'Postilaatikossasi ei ole vielä viestejä. Avaa se salalauseellasi.',
+    countSome: (n) =>
+      `Postilaatikossasi on yhteensä ${n} ${n === 1 ? 'viesti' : 'viestiä'}. ` +
+      `Lue ${n === 1 ? 'se' : 'ne'} salalauseellasi.`,
+
+    enterPass: 'Anna salalauseesi.',
+    wrongPass: 'Väärä salalause.',
+
+    // Epäonnistuneiden avausten tunkeutumisvaroitus. `others` ovat yrityksiä toisesta
+    // istunnosta tai laitteesta — todellinen tunkeutumissignaali; `mine` ovat tämän välilehden
+    // omia vääriä arvauksia, näytetään jotta aitoa "others"-lukua ei voi sekoittaa omaan
+    // hapuiluun eikä päinvastoin.
+    intrusionOthers: (others, mine) => {
+      const o = others >= 999 ? '999+' : String(others);
+      return `⚠️ Sen jälkeen kun viimeksi luit viestisi: ${o} ${others === 1 ? 'epäonnistunut salalauseyritys' : 'epäonnistunutta salalauseyritystä'} toisesta istunnosta tai laitteesta`
+        + (mine > 0 ? `, sekä ${mine}, jotka teit juuri tässä` : '')
+        + `. Jos nuo muut yritykset eivät olleet sinä, SECRET-linkkisi on voinut paljastua — harkitse alla olevaa ”Poista tämä osoite pysyvästi” ja jaa sitten uusi vastaanotto-osoite.`;
+    },
+    intrusionMineOnly: (mine) =>
+      `Teit juuri ${mine} ${mine === 1 ? 'epäonnistuneen salalauseyrityksen' : 'epäonnistunutta salalauseyritystä'}, eikä muita yrityksiä ole tehty sen jälkeen kun viimeksi luit — ei syytä huoleen.`,
+
+    settingsSaved: 'Asetukset tallennettu.',
+    settingsSavedPending: 'Asetukset tallennettu. Lähettäjät näkevät ”viimeksi aktiivinen” -ajan, kun avaat ja luet postilaatikkosi.',
+    settingsFailed: 'Asetusten tallentaminen ei onnistunut. Yritä uudelleen.',
+
+    retentionSaved: (days) => `Tallennettu. Uudet viestit säilytetään ${days} vuorokautta.`,
+    retentionFailed: 'Tallennus ei onnistunut. Yritä uudelleen.',
+
+    passFill: 'Täytä nykyinen ja uusi salalause.',
+    passMismatch: 'Uudet salalauseet eivät täsmää.',
+    passWrongCur: 'Väärä nykyinen salalause.',
+    passChanged: 'Salalause vaihdettu. Käytä uutta tästä lähtien.',
+    passSaveFailed: 'Muutoksen tallentaminen ei onnistunut. Yritä uudelleen.',
+
+    confirmDestroy: 'Poistetaanko tämä osoite ja kaikki sen viestit pysyvästi? Tätä ei voi perua.',
+    destroyFailed: 'Osoitteen poistaminen ei onnistunut. Yritä uudelleen.',
+  },
 
   reveal: {
     pageTitle: 'privsend — sinulle on salaisuus',

@@ -11,6 +11,7 @@ import { unwrapPrivateKey, openDrop, publicKeyFingerprint, rewrapPrivateKey } fr
 import { attachReveal } from './ui.js';
 import { passphraseProblem } from './passphrase.js';
 import { api } from './config.js';
+import { t, initLangToggle, onLangChange } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -20,6 +21,9 @@ const ownerToken = location.hash.slice(1);
 let priv = null;  // the unwrapped private key (CryptoKey), once the passphrase is entered
 let view = null;  // the last inbox response
 let myFailedThisSession = 0;  // wrong guesses made in THIS tab, so they never self-alarm
+// The failed-unlock warning is decided once at unlock (before the counter resets under it)
+// and must survive a language toggle. We remember the resolved split, not the raw counts.
+let warnState = null;  // null | { others, mine }
 
 function show(id) {
   for (const s of ['loading', 'invalid', 'console']) {
@@ -31,6 +35,51 @@ const fmtTime = (iso) => {
   try { return new Date(iso).toLocaleString(); } catch { return iso; }
 };
 const groupFp = (hex) => hex.replace(/(.{4})/g, '$1 ').trim();
+
+/* ---- language --------------------------------------------------------------
+ * The console carries BOTH languages on one URL and a visible toggle, because the one
+ * SECRET link is generated language-agnostic (the create page cannot bake a choice into
+ * it) and nothing is persisted. Fixed prose exists twice in the HTML and CSS shows the
+ * right half; text this SCRIPT writes has to be re-rendered on a toggle. `dyn` registers
+ * a producer for one element's translatable text and updates ONLY its textContent -- the
+ * visibility and colour set at each call site are left untouched, so a dismissed status
+ * (hidden by other code) does not pop back when the language changes.
+ */
+const retexts = new Map();  // element id -> () => string
+function dyn(id, produce) { retexts.set(id, produce); $(id).textContent = produce(); }
+
+// Labels and placeholders that live on controls rather than in prose. Called at load
+// (before #console is ever shown) and again on every language toggle.
+function relabel() {
+  document.title = t.inbox.pageTitle;
+  $('checkPre').textContent = t.inbox.checkNew;
+  $('refresh').textContent = t.inbox.checkNew;
+  $('unlockBtn').textContent = t.inbox.unlockBtn;
+  $('passphrase').placeholder = t.inbox.passPlaceholder;
+  $('saveRetention').textContent = t.inbox.saveRetention;
+  $('savePass').textContent = t.inbox.changePass;
+  $('destroy').textContent = t.inbox.deleteAddr;
+  $('curPass').placeholder = t.inbox.curPassPh;
+  $('newPass').placeholder = t.inbox.newPassPh;
+  $('newPass2').placeholder = t.inbox.newPass2Ph;
+  const days = { '7': t.inbox.days7, '30': t.inbox.days30, '90': t.inbox.days90 };
+  for (const o of $('setRetention').options) o.textContent = days[o.value] || o.textContent;
+  refreshSaveState();  // owns the Save-settings/Save-changes label; safe before `view` loads
+}
+
+// Re-render everything the language toggle touches: control labels, every registered
+// dynamic text, and -- if unlocked and showing -- the decrypted list (its Delete buttons
+// and the two fallback strings are ours to translate; the messages themselves are not).
+function redraw() {
+  relabel();
+  for (const [id, produce] of retexts) $(id).textContent = produce();
+  if (priv && !$('messages').classList.contains('hidden')) render();
+}
+onLangChange(redraw);
+// autodetect: the owner did not choose this URL's language (there is only one SECRET
+// link), so the browser locale is the opening guess. Read, never stored, never sent.
+initLangToggle({ autodetect: true });
+relabel();
 
 // The API returns every binary field as a base64 string, which is exactly what the
 // crypto.js helpers consume — so the JSON entries pass straight into openDrop, and
@@ -56,7 +105,7 @@ async function init() {
   $('publicAddr').textContent = `${location.origin}/public/${view.drop_id}`;
   publicKeyFingerprint(view.public_key)
     .then((fp) => { $('fingerprint').textContent = groupFp(fp); })
-    .catch(() => { $('fingerprint').textContent = '(unavailable)'; });
+    .catch(() => { dyn('fingerprint', () => t.inbox.fpUnavailable); });
   $('disabledBanner').classList.toggle('hidden', !view.disabled);
   // Reflect the current settings so the toggles show the truth. These read from the
   // inbox response, which needs only the console link — so pausing (Hold) is possible
@@ -76,17 +125,15 @@ function showCount() {
   // Deliberately a TOTAL, not a new/seen split: the console does not track which drops
   // have been read (that would be extra metadata for little value), so it says how many
   // are held, never how many are unread.
-  $('count').textContent = n === 0
-    ? 'No messages in your inbox yet. Enter your passphrase to open it.'
-    : `Your inbox holds ${n} message${n === 1 ? '' : 's'} in total. Enter your passphrase to read ${n === 1 ? 'it' : 'them'}.`;
+  dyn('count', () => (n === 0 ? t.inbox.countEmpty : t.inbox.countSome(n)));
 }
 
 $('unlockBtn').addEventListener('click', async () => {
   $('unlockErr').classList.add('hidden');
   const pass = $('passphrase').value;
   if (!pass) {
-    $('unlockErr').textContent = 'Enter your passphrase.';
     $('unlockErr').classList.remove('hidden');
+    dyn('unlockErr', () => t.inbox.enterPass);
     return;
   }
   try {
@@ -100,8 +147,8 @@ $('unlockBtn').addEventListener('click', async () => {
     // leaked link the next time they get in. Fire-and-forget; the passphrase never leaves
     // this page, so this reports only that a failure happened, never what was tried.
     fetch(api('/api/drop/unlock-failed'), { method: 'POST', headers: { 'X-Owner-Token': ownerToken } }).catch(() => {});
-    $('unlockErr').textContent = 'Wrong passphrase.';
     $('unlockErr').classList.remove('hidden');
+    dyn('unlockErr', () => t.inbox.wrongPass);
     return;
   }
   $('passphrase').value = '';
@@ -122,20 +169,19 @@ $('unlockBtn').addEventListener('click', async () => {
   const total = view.failed_unlock_count || 0;
   const mine = Math.min(myFailedThisSession, total);
   const others = Math.max(0, total - myFailedThisSession);
+  warnState = { others, mine };  // captured so a language toggle re-renders the same verdict
   const warn = $('intrusionWarning');
   if (others > 0) {
-    const o = others >= 999 ? '999+' : String(others);
-    warn.textContent = `⚠️ Since you last read your messages: ${o} failed passphrase attempt${others === 1 ? '' : 's'} from another session or device`
-      + (mine > 0 ? `, plus ${mine} you just made in this one` : '')
-      + `. If those other attempts were not you, your SECRET link may be exposed — consider “Delete this address permanently” below, then share a fresh drop address.`;
     warn.className = 'note danger';
+    dyn('intrusionWarning', () => t.inbox.intrusionOthers(warnState.others, warnState.mine));
   } else if (mine > 0) {
     // Only this tab's own fumbles. Say so plainly, so a locked-out owner's guesses -- or your own
     // mistyping -- are acknowledged rather than silently swallowed, and the "all clear" is explicit.
-    warn.textContent = `You just made ${mine} failed passphrase attempt${mine === 1 ? '' : 's'}, and there were no other attempts since you last read — nothing to worry about.`;
     warn.className = 'note';
+    dyn('intrusionWarning', () => t.inbox.intrusionMineOnly(warnState.mine));
   } else {
     warn.className = 'note danger hidden';
+    retexts.delete('intrusionWarning');  // nothing to re-render; drop the stale producer
   }
   // A successful unlock is the ONE moment that proves someone who can READ is here. Record the
   // read: it refreshes "last seen" (only if the recipient opted in -- the server checks) AND
@@ -177,18 +223,15 @@ $('saveSettings').addEventListener('click', async () => {
     // must NOT stamp (that is the whole honesty rule -- a locked-out owner toggling settings is not
     // a reader), so the signal only appears once they actually unlock and read; say so, rather than
     // leave them wondering why senders still see nothing. Opting OUT stays a plain erase.
+    const pendingSignal = saved.disclose_last_seen && !priv;  // captured: the branch, not the text
     if (saved.disclose_last_seen && priv) {
       fetch(api('/api/drop/seen'), { method: 'POST', headers: { 'X-Owner-Token': ownerToken } }).catch(() => {});
-      status.textContent = 'Settings saved.';
-    } else if (saved.disclose_last_seen) {
-      status.textContent = 'Settings saved. Senders will see your “last active” time once you unlock and read your inbox.';
-    } else {
-      status.textContent = 'Settings saved.';
     }
     status.className = 'note ok';
+    dyn('settingsStatus', () => (pendingSignal ? t.inbox.settingsSavedPending : t.inbox.settingsSaved));
   } catch {
-    status.textContent = 'Could not save settings. Please try again.';
     status.className = 'note danger';
+    dyn('settingsStatus', () => t.inbox.settingsFailed);
     refreshSaveState();
   } finally {
     btn.disabled = false;
@@ -203,10 +246,13 @@ function settingsDirty() {
       || $('setDisclose').checked !== view.disclose_last_seen;
 }
 function refreshSaveState() {
-  const dirty = settingsDirty();
   const btn = $('saveSettings');
+  // Called from relabel() at load, before init() has fetched the inbox: with no `view`
+  // there is nothing to be dirty against, so just show the resting label.
+  if (!view) { btn.textContent = t.inbox.saveSettings; btn.classList.remove('pending'); return; }
+  const dirty = settingsDirty();
   btn.classList.toggle('pending', dirty);
-  btn.textContent = dirty ? 'Save changes' : 'Save settings';
+  btn.textContent = dirty ? t.inbox.saveChanges : t.inbox.saveSettings;
 }
 for (const id of ['setHold', 'setDisclose']) {
   $(id).addEventListener('change', () => {
@@ -244,9 +290,9 @@ async function render() {
     let text;
     try {
       const opened = await openDrop(priv, entry);
-      text = opened.message || '(empty message)';
+      text = opened.message || t.inbox.emptyMsg;
     } catch {
-      text = '[This message could not be decrypted.]';
+      text = t.inbox.undecryptable;
     }
 
     const li = document.createElement('li');
@@ -258,7 +304,7 @@ async function render() {
     time.textContent = fmtTime(entry.created_at);
     const rm = document.createElement('button');
     rm.className = 'secondary compact';
-    rm.textContent = 'Delete';
+    rm.textContent = t.inbox.deleteBtn;
     rm.addEventListener('click', () => del(entry.entry_id));
     head.append(time, rm);
 
@@ -345,11 +391,12 @@ $('saveRetention').addEventListener('click', async () => {
     const saved = await res.json();
     view.retention_days = saved.retention_days;
     $('setRetention').value = String(saved.retention_days);
-    status.textContent = `Saved. New messages will be kept for ${saved.retention_days} days.`;
+    const days = saved.retention_days;
     status.className = 'note ok';
+    dyn('retentionStatus', () => t.inbox.retentionSaved(days));
   } catch {
-    status.textContent = 'Could not save. Please try again.';
     status.className = 'note danger';
+    dyn('retentionStatus', () => t.inbox.retentionFailed);
   } finally {
     btn.disabled = false;
   }
@@ -362,20 +409,22 @@ attachReveal($('newPass'));
 attachReveal($('newPass2'));
 // The main unlock field gets the same eye toggle as every other passphrase input.
 attachReveal($('passphrase'));
-function showPassStatus(msg, ok) {
+function showPassStatus(produce, ok) {
   const s = $('passStatus');
-  s.textContent = msg;
   s.className = ok ? 'note ok' : 'note danger';
+  dyn('passStatus', produce);
 }
 $('savePass').addEventListener('click', async () => {
   $('passStatus').classList.add('hidden');
   const cur = $('curPass').value, nw = $('newPass').value, nw2 = $('newPass2').value;
-  if (!cur || !nw) { showPassStatus('Fill in your current and new passphrase.', false); return; }
-  if (nw !== nw2) { showPassStatus('The two new passphrases do not match.', false); return; }
+  if (!cur || !nw) { showPassStatus(() => t.inbox.passFill, false); return; }
+  if (nw !== nw2) { showPassStatus(() => t.inbox.passMismatch, false); return; }
   // Same hard block as the create page: a passphrase change must not swap a strong key for a
   // weak one. The wrong-current-passphrase check happens locally in rewrapPrivateKey below.
+  // passphraseProblem is language-aware, so re-running it on the captured value on a toggle
+  // re-renders the reason in the newly chosen language.
   const weak = passphraseProblem(nw);
-  if (weak) { showPassStatus(weak, false); return; }
+  if (weak) { showPassStatus(() => passphraseProblem(nw) || '', false); return; }
   const btn = $('savePass');
   btn.disabled = true;
   let wrapped;
@@ -386,7 +435,7 @@ $('savePass').addEventListener('click', async () => {
       { enc: view.enc_private_key, nonce: view.enc_nonce, salt: view.enc_salt }, cur, nw,
     );
   } catch {
-    showPassStatus('Wrong current passphrase.', false);
+    showPassStatus(() => t.inbox.passWrongCur, false);
     btn.disabled = false;
     return;
   }
@@ -403,9 +452,9 @@ $('savePass').addEventListener('click', async () => {
     view.enc_nonce = wrapped.nonce;
     view.enc_salt = wrapped.salt;
     $('curPass').value = ''; $('newPass').value = ''; $('newPass2').value = '';
-    showPassStatus('Passphrase changed. Use the new one from now on.', true);
+    showPassStatus(() => t.inbox.passChanged, true);
   } catch {
-    showPassStatus('Could not save the change. Please try again.', false);
+    showPassStatus(() => t.inbox.passSaveFailed, false);
   } finally {
     btn.disabled = false;
   }
@@ -413,7 +462,7 @@ $('savePass').addEventListener('click', async () => {
 
 /* ---- delete this address permanently (the compromised-link kill switch) ----- */
 $('destroy').addEventListener('click', async () => {
-  if (!window.confirm('Permanently delete this address and every message in it? This cannot be undone.')) return;
+  if (!window.confirm(t.inbox.confirmDestroy)) return;
   const btn = $('destroy');
   btn.disabled = true;
   $('destroyStatus').classList.add('hidden');
@@ -424,8 +473,8 @@ $('destroy').addEventListener('click', async () => {
     $('console').classList.add('hidden');
     $('destroyed').classList.remove('hidden');
   } catch {
-    $('destroyStatus').textContent = 'Could not delete the address. Please try again.';
-    $('destroyStatus').classList.remove('hidden');
+    $('destroyStatus').className = 'note danger';
+    dyn('destroyStatus', () => t.inbox.destroyFailed);
     btn.disabled = false;
   }
 });
