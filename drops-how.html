@@ -103,11 +103,13 @@
     </p>
     <p class="hint">
       <strong>Last active (off by default).</strong> The owner can choose to show senders a rough, coarse
-      hint — “within the last week”, “within the last 3 months” — of when they last <strong>unlocked and
-      read</strong> their inbox. It updates only on a real read with the passphrase, never when the link is
-      merely opened, so it cannot be faked by someone who has lost access and is only coming to try guesses.
-      It is kept only to weekly accuracy, only while they leave it on, and it never reveals who they are or
-      anything about the messages. If they never turn it on, senders simply see that it cannot be shown.
+      hint — “within the last week”, “within the last 3 months” — of roughly when they last opened and read
+      their inbox. Their own console reports it after they unlock and read, so an owner who has lost their
+      passphrase and only loads the page to try guesses does not mark themselves active. It is a
+      <strong>best-effort</strong> signal from the owner’s console, though — a “probably still watched”, not
+      a cryptographic proof — so a careful sender should treat it as a hint, not a guarantee. It is kept only
+      to weekly accuracy, only while the owner leaves it on, and it never reveals who they are or anything
+      about the messages. If they never turn it on, senders simply see that it cannot be shown.
     </p>
     <p class="hint">
       <strong>On hold.</strong> The owner can pause an address. A paused address stops accepting new

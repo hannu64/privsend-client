@@ -342,8 +342,14 @@ function parseManifest(json) {
 
 function safeName(name) {
   if (typeof name !== 'string' || !name) return 'file';
-  // Take the last path segment, drop control characters, and bound the length.
-  const base = name.split(/[/\\]/).pop().replace(/[\u0000-\u001f\u007f]/g, '').trim();
+  // Take the last path segment, then strip the characters that let a name LIE about itself:
+  // C0/C1 controls and DEL, plus the Unicode bidi / directional-formatting characters
+  // (LRM/RLM/ALM, the LRE..RLO overrides, and the isolate controls). A right-to-left
+  // override such as U+202E renders "photo<U+202E>gpj.exe" on screen as "photoexe.jpg"
+  // while the file still saves as .exe. A hostile sender controls this name, and it is both
+  // shown (textContent) and used as a download filename, so those characters come out here.
+  // (Outsider review, 2026-07-29.)
+  const base = name.split(/[/\\]/).pop().replace(/[\u0000-\u001f\u007f-\u009f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, '').trim();
   return base.slice(0, 200) || 'file';
 }
 

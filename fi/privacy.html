@@ -17,7 +17,7 @@
 </header>
 
 <main>
-  <p class="small muted">Päivitetty viimeksi: 20. heinäkuuta 2026 · <a href="/privacy">In English</a></p>
+  <p class="small muted">Päivitetty viimeksi: 29. heinäkuuta 2026 · <a href="/privacy">In English</a></p>
 
   <h2>Rekisterinpitäjä</h2>
   <div class="field selectable">
@@ -74,6 +74,43 @@
     </li>
   </ul>
 
+  <h2>Jos luot vastaanotto-osoitteen (drop)</h2>
+  <p class="hint">
+    <a href="/drops/how">Vastaanotto-osoitteen</a> avulla kuka tahansa voi lähettää <strong>sinulle</strong>
+    salatun viestin ilman käyttäjätiliä. Koska osoite on pitkäikäinen, se tallentaa hieman enemmän kuin
+    kertakäyttöinen salaisuus — mutta silti vain salattua tietoa ja sellaista, jota emme voi lukea:
+  </p>
+  <ul class="hint">
+    <li>
+      <strong>Julkisen avaimesi,</strong> joka julkaistaan osoitteessa, jotta lähettäjien selaimet voivat salata
+      viestin sinulle, sekä <strong>yksisuuntaisen tiivisteen salaisesta hallintatunnuksestasi</strong> — ei
+      koskaan itse tunnusta, joten tietokannan vuodostakaan ei voi johtaa pääsyä postilaatikkoosi.
+    </li>
+    <li>
+      <strong>Yksityisen avaimesi salalauseellasi salattuna.</strong> Säilytämme sen läpinäkymättömänä lohkona,
+      jotta voit lukea postilaatikkosi miltä tahansa laitteelta hallintalinkilläsi ja salalauseellasi.
+      <strong>Meillä ei ole salalausettasi eikä sen tiivistettä</strong>, joten emme voi koskaan avata sitä —
+      eikä sitä voi palauttaa, jos unohdat sen.
+    </li>
+    <li>
+      <strong>Jokaisen vastaanottamasi viestin:</strong> sen salatun sisällön ja sinetöidyn avaimen, jonka vain
+      yksityinen avaimesi voi avata, sekä aikaleimat. <strong>Lähettäjän nimeä tai IP-osoitetta ei tallenneta
+      koskaan</strong> — lähettäjä on nimetön, ellei hän kirjoita nimeään viestiin. Jokainen viesti tuhotaan
+      valitsemasi säilytysajan jälkeen (7, 30 tai 90 vuorokautta), luit sen tai et.
+    </li>
+    <li>
+      <strong>Kaksi valinnaista, itse hallitsemaasi signaalia.</strong> Jos otat käyttöön ”viimeksi aktiivinen”
+      -vihjeen, tallennamme <em>viikon</em> (emme mitään tarkempaa), jolloin viimeksi luit postilaatikkosi, ja
+      poistamme sen heti, kun kytket vihjeen pois. Pidämme myös pientä <strong>epäonnistuneiden avausyritysten
+      laskuria</strong> varoittaaksemme, jos linkkiäsi koetellaan — vain lukumäärän, <strong>ilman IP-osoitetta,
+      laitetta tai aikaa</strong> — joka nollautuu, kun seuraavan kerran luet.
+    </li>
+  </ul>
+  <p class="hint">
+    Vastaanotto-osoitteesi säilyy, kunnes <strong>poistat sen</strong>; poistaminen tuhoaa osoitteen ja kaikki
+    siihen vielä jääneet viestit kerralla.
+  </p>
+
   <h2>Mitä emme tee</h2>
   <ul class="hint">
     <li>Emme pidä <strong>verkkopalvelimen lokitietoja</strong>. Käyntiäsi ei kirjata mihinkään.</li>
@@ -108,6 +145,11 @@
       vielä kirjoittamassa — ennen kuin linkkiä on olemassa. Jos suljet välilehden etkä koskaan luo linkkiä, tuo
       salattu tiedosto poistetaan automaattisesti <strong>tunnin kuluessa</strong>. Siihen ei koskaan luotu
       linkkiä, joten kukaan ei olisi voinut avata sitä.
+    </li>
+    <li>
+      <strong>Vastaanottamasi viestit (drop):</strong> jokainen tuhoutuu automaattisesti osoitteellesi
+      valitsemasi säilytysajan jälkeen (7, 30 tai 90 vuorokautta), luit sen tai et. Osoite itse ja sitä varten
+      tallennetut avaimet säilyvät, kunnes poistat osoitteen.
     </li>
     <li><strong>Metatiedot:</strong> poistetaan <strong>7 vuorokauden</strong> kuluttua siitä, kun salaisuus on luettu, vanhentunut tai poistettu. Sen jälkeen tilannelinkkisi lakkaa toimimasta, koska mitään ei ole enää jäljellä.</li>
     <li><strong>Pyyntölaskurit:</strong> minuutteja, vain muistissa.</li>

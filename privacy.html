@@ -16,7 +16,7 @@
 </header>
 
 <main>
-  <p class="small muted">Last updated: 20 July 2026 · <a href="/fi/privacy">Suomeksi</a></p>
+  <p class="small muted">Last updated: 29 July 2026 · <a href="/fi/privacy">Suomeksi</a></p>
 
   <h2>Controller</h2>
   <div class="field selectable">
@@ -68,6 +68,42 @@
     </li>
   </ul>
 
+  <h2>If you create a drop address (receiving)</h2>
+  <p class="hint">
+    A <a href="/drops/how">drop address</a> lets anyone send <strong>you</strong> an encrypted message with no
+    account. Because the address is long-lived, it stores a little more than a one-time secret — but still only
+    ciphertext and things we cannot read:
+  </p>
+  <ul class="hint">
+    <li>
+      <strong>Your public key,</strong> published at the address so senders' browsers can encrypt to you, and a
+      <strong>one-way hash of your secret console token</strong> — never the token itself, so a database dump
+      can never be turned into access to your inbox.
+    </li>
+    <li>
+      <strong>Your private key, encrypted under your passphrase.</strong> We store it as an opaque blob so you
+      can read your inbox from any device with your console link and passphrase. We <strong>hold neither your
+      passphrase nor any hash of it</strong>, so we can never open it — and there is no recovery if you forget it.
+    </li>
+    <li>
+      <strong>Each message you receive:</strong> its ciphertext and the sealed key that only your private key can
+      open, plus timestamps. <strong>No sender name, and no sender IP address, is ever stored</strong> — a sender
+      is anonymous unless they name themselves in the message. Each message is destroyed after the retention you
+      chose (7, 30 or 90 days), whether or not you read it.
+    </li>
+    <li>
+      <strong>Two optional signals you control.</strong> If you switch on the “last active” hint, we store the
+      <em>week</em> (nothing finer) you last read your inbox, and erase it the moment you switch the hint off. We
+      also keep a small <strong>count of failed unlock attempts</strong> made at your console, to warn you if your
+      link is being probed — a number only, with <strong>no IP address, device or time</strong> — which resets
+      when you next read.
+    </li>
+  </ul>
+  <p class="hint">
+    Your drop address stays until <strong>you delete it</strong>; deleting it destroys the address and every
+    message still in it, at once.
+  </p>
+
   <h2>What we do not do</h2>
   <ul class="hint">
     <li>We keep <strong>no web server access logs</strong>. Your visit is not recorded.</li>
@@ -100,6 +136,11 @@
       <strong>Files you never sent:</strong> a file is uploaded while you are still writing, before the link
       exists. If you close the tab and never create the link, that encrypted file is deleted automatically
       <strong>within 1 hour</strong>. No link to it was ever made, so no one could have opened it.
+    </li>
+    <li>
+      <strong>Drops you receive:</strong> each is destroyed automatically after the retention you chose for your
+      address (7, 30 or 90 days), read or not. The address itself, and the keys stored for it, remain until you
+      delete the address.
     </li>
     <li><strong>Metadata:</strong> deleted <strong>7 days</strong> after the secret is read, expires, or is removed. After that, your status link stops working, because there is nothing left.</li>
     <li><strong>Rate-limiting counts:</strong> minutes, in memory only.</li>

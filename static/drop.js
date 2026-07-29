@@ -53,7 +53,7 @@ async function init() {
   // controls this — a coarse bucket ("within the last week") only if they opted in, and
   // an honest "we can't tell you" otherwise. Never precise, never about who they are.
   $('liveness').textContent = info.last_seen
-    ? `The owner last read this inbox ${info.last_seen}.`
+    ? `The owner's console was last active in this inbox ${info.last_seen} — a rough hint, not a guarantee.`
     : "We can't tell you whether this inbox is still being watched — the owner hasn't chosen to show that.";
 
   $('fingerprint').textContent = groupFp(await publicKeyFingerprint(pubB64));
