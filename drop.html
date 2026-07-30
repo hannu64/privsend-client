@@ -89,6 +89,21 @@
       <span id="cap"></span>
     </div>
 
+    <label for="files" class="lang-en">Files <span class="soft">(optional)</span></label>
+    <label for="files" class="lang-fi">Tiedostot <span class="soft">(valinnainen)</span></label>
+    <div id="drop" class="dropzone">
+      <input type="file" id="files" multiple>
+      <p class="drop-hint lang-en">or drag files here — you can add more one at a time</p>
+      <p class="drop-hint lang-fi">tai raahaa tiedostot tähän — voit lisätä lisää yksi kerrallaan</p>
+    </div>
+    <ul id="fileList" class="filelist hidden"></ul>
+    <p id="fileTotal" class="counter hidden"><span id="fileUsed"></span><span id="fileCap"></span></p>
+    <p id="fileErr" class="note danger hidden"></p>
+    <div id="fileNote" class="note hidden">
+      <span class="lang-en">Files are kept, encrypted, alongside the message until the recipient deletes it or the inbox reaches its retention limit. The recipient can download them more than once, from any of their devices — a drop is <strong>not</strong> destroyed on first read the way a one-time secret is.</span>
+      <span class="lang-fi">Tiedostot säilytetään salattuina viestin mukana, kunnes vastaanottaja poistaa sen tai postilaatikon säilytysaika täyttyy. Vastaanottaja voi ladata ne useammin kuin kerran, miltä tahansa laitteeltaan — dropia <strong>ei</strong> tuhota heti ensimmäisellä lukukerralla, toisin kuin kertakäyttöistä salaisuutta.</span>
+    </div>
+
     <button id="send">Encrypt &amp; send</button>
     <p id="err" class="note danger hidden"></p>
   </section>

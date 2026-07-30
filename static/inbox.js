@@ -7,8 +7,8 @@
 // both — the console link (something you have) and the passphrase (something you
 // know) — which is the two-factor at the heart of the design.
 
-import { unwrapPrivateKey, openDrop, publicKeyFingerprint, rewrapPrivateKey } from './crypto.js';
-import { attachReveal } from './ui.js';
+import { unwrapPrivateKey, openDrop, publicKeyFingerprint, rewrapPrivateKey, decryptBytes } from './crypto.js';
+import { attachReveal, fmtBytes } from './ui.js';
 import { passphraseProblem } from './passphrase.js';
 import { api } from './config.js';
 import { t, initLangToggle, onLangChange } from './i18n.js';
@@ -287,12 +287,11 @@ async function render() {
   $('empty').classList.toggle('hidden', view.entries.length > 0);
 
   for (const entry of view.entries) {
-    let text;
+    let opened = null;
     try {
-      const opened = await openDrop(priv, entry);
-      text = opened.message || t.inbox.emptyMsg;
+      opened = await openDrop(priv, entry);
     } catch {
-      text = t.inbox.undecryptable;
+      opened = null;  // undecryptable — a corrupt or mis-sealed entry
     }
 
     const li = document.createElement('li');
@@ -305,17 +304,126 @@ async function render() {
     const rm = document.createElement('button');
     rm.className = 'secondary compact';
     rm.textContent = t.inbox.deleteBtn;
+    // Deleting the message marks its file blobs due on the server (store.DeleteEntry),
+    // so the attachments go with it -- there is no separate step to clean them up.
     rm.addEventListener('click', () => del(entry.entry_id));
     head.append(time, rm);
+    li.append(head);
 
-    const body = document.createElement('div');
-    body.className = 'secret-out';
-    // textContent, never innerHTML: a drop is untrusted sender-supplied text.
-    body.textContent = text;
+    const outText = (s) => {
+      const body = document.createElement('div');
+      body.className = 'secret-out';
+      // textContent, never innerHTML: a drop is untrusted sender-supplied text.
+      body.textContent = s;
+      return body;
+    };
 
-    li.append(head, body);
+    if (!opened) {
+      li.append(outText(t.inbox.undecryptable));
+    } else {
+      // A drop can be a message, files, or both. Show the message if there is one, the
+      // attachments if there are any, and only fall back to "(no message)" if neither.
+      if (opened.message) li.append(outText(opened.message));
+      if (opened.files && opened.files.length > 0) {
+        li.append(renderDropFiles(opened.files, opened.aesKey));
+      }
+      if (!opened.message && (!opened.files || opened.files.length === 0)) {
+        li.append(outText(t.inbox.emptyMsg));
+      }
+    }
+
     list.append(li);
   }
+}
+
+// One drop's attachments. Each file is fetched, decrypted under the DROP's own content
+// key (opened.aesKey, closed over here) and its per-file nonce, and saved -- but unlike a
+// secret's files, a drop's are NOT burned: they persist, re-downloadable, until the whole
+// message is deleted or the address's retention expires. That is the deliberate SEND vs
+// RECEIVE difference (see openDrop / store.DeleteEntry).
+function renderDropFiles(files, aesKey) {
+  const wrap = document.createElement('div');
+  wrap.className = 'dropfiles';
+
+  const heading = document.createElement('p');
+  heading.className = 'dropfiles-heading soft';
+  dynFill(heading, () => t.inbox.filesHeading);
+  wrap.append(heading);
+
+  const ul = document.createElement('ul');
+  ul.className = 'filelist';
+  for (const f of files) {
+    const li = document.createElement('li');
+
+    const name = document.createElement('span');
+    name.textContent = f.name;  // textContent: a hostile sender chose every byte of this
+
+    const size = document.createElement('span');
+    size.className = 'soft';
+    size.textContent = fmtBytes(f.size);
+
+    const btn = document.createElement('button');
+    btn.className = 'secondary compact';
+    btn.textContent = t.inbox.download;
+    btn.addEventListener('click', () => downloadDropFile(f, aesKey, btn, li));
+
+    li.append(name, size, btn);
+    ul.append(li);
+  }
+  wrap.append(ul);
+  return wrap;
+}
+
+// render() rebuilds these elements on every language toggle, so their labels are simply
+// read from `t` at build time -- no dyn() registration needed. This tiny helper just keeps
+// the heading's text set at creation for symmetry with the buttons.
+function dynFill(el, produce) { el.textContent = produce(); }
+
+async function downloadDropFile(file, aesKey, btn, li) {
+  btn.disabled = true;
+  const label = t.inbox.download;
+  btn.textContent = t.inbox.downloading;
+  li.querySelector('.dropfile-err')?.remove();
+  try {
+    const res = await fetch(api(`/api/blob/${encodeURIComponent(file.ref)}`), { cache: 'no-store' });
+    if (!res.ok) throw new Error('no longer available');
+    const ciphertext = new Uint8Array(await res.arrayBuffer());
+
+    btn.textContent = t.inbox.decrypting;
+    // If this returns, AES-GCM has verified the tag -- every byte arrived, unaltered. A
+    // truncated download fails here instead of saving a broken file.
+    const plain = await decryptBytes(aesKey, file.nonce, ciphertext);
+    save(file.name, plain);
+
+    // NO burn: a drop is not one-time. Leave the file on the server (it dies with the
+    // message or at retention) and re-enable, so it can be downloaded again -- here or on
+    // another of the recipient's devices.
+    btn.textContent = t.inbox.saved;
+    setTimeout(() => { btn.textContent = label; btn.disabled = false; }, 1600);
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = label;
+    const msg = document.createElement('p');
+    msg.className = 'note danger dropfile-err';
+    // Files persist, so a failure is just a retry -- keep the wording calm.
+    msg.textContent = /no longer available/i.test(e?.message || '') ? t.inbox.fileGone : t.inbox.downloadFailed;
+    li.append(msg);
+  }
+}
+
+function save(name, bytes) {
+  // SECURITY: the Blob type is forced to application/octet-stream and NEVER taken from the
+  // manifest -- a blob: URL inherits our origin, so a hostile sender choosing "text/html"
+  // would be choosing to run script on privsend's origin. The extension tells the OS what
+  // the file is; the real MIME type is not needed to save it. (Mirrors reveal.js save().)
+  const url = URL.createObjectURL(new Blob([bytes], { type: 'application/octet-stream' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 async function del(entryID) {

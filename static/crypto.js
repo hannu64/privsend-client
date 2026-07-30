@@ -534,22 +534,45 @@ async function unseal(privateKey, ephPubRaw, wrapped, wrapNonce) {
 }
 
 /**
- * Seal a drop for a recipient's public key. The Drops mirror of
- * newSecretKey + sealManifest: mint a fresh content key, encrypt the v2 manifest
- * under it exactly as any secret, then SEAL that content key to the recipient
- * rather than returning a fragment. The sender is anonymous and needs no key.
+ * Begin a new drop: mint its content key. The Drops mirror of newSecretKey, without
+ * the passphrase -- a drop's key is protected by the asymmetric SEAL, not by a shared
+ * secret the anonymous sender could not have. The SAME aesKey encrypts the manifest
+ * AND every file (one key per drop, a fresh nonce per encryption, exactly as a
+ * secret); the returned rawKey is what sealDrop seals to the recipient's public key.
  *
- * `recipientPublicB64` is the recipient's raw P-256 public key, base64. `files` is
- * [] for v1 (text-only); the v2 manifest machinery is reused unchanged, so files
- * turn on later with NO change here.
+ * The flow mirrors create.js precisely: newDropKey() -> encrypt & upload each file
+ * under aesKey -> sealDrop(pub, rawKey, message, manifestFiles). The key HAS to exist
+ * before the files, because the manifest names their refs and the manifest is what the
+ * seal protects -- so a one-shot that minted the key internally could never encrypt a
+ * file under it (which is exactly what the earlier files-less sealDrop could not do).
+ */
+export async function newDropKey() {
+  const rawKey = randomBytes(KEY_BITS / 8);
+  const aesKey = await deriveAesKey(rawKey, null, null);
+  return { aesKey, rawKey };
+}
+
+/**
+ * Seal an already-encrypted drop to a recipient's public key. The Drops mirror of
+ * sealManifest for the SEND->RECEIVE inversion: the v2 manifest is encrypted under the
+ * drop's content key exactly as any secret, then that key is SEALED to the recipient
+ * rather than put in a URL fragment. The sender is anonymous and needs no key.
+ *
+ * `rawKey` is from newDropKey -- the SAME key the caller used to encrypt the manifest's
+ * files. `files` is [{ name, size, type, ref, nonce }] (the shape sealManifest wants),
+ * or [] for a text-only drop.
  *
  * Returns the POST /api/drop/{id} body -- every field non-secret and content-blind.
+ * `blob_refs` is the plaintext list of the file refs: the server needs it to BIND the
+ * blobs to the entry, because it cannot read the manifest that also names them (the
+ * names/types/nonces stay sealed; only the opaque refs are exposed, exactly as
+ * create.js does for a secret).
  */
-export async function sealDrop(recipientPublicB64, message, files = []) {
+export async function sealDrop(recipientPublicB64, rawKey, message, files = []) {
   const recipientPubRaw = b64Decode(recipientPublicB64);
-  const rawKey = randomBytes(KEY_BITS / 8);
-  // No passphrase on the content key: a drop's protection is the asymmetric seal,
-  // not a shared secret the anonymous sender could not have.
+  // Re-derive the same AES key from rawKey (deterministic, and cheap: no passphrase
+  // means no PBKDF2, just an importKey). A drop's protection is the asymmetric seal,
+  // not a shared secret.
   const aesKey = await deriveAesKey(rawKey, null, null);
   const sealed = await sealManifest(aesKey, null, null, message, files);
   const { ephPubRaw, wrapped, wrapNonce } = await seal(recipientPubRaw, rawKey);
@@ -560,13 +583,19 @@ export async function sealDrop(recipientPublicB64, message, files = []) {
     ephemeral_pub: b64Encode(ephPubRaw),
     wrapped_key: b64Encode(wrapped),
     wrap_nonce: b64Encode(wrapNonce),
+    blob_refs: files.map((f) => f.ref),
   };
 }
 
 /**
  * Open one drop. The Drops mirror of openSecret's v2 path: unseal the content key
  * with the recipient's private key, then decrypt and VALIDATE the manifest exactly
- * as any secret. Returns { message, files }.
+ * as any secret. Returns { message, files, aesKey }.
+ *
+ * The aesKey comes back for the same reason openSecret returns it: a drop's files are
+ * fetched and decrypted later, one at a time, under this same per-drop key. Unlike a
+ * secret's, a drop's files are NOT burned on read -- they persist, re-downloadable,
+ * for the whole retention window and die only when the entry is deleted or expires.
  *
  * `privateKey` is the CryptoKey from unwrapPrivateKey. `entry` is one inbox row:
  * { ephemeral_pub, wrapped_key, wrap_nonce, ciphertext, nonce, format_version }.
@@ -594,8 +623,8 @@ export async function openDrop(privateKey, entry) {
     throw new Error('This drop is corrupted and cannot be read.');
   }
   // v1 semantics are identical to a secret's: the plaintext IS the message.
-  if (entry.format_version === 'v1') return { message: plain, files: [] };
-  return parseManifest(plain);
+  if (entry.format_version === 'v1') return { message: plain, files: [], aesKey };
+  return { ...parseManifest(plain), aesKey };
 }
 
 /**

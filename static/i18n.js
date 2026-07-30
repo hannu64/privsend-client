@@ -169,6 +169,19 @@ TABLES.en = {
       half: 'within the last 6 months',
       older: 'more than 6 months ago',
     },
+    // Files (v2). A drop can carry files as well as, or instead of, a message. These are
+    // the DYNAMIC strings the script writes; the field labels and the persist-not-burn
+    // note are fixed prose in drop.html (both languages).
+    remove: 'Remove',
+    needSomething: 'Please write a message or attach a file first.',
+    tooManyFiles: (n, max) => `Too many files — ${n} chosen, the limit is ${max}.`,
+    fileTooBig: (name, size, max) => `“${name}” is ${size}, over the ${max} limit for one file.`,
+    filesTooBig: (total, max) => `Those files total ${total}, over the ${max} limit.`,
+    encryptingFile: 'Encrypting file…',
+    encryptingFileN: (i, n) => `Encrypting file ${i} of ${n}…`,
+    uploadingFile: 'Uploading file…',
+    uploadingFileN: (i, n) => `Uploading file ${i} of ${n}…`,
+    uploadFailed: 'Could not upload the file. Please try again.',
   },
 
   // The passphrase strength gate (passphrase.js), shared by the create page and the
@@ -219,6 +232,15 @@ TABLES.en = {
     deleteBtn: 'Delete',
     emptyMsg: '(empty message)',
     undecryptable: '[This message could not be decrypted.]',
+    // Attachments (v2 files). A drop's files are NOT one-time: they persist,
+    // re-downloadable, until the message is deleted or retention expires.
+    filesHeading: 'Attachments',
+    download: 'Download',
+    downloading: 'Downloading…',
+    decrypting: 'Decrypting…',
+    saved: 'Saved ✓',
+    fileGone: 'This file is no longer available.',
+    downloadFailed: 'Download failed — please try again.',
     fpUnavailable: '(unavailable)',
 
     countEmpty: 'No messages in your inbox yet. Enter your passphrase to open it.',
@@ -402,6 +424,18 @@ TABLES.fi = {
       half: 'viimeisen 6 kuukauden aikana',
       older: 'yli 6 kuukautta sitten',
     },
+    // Tiedostot (v2). Skripti kirjoittaa nämä; kenttien nimikkeet ja säilytys-huomautus
+    // ovat kiinteää tekstiä drop.html:ssä (molemmat kielet).
+    remove: 'Poista',
+    needSomething: 'Kirjoita viesti tai liitä tiedosto ensin.',
+    tooManyFiles: (n, max) => `Liikaa tiedostoja — valittuna ${n}, raja on ${max}.`,
+    fileTooBig: (name, size, max) => `”${name}” on ${size}, ja yhden tiedoston raja on ${max}.`,
+    filesTooBig: (total, max) => `Tiedostoja on yhteensä ${total}, ja raja on ${max}.`,
+    encryptingFile: 'Salataan tiedostoa…',
+    encryptingFileN: (i, n) => `Salataan tiedostoa ${i}/${n}…`,
+    uploadingFile: 'Lähetetään tiedostoa…',
+    uploadingFileN: (i, n) => `Lähetetään tiedostoa ${i}/${n}…`,
+    uploadFailed: 'Tiedoston lähettäminen ei onnistunut. Yritä uudelleen.',
   },
 
   // Salalauseen vahvuustarkistus (passphrase.js), jaettu luontisivun ja konsolin
@@ -452,6 +486,15 @@ TABLES.fi = {
     deleteBtn: 'Poista',
     emptyMsg: '(tyhjä viesti)',
     undecryptable: '[Tätä viestiä ei voitu purkaa.]',
+    // Liitteet (v2-tiedostot). Dropin tiedostot EIVÄT ole kertakäyttöisiä: ne säilyvät
+    // ladattavina, kunnes viesti poistetaan tai säilytysaika täyttyy.
+    filesHeading: 'Liitteet',
+    download: 'Lataa',
+    downloading: 'Ladataan…',
+    decrypting: 'Puretaan…',
+    saved: 'Tallennettu ✓',
+    fileGone: 'Tätä tiedostoa ei ole enää saatavilla.',
+    downloadFailed: 'Lataus epäonnistui — yritä uudelleen.',
     fpUnavailable: '(ei saatavilla)',
 
     countEmpty: 'Postilaatikossasi ei ole vielä viestejä. Avaa se salalauseellasi.',

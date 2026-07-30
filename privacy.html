@@ -16,7 +16,7 @@
 </header>
 
 <main>
-  <p class="small muted">Last updated: 29 July 2026 · <a href="/fi/privacy">Suomeksi</a></p>
+  <p class="small muted">Last updated: 30 July 2026 · <a href="/fi/privacy">Suomeksi</a></p>
 
   <h2>Controller</h2>
   <div class="field selectable">
@@ -87,9 +87,11 @@
     </li>
     <li>
       <strong>Each message you receive:</strong> its ciphertext and the sealed key that only your private key can
-      open, plus timestamps. <strong>No sender name, and no sender IP address, is ever stored</strong> — a sender
-      is anonymous unless they name themselves in the message. Each message is destroyed after the retention you
-      chose (7, 30 or 90 days), whether or not you read it.
+      open, plus timestamps. If a sender attaches files (up to 10, 25 MB in total), each is stored as encrypted
+      ciphertext with a random reference and its size — never a filename or type. <strong>No sender name, and no
+      sender IP address, is ever stored</strong> — a sender is anonymous unless they name themselves in the
+      message. Each message is destroyed after the retention you chose (7, 30 or 90 days), whether or not you read
+      it; any files it carries are destroyed with it.
     </li>
     <li>
       <strong>Two optional signals you control.</strong> If you switch on the “last active” hint, we store the
@@ -139,8 +141,8 @@
     </li>
     <li>
       <strong>Drops you receive:</strong> each is destroyed automatically after the retention you chose for your
-      address (7, 30 or 90 days), read or not. The address itself, and the keys stored for it, remain until you
-      delete the address.
+      address (7, 30 or 90 days), read or not — together with any files attached to it. The address itself, and
+      the keys stored for it, remain until you delete the address.
     </li>
     <li><strong>Metadata:</strong> deleted <strong>7 days</strong> after the secret is read, expires, or is removed. After that, your status link stops working, because there is nothing left.</li>
     <li><strong>Rate-limiting counts:</strong> minutes, in memory only.</li>

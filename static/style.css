@@ -156,6 +156,9 @@ button.danger:hover:not(:disabled) { background: var(--accent); color: #fff; }
 .dropmsg-head { display: flex; justify-content: space-between; align-items: center; gap: .6rem; margin-bottom: .55rem; }
 .dropmsg-time { font-size: .8rem; color: var(--muted); }
 .droplist .secret-out { max-height: 30vh; }
+/* One drop's attachments, inside its message card. Reuses .filelist for the rows. */
+.dropfiles { margin-top: .6rem; }
+.dropfiles-heading { margin: 0 0 .35rem; font-size: .8rem; }
 
 .hidden { display: none !important; }
 .muted { color: var(--muted); }
