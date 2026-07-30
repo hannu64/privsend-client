@@ -227,8 +227,8 @@ TABLES.en = {
     newPassPh: 'New passphrase',
     newPass2Ph: 'Repeat new passphrase',
     days7: '7 days',
+    days14: '14 days',
     days30: '30 days',
-    days90: '90 days',
     deleteBtn: 'Delete',
     emptyMsg: '(empty message)',
     undecryptable: '[This message could not be decrypted.]',
@@ -268,6 +268,7 @@ TABLES.en = {
     settingsFailed: 'Could not save settings. Please try again.',
 
     retentionSaved: (days) => `Saved. New messages will be kept for ${days} days.`,
+    daysLegacy: (days) => `${days} days (no longer offered)`,
     retentionFailed: 'Could not save. Please try again.',
 
     passFill: 'Fill in your current and new passphrase.',
@@ -481,8 +482,8 @@ TABLES.fi = {
     newPassPh: 'Uusi salalause',
     newPass2Ph: 'Toista uusi salalause',
     days7: '7 vuorokautta',
+    days14: '14 vuorokautta',
     days30: '30 vuorokautta',
-    days90: '90 vuorokautta',
     deleteBtn: 'Poista',
     emptyMsg: '(tyhjä viesti)',
     undecryptable: '[Tätä viestiä ei voitu purkaa.]',
@@ -523,6 +524,7 @@ TABLES.fi = {
     settingsFailed: 'Asetusten tallentaminen ei onnistunut. Yritä uudelleen.',
 
     retentionSaved: (days) => `Tallennettu. Uudet viestit säilytetään ${days} vuorokautta.`,
+    daysLegacy: (days) => `${days} vuorokautta (ei enää valittavissa)`,
     retentionFailed: 'Tallennus ei onnistunut. Yritä uudelleen.',
 
     passFill: 'Täytä nykyinen ja uusi salalause.',

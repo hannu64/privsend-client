@@ -62,9 +62,34 @@ function relabel() {
   $('curPass').placeholder = t.inbox.curPassPh;
   $('newPass').placeholder = t.inbox.newPassPh;
   $('newPass2').placeholder = t.inbox.newPass2Ph;
-  const days = { '7': t.inbox.days7, '30': t.inbox.days30, '90': t.inbox.days90 };
-  for (const o of $('setRetention').options) o.textContent = days[o.value] || o.textContent;
+  const days = { '7': t.inbox.days7, '14': t.inbox.days14, '30': t.inbox.days30 };
+  for (const o of $('setRetention').options) {
+    o.textContent = o.dataset.legacy ? t.inbox.daysLegacy(o.value) : (days[o.value] || o.textContent);
+  }
   refreshSaveState();  // owns the Save-settings/Save-changes label; safe before `view` loads
+}
+
+// Seed the retention control from what this address is ACTUALLY set to.
+//
+// The offered set changed on 2026-07-30 (90 days retired in favour of 14), and an address
+// created under the old set keeps its own value — the server never rewrites one behind the
+// owner's back. Assigning a value that has no matching <option> would leave the control
+// BLANK, so the one screen that is supposed to tell an owner how long their messages live
+// would say nothing at all — or, worse, invite them to read whichever option looks selected
+// as the truth. So an out-of-set value gets an option of its own, labelled as exactly what
+// it is. It is never offered to anyone else, and it disappears the moment they choose a
+// current value.
+function seedRetention(days) {
+  const sel = $('setRetention');
+  sel.querySelector('option[data-legacy]')?.remove();
+  if (![...sel.options].some((o) => o.value === String(days))) {
+    const o = document.createElement('option');
+    o.value = String(days);
+    o.dataset.legacy = '1';
+    o.textContent = t.inbox.daysLegacy(days);
+    sel.prepend(o);
+  }
+  sel.value = String(days);
 }
 
 // Re-render everything the language toggle touches: control labels, every registered
@@ -114,7 +139,7 @@ async function init() {
   $('setDisclose').checked = view.disclose_last_seen;
   // The retention control lives in the post-unlock "Manage" panel; seed it now so it is
   // ready the moment the panel appears.
-  $('setRetention').value = String(view.retention_days);
+  seedRetention(view.retention_days);
   refreshSaveState();
   showCount();
   show('console');
@@ -158,7 +183,7 @@ $('unlockBtn').addEventListener('click', async () => {
   // already unlocked with. The wrapped-key fields are unchanged, so priv stays valid.
   try { view = await fetchInbox(); } catch { /* keep the loaded view */ }
   $('disabledBanner').classList.toggle('hidden', !view.disabled);
-  $('setRetention').value = String(view.retention_days);
+  seedRetention(view.retention_days);
   $('unlock').classList.add('hidden');
   $('messages').classList.remove('hidden');
   // Show the failed-unlock breakdown, never a silently-subtracted total. "others" are attempts
@@ -498,7 +523,7 @@ $('saveRetention').addEventListener('click', async () => {
     if (!res.ok) throw new Error();
     const saved = await res.json();
     view.retention_days = saved.retention_days;
-    $('setRetention').value = String(saved.retention_days);
+    seedRetention(saved.retention_days);  // drops the legacy option once they leave it
     const days = saved.retention_days;
     status.className = 'note ok';
     dyn('retentionStatus', () => t.inbox.retentionSaved(days));
