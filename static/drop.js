@@ -18,7 +18,7 @@
 
 import { newDropKey, sealDrop, encryptBytes, publicKeyFingerprint } from './crypto.js';
 import { setBusy, fmtBytes } from './ui.js';
-import { api } from './config.js';
+import { api, dropId } from './config.js';
 import { t, initLangToggle, onLangChange } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
@@ -34,8 +34,10 @@ const MAX_FILE = 25 * 1024 * 1024;
 const MAX_FILES_TOTAL = 25 * 1024 * 1024;
 const MAX_FILES = 10;
 
-// Website-only for v1: the drop_id is the last path segment of /public/<id>.
-const dropID = location.pathname.split('/').pop();
+// The address being written to: the last path segment of /public/<id> on the
+// website, or the ?id= the extension's content script carried across when it took
+// the link over. config.js owns that difference.
+const dropID = dropId();
 let pubB64 = null;
 // The server's coarse last-seen bucket CODE ("week", "month", …) or null. The wording
 // is chosen HERE in the active language, so the exact week never leaves the server.

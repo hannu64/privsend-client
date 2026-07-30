@@ -10,7 +10,7 @@
 import { unwrapPrivateKey, openDrop, publicKeyFingerprint, rewrapPrivateKey, decryptBytes } from './crypto.js';
 import { attachReveal, fmtBytes } from './ui.js';
 import { passphraseProblem } from './passphrase.js';
-import { api } from './config.js';
+import { api, SITE_ORIGIN } from './config.js';
 import { t, initLangToggle, onLangChange } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
@@ -127,7 +127,12 @@ async function init() {
     return;
   }
 
-  $('publicAddr').textContent = `${location.origin}/public/${view.drop_id}`;
+  // SITE_ORIGIN, not location.origin: this address is meant to be handed out, and
+  // inside the browser extension this page is served from a chrome-extension://
+  // origin, where location.origin would produce a link that works for nobody --
+  // including an owner who pasted it into their profile. On the website the two are
+  // the same string.
+  $('publicAddr').textContent = `${SITE_ORIGIN}/public/${view.drop_id}`;
   publicKeyFingerprint(view.public_key)
     .then((fp) => { $('fingerprint').textContent = groupFp(fp); })
     .catch(() => { dyn('fingerprint', () => t.inbox.fpUnavailable); });

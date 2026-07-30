@@ -19,5 +19,23 @@
 // chrome.tabs.create needs no "tabs" permission (creating a tab is unprivileged;
 // only reading a tab's URL/title would be). The callback form works in both Chromium
 // and Firefox, so we close the popup once the tab has been asked for.
-const url = chrome.runtime.getURL('index.html');
+//
+// WHICH LANGUAGE it opens is the one decision this file makes. On the website the
+// reader picks a language by picking a URL (/ or /fi); there is no URL to pick here,
+// so the browser's own locale is the only signal available, and it is a good one --
+// someone running Firefox in Finnish would rather compose in Finnish. It is read and
+// used immediately; nothing is stored, which keeps the extension's "writes nothing to
+// your disk" property intact, and both pages link to each other anyway, so a wrong
+// guess costs one click. Same test as i18n.js uses on the pages that autodetect.
+const FI = /^fi\b/i.test(navigator.language || '');
+
+// The launcher's own two words, so a Finnish browser does not flash English on the
+// way to a Finnish page. The markup carries the English; only the Finnish case edits.
+if (FI) {
+  document.title = 'Avataan PrivSendiä…';
+  const sub = document.querySelector('.sub');
+  if (sub) sub.textContent = 'Avataan uutta salaisuutta…';
+}
+
+const url = chrome.runtime.getURL(FI ? 'fi/index.html' : 'index.html');
 chrome.tabs.create({ url }, () => window.close());

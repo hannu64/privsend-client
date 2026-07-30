@@ -6,7 +6,8 @@
 // config.js reports IN_EXTENSION === false and this module returns immediately,
 // touching nothing. That keeps the website behaviour byte-for-byte identical --
 // the same property the whole "diff the client" trust story depends on.
-import { IN_EXTENSION, SITE_ORIGIN, homeHref } from './config.js';
+import { IN_EXTENSION, SITE_ORIGIN, bundledPage } from './config.js';
+import { t, onLangChange } from './i18n.js';
 
 if (IN_EXTENSION) {
   // 1) A visible, honest banner. The CODE on this page (the crypto and all) is the
@@ -19,13 +20,7 @@ if (IN_EXTENSION) {
   banner.setAttribute('role', 'note');
 
   const head = document.createElement('strong');
-  head.textContent = '🔒 Running locally';
-
   const body = document.createElement('span');
-  // textContent, never innerHTML.
-  body.textContent =
-    'The code on this page — including the encryption — is the copy installed in your ' +
-    'browser, not downloaded from a server. Only encrypted data is ever sent to privsend.app.';
 
   // A way out to the full explanation, for anyone who wants to know what "running
   // locally" actually buys them and how to check it themselves. Deliberately the
@@ -34,20 +29,46 @@ if (IN_EXTENSION) {
   // informational link, so this needs no special handling.
   const more = document.createElement('a');
   more.setAttribute('href', '/verify');
-  more.textContent = 'How is this verified? →';
+
+  // The wording comes from i18n.js, in the page's own language. On the compose and
+  // drop-address pages that is fixed by the URL the user opened; on the public drop
+  // page and the inbox it can be switched at any moment by the language toggle, so
+  // the banner re-renders with everything else. textContent, never innerHTML.
+  const label = () => {
+    head.textContent = t.ext.running;
+    body.textContent = t.ext.explains;
+    more.textContent = t.ext.howVerified;
+  };
+  label();
+  onLangChange(label);
 
   banner.append(head, body, more);
   document.body.insertBefore(banner, document.body.firstChild);
 
-  // 2) Internal links can't use the website's server-side routing here. Send the
-  //    informational ones to the LIVE site in a NEW TAB (target=_blank, so a
-  //    half-composed secret in this tab is never disturbed), and point "home" links
-  //    at the local compose page. Absolute links (the GitHub source link) start with
-  //    "http", not "/", so they are left untouched.
+  // 2) Internal links can't use the website's server-side routing here, so every
+  //    site-relative href has to be re-pointed at something that exists. Which of the
+  //    two destinations it gets is decided by BUNDLED_PAGES in config.js, where the
+  //    rule and its reasoning live:
+  //
+  //      - a page that handles plaintext or keys (compose, drop-address creation,
+  //        and their Finnish twins) resolves to the LOCAL bundled file, so the user
+  //        stays inside the installed copy for the whole job. That includes the
+  //        language links: "Suomeksi" now switches to the bundled Finnish page
+  //        instead of sending a Finn out to the website at the very moment the
+  //        extension finally speaks their language.
+  //
+  //      - everything else -- how it works, verify, terms, privacy, report -- goes to
+  //        the LIVE site in a NEW TAB. New tab (target=_blank) so a half-composed
+  //        secret in this one is never disturbed; live site so the text is today's,
+  //        not whatever shipped with this build.
+  //
+  //    Absolute links (the GitHub source link) start with "http", not "/", so the
+  //    selector never sees them and they are left untouched.
   for (const a of document.querySelectorAll('a[href^="/"]')) {
     const path = a.getAttribute('href');
-    if (path === '/') {
-      a.setAttribute('href', homeHref); // local compose page
+    const local = bundledPage(path);
+    if (local) {
+      a.setAttribute('href', local);
     } else {
       a.setAttribute('href', SITE_ORIGIN + path); // the live website
       a.setAttribute('target', '_blank');
@@ -64,9 +85,12 @@ if (IN_EXTENSION) {
     const m = chrome.runtime.getManifest();
     const footer = document.querySelector('footer');
     if (m && footer) {
+      const version = m.version_name || m.version;
       const stamp = document.createElement('p');
       stamp.className = 'small muted';
-      stamp.textContent = 'Extension build ' + (m.version_name || m.version);
+      const draw = () => { stamp.textContent = t.ext.build(version); };
+      draw();
+      onLangChange(draw);
       footer.append(stamp);
     }
   } catch {

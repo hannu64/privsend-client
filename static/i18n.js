@@ -358,6 +358,20 @@ TABLES.en = {
       'Nobody opened this secret before its time limit ran out, so it was destroyed unread. ' +
       'If the recipient still needs it, send a new one.'],
   },
+
+  // The browser extension's own banner. It appears ONLY when these pages are the
+  // installed extension, never on the website, where the claim would be false --
+  // see ext.js. It lives here rather than in ext.js because the extension now
+  // carries the Finnish pages too, and a Finn who installed it to be told the truth
+  // about their own privacy should be told it in Finnish.
+  ext: {
+    running: '🔒 Running locally',
+    explains:
+      'The code on this page — including the encryption — is the copy installed in your ' +
+      'browser, not downloaded from a server. Only encrypted data is ever sent to privsend.app.',
+    howVerified: 'How is this verified? →',
+    build: (v) => 'Extension build ' + v,
+  },
 };
 
 TABLES.fi = {
@@ -614,5 +628,14 @@ TABLES.fi = {
     expired: ['⌛', 'Vanhentui — ei luettu koskaan',
       'Kukaan ei avannut tätä salaisuutta ennen kuin sen määräaika umpeutui, joten se tuhottiin ' +
       'lukemattomana. Jos vastaanottaja tarvitsee sen yhä, lähetä uusi.'],
+  },
+
+  ext: {
+    running: '🔒 Toimii paikallisesti',
+    explains:
+      'Tämän sivun koodi — myös salaus — on selaimeesi asennettu kopio, jota ei ladata ' +
+      'palvelimelta. privsend.appiin lähetetään vain salattua tietoa.',
+    howVerified: 'Miten tämän voi varmistaa? →',
+    build: (v) => 'Laajennuksen versio ' + v,
   },
 };

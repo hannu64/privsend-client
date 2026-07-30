@@ -9,7 +9,7 @@
 import { generateRecipientKeypair, wrapPrivateKey, publicKeyFingerprint, b64Encode } from './crypto.js';
 import { attachReveal, setBusy } from './ui.js';
 import { passphraseProblem } from './passphrase.js';
-import { SITE_ORIGIN, api } from './config.js';
+import { SITE_ORIGIN, api, consoleHref } from './config.js';
 import { t } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
@@ -29,7 +29,13 @@ $('passphrase').addEventListener('input', () => {
 });
 
 const btn = $('create');
+// The console link as the owner will KEEP it: always the website form, because that
+// is what gets bookmarked and has to work on their phone and on machines without the
+// extension. It is what the page shows and what the copy button copies.
 let consoleUrl = '';
+// Where "Open my inbox" navigates RIGHT NOW, which is the same thing on the website
+// and the bundled inbox inside the extension. See consoleHref in config.js.
+let inboxUrl = '';
 let saved = false;
 
 function fail(msg) {
@@ -90,6 +96,7 @@ btn.addEventListener('click', async () => {
     // private link and /public on the shareable one, so the pasted text itself tells
     // them apart when someone is in a hurry and only glances at what they copied.
     consoleUrl = `${SITE_ORIGIN}/SECRET#${owner_token}`;
+    inboxUrl = consoleHref(owner_token);
     const publicAddr = `${SITE_ORIGIN}/public/${drop_id}`;
 
     $('consoleLink').textContent = consoleUrl;
@@ -143,7 +150,7 @@ $('openInbox').addEventListener('click', () => {
   // Going to the inbox means the token now lives in the address bar / history, so
   // the unsaved-link guard has nothing left to protect.
   saved = true;
-  location.href = consoleUrl;
+  location.href = inboxUrl;
 });
 
 // Every link on this page LEAVES it — the header brand and sub-nav, the footer, all of

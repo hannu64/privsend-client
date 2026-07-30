@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "PrivSend — one-time encrypted secrets",
-  "version": "1.0.2",
-  "version_name": "1.0.2 (2026-07-23)",
-  "description": "One-time encrypted secrets and files. The encryption runs on your device, in this installed copy; the server sees only ciphertext.",
+  "name": "PrivSend — encrypted one-time secrets & files",
+  "version": "1.1.0",
+  "version_name": "1.1.0 (2026-07-30)",
+  "description": "Encrypted secrets, files and drops. The encryption runs on your device, in this installed copy; the server sees only ciphertext.",
   "browser_specific_settings": {
     "gecko": {
       "id": "support@zumitomi.fi",
@@ -37,11 +37,21 @@
       "matches": ["https://privsend.app/s/*"],
       "js": ["intercept-reveal.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://privsend.app/public/*",
+        "https://privsend.app/d/*",
+        "https://privsend.app/SECRET",
+        "https://privsend.app/inbox"
+      ],
+      "js": ["intercept-drops.js"],
+      "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["reveal.html"],
+      "resources": ["reveal.html", "drop.html", "inbox.html"],
       "matches": ["https://privsend.app/*"]
     }
   ],
