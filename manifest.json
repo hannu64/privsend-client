@@ -47,11 +47,30 @@
       ],
       "js": ["intercept-drops.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://privsend.app/",
+        "https://privsend.app/fi",
+        "https://privsend.app/fi/",
+        "https://privsend.app/drops",
+        "https://privsend.app/fi/drops"
+      ],
+      "js": ["intercept-entry.js"],
+      "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["reveal.html", "drop.html", "inbox.html"],
+      "resources": [
+        "reveal.html",
+        "drop.html",
+        "inbox.html",
+        "index.html",
+        "fi/index.html",
+        "drops.html",
+        "fi/drops.html"
+      ],
       "matches": ["https://privsend.app/*"]
     }
   ],
