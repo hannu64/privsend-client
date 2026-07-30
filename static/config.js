@@ -30,29 +30,49 @@ export const SITE_ORIGIN = IN_EXTENSION ? 'https://privsend.app' : location.orig
 // routing, so a bare "/drops" would hit the extension root and 404 -- it has to
 // name the bundled file instead.
 //
-// WHICH pages are in this map is a deliberate line, not a list of what happened to
-// be convenient. A page that touches PLAINTEXT OR KEYS is bundled and runs from the
-// installed copy: the compose pages, the drop-address creator, the public drop page
-// an anonymous sender writes on, the inbox that decrypts everything, the reveal
-// page. A page that only INFORMS is left on the live site (see ext.js) even though
-// its file is sitting right there in the package.
+// WHICH pages are in here is a deliberate line, and the line is NOT "does this page
+// touch keys". That was the first answer and it was wrong. Sending the explainers to
+// the live site opened a quiet exit from the extension: a link on the compose page
+// led to privsend.app/how, and the perfectly ordinary "Send a secret" link on THAT
+// page then led to the website's compose form -- so two unremarkable clicks walked a
+// user out of the installed copy and back onto server-delivered crypto, with nothing
+// to mark the moment except a banner that stopped appearing. An escape hatch nobody
+// can see is worse than no hatch.
 //
-// The reason is that the two kinds of page need OPPOSITE things. Crypto must be
-// pinned -- an installed copy nobody can swap out for one targeted user is the
-// entire argument for this extension. Legal and explanatory text must be CURRENT --
-// freezing /privacy or /terms into an installed version means an extension user
-// reading last month's promises about their own data, with no way for us to correct
-// it short of a store review we do not control. So: pin what must not change under
-// you, serve what must not go stale.
+// The line that actually holds is WHAT THE PAGE DESCRIBES:
+//
+//   Bundled -- pages that describe THE CODE YOU INSTALLED. The compose and drop
+//   pages, and the explainers of how they work. A bundled explainer stays in step
+//   with the bundled client, which is the whole point: when the site's shortest
+//   lifetime moved from 1 hour to 4, the published extension went on offering 1 hour,
+//   and its own /how saying "1 hour" is RIGHT for that user while the live site's
+//   /how would have described a choice their copy does not have.
+//
+//   Live site -- pages that are a legal instrument or a statement about the service
+//   as it stands TODAY: /terms, /privacy, /report. These do not describe the
+//   installed code, they bind Zumitomi Oy, and the version that governs is the one
+//   published on the website. A frozen copy could contradict it, and the frozen copy
+//   would be the one the reader believed.
+//
+// `newTab` marks the pages that open in a new tab so a half-composed secret in the
+// current one is never disturbed. That was always true of the informational links;
+// making them local does not change the reason for it.
 const BUNDLED_PAGES = {
-  '/': '/index.html',
-  '/fi': '/fi/index.html',
-  '/drops': '/drops.html',
-  '/fi/drops': '/fi/drops.html',
+  '/':             { file: '/index.html' },
+  '/fi':           { file: '/fi/index.html' },
+  '/drops':        { file: '/drops.html' },
+  '/fi/drops':     { file: '/fi/drops.html' },
+
+  '/how':          { file: '/how.html', newTab: true },
+  '/fi/how':       { file: '/fi/how.html', newTab: true },
+  '/drops/how':    { file: '/drops-how.html', newTab: true },
+  '/fi/drops/how': { file: '/fi/drops-how.html', newTab: true },
+  '/verify':       { file: '/verify.html', newTab: true },
+  '/fi/verify':    { file: '/fi/verify.html', newTab: true },
 };
 
-/** The bundled file a site path maps to, or null if this page is not carried
- *  locally. Only ever consulted inside the extension. */
+/** The bundled page a site path maps to ({ file, newTab }), or null if this page is
+ *  not carried locally and belongs on the live site. Only consulted in the extension. */
 export const bundledPage = (path) => BUNDLED_PAGES[path] || null;
 
 // Where a "home" / brand link should point.
@@ -63,7 +83,7 @@ export const bundledPage = (path) => BUNDLED_PAGES[path] || null;
 // language check lives here rather than being threaded through the callers.
 const FI_PAGE = document.documentElement.lang === 'fi';
 const homePath = FI_PAGE ? '/fi' : '/';
-export const homeHref = IN_EXTENSION ? BUNDLED_PAGES[homePath] : homePath;
+export const homeHref = IN_EXTENSION ? BUNDLED_PAGES[homePath].file : homePath;
 
 // Where the "Open my inbox" button goes once a drop address has just been created.
 //
