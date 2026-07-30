@@ -426,7 +426,14 @@ a.brand-link:visited {
   line-height: 1.45;
 }
 .ext-banner strong { display: block; color: var(--ok); margin-bottom: .15rem; }
-.ext-banner span   { color: var(--muted); }
+/* The explanation is a BLOCK so that the link below it always starts on its own
+   line. It used to be inline, which left the link to begin wherever the sentence
+   happened to end: the English text was long enough to fill the line, so the link
+   wrapped and looked deliberate, while the shorter Finnish left it jammed against
+   the full stop with no space at all -- "...vain salattua tietoa.Miten tämän voi
+   varmistaa? →". That was never a Finnish bug. It was a layout that depended on
+   sentence length, and a wide enough window did the same to the English. */
+.ext-banner span   { display: block; color: var(--muted); }
 /* The banner's one link, out to /verify on the live site. Kept visually quieter
    than the accent links elsewhere: it is an offer to read further, not a call to
    action competing with the compose form below it. */
