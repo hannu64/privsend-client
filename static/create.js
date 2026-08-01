@@ -15,9 +15,15 @@ const MAX_CIPHERTEXT = 256 * 1024;
 const GCM_TAG = 16;
 const MAX_PLAINTEXT = MAX_CIPHERTEXT - GCM_TAG;
 
-// Must match the server: MaxFileBytes and MaxFiles in api.go, and MaxSecretBytes
-// in store.go -- which lives beside Create because that transaction is the only
-// place a TOTAL can be checked without racing a concurrent bind.
+// These are the ADVERTISED limits -- what /privacy, /terms and both compose pages
+// promise -- and they are measured on YOUR FILE, the only quantity you can check.
+//
+// They deliberately do NOT equal the server's MaxFileBytes and MaxSecretBytes. Those
+// weigh ciphertext, which carries a 16-byte AES-GCM tag per file, so the server's
+// numbers are this one plus the tags (api.go explains why it carries them). Until
+// 2026-08-01 the two were equal, which meant a file of exactly 25 MB passed here and
+// was refused there. If you change a limit, change AdvertisedFileBytes in api.go and
+// let its arithmetic follow; api/limits_test.go holds the two packages in step.
 //
 // These are checked here only to give an honest error BEFORE a phone spends four
 // minutes uploading something that was always going to be rejected. The server
@@ -297,6 +303,10 @@ btn.addEventListener('click', async () => {
     });
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
+      // The rate limit is the one refusal an ordinary sender meets here; the rest
+      // are malformed-request guards this page does not produce. Translate that one
+      // and let the server speak for the unexpected ones (see i18n.js).
+      if (res.status === 429) return fail(t.rateLimited);
       return fail(j.error || t.createFailed);
     }
     const { id, status_id } = await res.json();
@@ -364,6 +374,11 @@ async function uploadBlob(ciphertext) {
   });
   if (!res.ok) {
     const j = await res.json().catch(() => ({}));
+    // 413 is reachable even though this page checks sizes first: the server weighs
+    // the CIPHERTEXT, which carries a 16-byte authentication tag the plaintext did
+    // not, so a file sitting exactly on the limit passes here and is refused there.
+    if (res.status === 413) throw new Error(t.uploadTooBig);
+    if (res.status === 429) throw new Error(t.rateLimited);
     throw new Error(j.error || t.uploadFailed);
   }
   const { ref } = await res.json();

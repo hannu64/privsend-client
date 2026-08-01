@@ -86,6 +86,7 @@ btn.addEventListener('click', async () => {
     });
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
+      if (res.status === 429) return fail(t.rateLimited);
       return fail(j.error || t.drops.createFailed);
     }
     const { drop_id, owner_token } = await res.json();

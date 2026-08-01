@@ -26,10 +26,12 @@ const $ = (id) => document.getElementById(id);
 // Must match MaxCiphertextBytes on the server, less the 16-byte GCM tag.
 const MAX_PLAINTEXT = 256 * 1024 - 16;
 
-// Must match the server: MaxFileBytes and MaxFiles (api.go) and MaxDropBytes
-// (store.go, an alias of MaxSecretBytes). Checked here only to fail fast BEFORE a
-// phone spends minutes uploading something that was always going to be rejected --
-// the server enforces the real limits, nothing here is a security control.
+// The ADVERTISED limits, measured on YOUR FILE -- see create.js, which carries the
+// full reasoning. They are deliberately NOT the server's MaxFileBytes/MaxDropBytes:
+// those weigh ciphertext and are these plus one 16-byte AES-GCM tag per file, so that
+// a file of exactly the published size still fits. Checked here only to fail fast
+// BEFORE a phone spends minutes uploading something that was always going to be
+// rejected -- the server enforces the real limits, nothing here is a security control.
 const MAX_FILE = 25 * 1024 * 1024;
 const MAX_FILES_TOTAL = 25 * 1024 * 1024;
 const MAX_FILES = 10;
@@ -224,6 +226,10 @@ async function uploadBlob(ciphertext) {
   });
   if (!res.ok) {
     const j = await res.json().catch(() => ({}));
+    // As on the send side: 413 is reachable because the server weighs the ciphertext,
+    // which is 16 bytes heavier than the file this page measured.
+    if (res.status === 413) throw new Error(t.uploadTooBig);
+    if (res.status === 429) throw new Error(t.rateLimited);
     throw new Error(j.error || t.drop.uploadFailed);
   }
   const { ref } = await res.json();
@@ -273,9 +279,16 @@ $('send').addEventListener('click', async () => {
       body: JSON.stringify(body),
     });
     if (!res.ok) {
+      // 404 and 403 are not errors so much as the address having changed under this
+      // sender's feet -- deleted, or put on Hold by its owner after this page loaded.
+      // Both already have a panel of their own in both languages, and a panel that
+      // explains the situation beats a red line above a form that can no longer work.
+      if (res.status === 404) { sending = false; show('gone'); return; }
+      if (res.status === 403) { sending = false; show('closed'); return; }
       const j = await res.json().catch(() => ({}));
       // The server's own error text is English only; keep it for the rare unexpected
       // case and fall back to our own translated line otherwise (as reveal.js does).
+      if (res.status === 429) return failSend(t.rateLimited);
       return failSend(j.error || t.drop.sendFailed);
     }
     sending = false;

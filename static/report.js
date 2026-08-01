@@ -3,6 +3,10 @@
 
 import { setBusy } from './ui.js';
 import { api } from './config.js';
+// One script for /report and /fi/report, exactly as create.js serves / and /fi. The
+// language comes from <html lang> on the file the server picked; there is no toggle,
+// because the reader followed a footer link and so chose it.
+import { t } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -37,11 +41,28 @@ function extractID(input) {
   return s;
 }
 
+/**
+ * The SHAPE of an id we could actually have minted: 22 characters of the base64url
+ * alphabet. A mirror of store.ValidID (server/internal/store/store.go), and this copy
+ * is NOT the security boundary -- the server whitelists the same shape, and that is
+ * what keeps a pasted decryption key out of the database. Never rely on this one.
+ *
+ * It is here for language. The server's rejection is English only, and on /fi/report
+ * that put an English sentence in front of a Finn who had simply mistyped an id. Same
+ * rule as reveal.js: answer the cases a real person actually hits from our own table,
+ * and keep the server's wording for the genuinely unexpected ones.
+ *
+ * Because it is a copy it can drift, so smoke.sh asserts that a freshly minted id
+ * still matches this pattern -- if the server ever changes id length, the report form
+ * must not start refusing perfectly good links.
+ */
+const ID_RE = /^[A-Za-z0-9_-]{22}$/;
+
 $('link').addEventListener('input', () => {
   const id = extractID($('link').value);
   const p = $('parsed');
   if (id) {
-    p.textContent = `Will report id: ${id} — the key (after “#”) has been discarded and will not be sent.`;
+    p.textContent = ID_RE.test(id) ? t.report.parsed(id) : t.report.notAnID;
     p.classList.remove('hidden');
   } else {
     p.classList.add('hidden');
@@ -54,13 +75,18 @@ $('send').addEventListener('click', async () => {
 
   const id = extractID($('link').value);
   if (!id) {
-    err.textContent = 'Please paste the privsend link you want to report.';
+    err.textContent = t.report.needLink;
+    err.classList.remove('hidden');
+    return;
+  }
+  if (!ID_RE.test(id)) {
+    err.textContent = t.report.notAnID;
     err.classList.remove('hidden');
     return;
   }
 
   $('send').disabled = true;
-  setBusy($('send'), 'Sending…');
+  setBusy($('send'), t.report.sending);
 
   try {
     const res = await fetch(api('/api/report'), {
@@ -71,7 +97,14 @@ $('send').addEventListener('click', async () => {
     });
     if (!res.ok && res.status !== 204) {
       const j = await res.json().catch(() => ({}));
-      throw new Error(j.error || 'Could not send the report.');
+      // The check above should mean 400 never gets here, but it is the server that
+      // decides what a valid id is, so answer its verdict in the reader's language
+      // rather than passing through English. 429 is the other one a real reporter
+      // can meet. Anything else is unexpected, and the server's text is more use
+      // than a generic line -- exactly the split reveal.js makes.
+      if (res.status === 400) throw new Error(t.report.notAnID);
+      if (res.status === 429) throw new Error(t.rateLimited);
+      throw new Error(j.error || t.report.failed);
     }
     $('form').classList.add('hidden');
     $('thanks').classList.remove('hidden');
@@ -79,6 +112,6 @@ $('send').addEventListener('click', async () => {
     err.textContent = e.message;
     err.classList.remove('hidden');
     $('send').disabled = false;
-    $('send').textContent = 'Send report';
+    $('send').textContent = t.report.sendBtn;
   }
 });

@@ -286,6 +286,10 @@ $('reveal').addEventListener('click', async () => {
     // server's text for the genuinely unexpected ones.
     if (res.status === 410) {
       gone(() => t.reveal.gone410);
+    } else if (res.status === 429) {
+      // A recipient who reloads impatiently can meet the read limit, and this page is
+      // the one most likely to be open in a language the sender never chose.
+      gone(() => t.rateLimited);
     } else {
       gone(() => j.error || t.reveal.unavailable);
     }

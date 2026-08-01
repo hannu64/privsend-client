@@ -133,6 +133,20 @@ TABLES.en = {
   uploadFailed: 'Could not upload the file. Please try again.',
   encryptFailed: 'Encryption failed.',
 
+  // ------------------------------------------------- the server's own refusals
+  // Every writeErr message on the server is English, and the client's habit of
+  // showing whichever one arrived put English sentences on fully Finnish pages.
+  // reveal.js set the rule this follows: translate the endings a real person
+  // ACTUALLY meets, and keep the server's wording for the genuinely unexpected
+  // ones, where its specifics beat a generic line.
+  //
+  // These two are what that leaves. Deliberately ONE copy each rather than a
+  // per-page variant: the sentence and the remedy are identical whether you were
+  // creating a secret, uploading a file, sending to a drop or filing a report, and
+  // six near-identical strings in two languages is twelve chances to drift.
+  rateLimited: 'Too many requests from this connection just now. Please wait a few minutes and try again.',
+  uploadTooBig: 'The server refused that file as too large. Try a smaller one.',
+
   copyShare: 'Copy share link',
   copyStatus: 'Copy status link',
   copied: 'Copied ✓',
@@ -359,6 +373,19 @@ TABLES.en = {
       'If the recipient still needs it, send a new one.'],
   },
 
+  // The abuse-report page (/report and /fi/report). URL-chosen language, no toggle:
+  // it is reached from a footer link, so the reader picked it. `parsed` is the line
+  // that shows what will actually leave the browser -- it must keep saying that the
+  // key was thrown away, because that promise is the reason the page is usable at all.
+  report: {
+    parsed: (id) => `Will report id: ${id} — the key (after “#”) has been discarded and will not be sent.`,
+    needLink: 'Please paste the privsend link you want to report.',
+    notAnID: 'That does not look like a privsend link. Copy the whole link you were sent, or just its id — the part after “/s/”.',
+    sending: 'Sending…',
+    sendBtn: 'Send report',
+    failed: 'Could not send the report.',
+  },
+
   // The browser extension's own banner. It appears ONLY when these pages are the
   // installed extension, never on the website, where the claim would be false --
   // see ext.js. It lives here rather than in ext.js because the extension now
@@ -403,6 +430,10 @@ TABLES.fi = {
   createFailed: 'Salaisuuden luominen ei onnistunut. Yritä uudelleen.',
   uploadFailed: 'Tiedoston lähettäminen ei onnistunut. Yritä uudelleen.',
   encryptFailed: 'Salaus epäonnistui.',
+
+  // Palvelimen omat kieltäytymiset, ks. englanninkielisen taulun selitys.
+  rateLimited: 'Liian monta pyyntöä tästä yhteydestä juuri nyt. Odota muutama minuutti ja yritä uudelleen.',
+  uploadTooBig: 'Palvelin hylkäsi tiedoston liian suurena. Kokeile pienempää.',
 
   copyShare: 'Kopioi jakolinkki',
   copyStatus: 'Kopioi tilalinkki',
@@ -628,6 +659,17 @@ TABLES.fi = {
     expired: ['⌛', 'Vanhentui — ei luettu koskaan',
       'Kukaan ei avannut tätä salaisuutta ennen kuin sen määräaika umpeutui, joten se tuhottiin ' +
       'lukemattomana. Jos vastaanottaja tarvitsee sen yhä, lähetä uusi.'],
+  },
+
+  // Väärinkäyttöilmoitussivu (/report ja /fi/report). Kieli valitaan osoitteesta, ei
+  // valitsinta: sivulle tullaan alatunnisteen linkistä, joten lukija on sen valinnut.
+  report: {
+    parsed: (id) => `Ilmoitettava tunnus: ${id} — ”#”-merkin jälkeinen avain on hylätty eikä sitä lähetetä.`,
+    needLink: 'Liitä tähän privsend-linkki, josta haluat ilmoittaa.',
+    notAnID: 'Tämä ei näytä privsend-linkiltä. Kopioi koko saamasi linkki tai pelkkä sen tunnus — ”/s/”-osan jälkeinen osa.',
+    sending: 'Lähetetään…',
+    sendBtn: 'Lähetä ilmoitus',
+    failed: 'Ilmoituksen lähettäminen ei onnistunut.',
   },
 
   ext: {
