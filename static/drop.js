@@ -16,7 +16,7 @@
 // the sender did not choose this address, so a /fi/public/{id} would announce the
 // recipient's language to anyone who saw the link.
 
-import { newDropKey, sealDrop, encryptBytes, publicKeyFingerprint } from './crypto.js';
+import { newDropKey, sealDrop, encryptBytes, publicKeyFingerprint, sealedSize } from './crypto.js';
 import { setBusy, fmtBytes } from './ui.js';
 import { api, dropId } from './config.js';
 import { t, initLangToggle, onLangChange } from './i18n.js';
@@ -58,7 +58,10 @@ function show(id) {
 const groupFp = (hex) => hex.replace(/(.{4})/g, '$1 ').trim();
 
 const encoder = new TextEncoder();
-const used = () => encoder.encode($('message').value).length;
+// Weighs what gets SEALED (the manifest), not the text box -- see sealedSize in
+// crypto.js. Never returns 0, even for an empty form: the JSON wrapper itself costs
+// bytes. So emptiness is asked of the message directly, below.
+const used = () => sealedSize($('message').value, picked);
 
 const filesTotal = () => picked.reduce((n, f) => n + f.size, 0);
 
@@ -79,7 +82,7 @@ function updateCounter() {
   // A drop may be files with no covering message, so an empty box is only a problem
   // when there is nothing else to send.
   $('send').disabled = n > MAX_PLAINTEXT
-    || (n === 0 && picked.length === 0)
+    || ($('message').value.length === 0 && picked.length === 0)
     || Boolean(fileProblem());
 }
 

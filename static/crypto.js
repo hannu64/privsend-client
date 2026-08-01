@@ -225,17 +225,60 @@ export async function decryptBytes(aesKey, nonce, ciphertext) {
 }
 
 /**
+ * The object that actually gets encrypted. ONE definition, used both by sealManifest
+ * below and by sealedSize, so what a compose page's byte counter weighs can never
+ * drift from what is really sealed.
+ *
+ * `nonce` arrives as bytes from a real upload and as a same-length stand-in string
+ * from a size preview; both are accepted so there is only ever one shape of manifest.
+ */
+function buildManifest(message, files) {
+  return {
+    message,
+    files: files.map((f) => ({
+      name: f.name, size: f.size, type: f.type, ref: f.ref,
+      nonce: typeof f.nonce === 'string' ? f.nonce : b64Encode(f.nonce),
+    })),
+  };
+}
+
+// The exact final lengths of the two fields a browser cannot know until its files have
+// been uploaded: a blob ref is 22 base64url characters, and a nonce is base64 of 12
+// bytes = 16 characters. Stand-ins of the same length weigh the same in JSON.
+const REF_CHARS = 22;
+const NONCE_CHARS = 16;
+
+/**
+ * How many bytes this message and these files occupy ONCE SEALED -- what the server
+ * will actually weigh against its cap.
+ *
+ * ⭐ It is NOT the length of the message. What gets encrypted is the MANIFEST: a JSON
+ * object carrying the text PLUS one entry per file. JSON escaping makes that bigger --
+ * every newline becomes \n, two bytes where there was one, and every quote gains a
+ * backslash -- and each attachment adds its own name and type. A 256 KB pasted
+ * document is typically ~14 KB larger once escaped; ten attachments cost ~1.3 KB.
+ *
+ * The compose pages count with this, so their counter shows what the server will
+ * judge. Until 2026-08-01 they counted the raw text instead: the counter turned grey
+ * while the real payload was still over the cap, and the send then failed with the
+ * server's "secret is empty or too large". Found by Hannu pasting a long document --
+ * he deleted text and the counter kept saying the same thing, because it was weighing
+ * the wrong quantity. Any field added to the manifest later is charged here for free.
+ */
+export function sealedSize(message, files = []) {
+  const preview = files.map((f) => ({
+    name: f.name, size: f.size, type: f.type,
+    ref: 'x'.repeat(REF_CHARS), nonce: 'x'.repeat(NONCE_CHARS),
+  }));
+  return enc.encode(JSON.stringify(buildManifest(message, preview))).length;
+}
+
+/**
  * Build the encrypted manifest body for POST /api/secret.
  * `files` is [{ name, size, type, ref, nonce }] with nonce as a Uint8Array.
  */
 export async function sealManifest(aesKey, salt, passphrase, message, files) {
-  const manifest = {
-    message,
-    files: files.map((f) => ({
-      name: f.name, size: f.size, type: f.type, ref: f.ref,
-      nonce: b64Encode(f.nonce),
-    })),
-  };
+  const manifest = buildManifest(message, files);
   const { nonce, ciphertext } = await encryptBytes(aesKey, enc.encode(JSON.stringify(manifest)));
   return {
     ciphertext: b64Encode(ciphertext),

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Zumitomi Oy
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { newSecretKey, encryptBytes, sealManifest } from './crypto.js';
+import { newSecretKey, encryptBytes, sealManifest, sealedSize } from './crypto.js';
 import { attachReveal, fmtBytes, setBusy } from './ui.js';
 import { SITE_ORIGIN, api, homeHref } from './config.js';
 import { t } from './i18n.js';
@@ -58,8 +58,10 @@ attachReveal($('passphrase2'));
 const encoder = new TextEncoder();
 $('cap').textContent = t.cap(fmtBytes(MAX_PLAINTEXT));
 
+// What the counter must weigh is what gets SEALED -- the manifest, not the text box.
+// See sealedSize in crypto.js for why they differ and by how much.
 function used() {
-  return encoder.encode(secret.value).length;
+  return sealedSize(secret.value, picked);
 }
 function updateCounter() {
   const n = used();
