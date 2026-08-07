@@ -45,8 +45,8 @@
     <h2>Your passphrase is a second lock</h2>
     <p class="hint">
       Reading a message needs <strong>both</strong> your console link (something you have) and your
-      passphrase (something you know). If someone finds your console link, they still cannot read
-      anything without the passphrase; if someone learns your passphrase, it is useless without the
+      passphrase (something you know). Someone who finds your console link still cannot read
+      anything without the passphrase; someone who learns your passphrase has nothing useful without the
       link. That is deliberate — it is what protects your inbox if one of the two ever leaks.
     </p>
     <p class="hint">
@@ -76,7 +76,7 @@
       Your drop page serves your public key, and a sender’s browser encrypts to it. The one thing a
       hostile or compelled server could tamper with is <strong>which key it serves</strong>. Your
       <strong>fingerprint</strong> is the defence: publish it somewhere people already trust to be you,
-      and a careful sender can confirm the address served them the right key before they write.
+      and a careful sender can confirm the address served the right key before writing.
     </p>
 
     <h2>What we can and cannot see</h2>
@@ -84,7 +84,7 @@
       Every message is encrypted in the sender’s browser to your key. We store only ciphertext, your
       public key, and your private key <em>encrypted under your passphrase</em> — which we can never
       open. We do not know who you are, and we do not know who wrote to you. A sender is anonymous
-      unless they sign the message themselves.
+      unless the message itself says who wrote it.
     </p>
 
     <h2>Files, as well as words</h2>
@@ -113,13 +113,13 @@
     </p>
     <p class="hint">
       <strong>Last active (off by default).</strong> The owner can choose to show senders a rough, coarse
-      hint — “within the last week”, “within the last 3 months” — of roughly when they last opened and read
-      their inbox. Their own console reports it after they unlock and read, so an owner who has lost their
-      passphrase and only loads the page to try guesses does not mark themselves active. It is a
+      hint — “within the last week”, “within the last 3 months” — of roughly when the inbox was last opened
+      and read. The owner’s own console reports it after a successful unlock and read, so an owner who has
+      lost the passphrase and only loads the page to try guesses does not count as active. It is a
       <strong>best-effort</strong> signal from the owner’s console, though — a “probably still watched”, not
       a cryptographic proof — so a careful sender should treat it as a hint, not a guarantee. It is kept only
-      to weekly accuracy, only while the owner leaves it on, and it never reveals who they are or anything
-      about the messages. If they never turn it on, senders simply see that it cannot be shown.
+      to weekly accuracy, only while the owner leaves it on, and it never reveals who the owner is or anything
+      about the messages. If it is never turned on, senders simply see that it cannot be shown.
     </p>
     <p class="hint">
       <strong>On hold.</strong> The owner can pause an address. A paused address stops accepting new
@@ -131,8 +131,8 @@
       holds the console link. If a SECRET link is ever compromised, the owner can instead <strong>delete the
       address permanently</strong> — it and every message in it are destroyed, the link stops working, and
       senders see the same “does not exist” as for an address that never existed. Delete needs only the
-      console link, <strong>not</strong> the passphrase, so an owner who is locked out — a leaked link they
-      can no longer read, or a passphrase they have lost — can still retire the address and start fresh.
+      console link, <strong>not</strong> the passphrase, so an owner who is locked out — by a leaked link that
+      must be killed, or by a forgotten passphrase — can still retire the address and start fresh.
     </p>
 
     <p class="linkrow"><a href="/drops">Create a drop address →</a></p>

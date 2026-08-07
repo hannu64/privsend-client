@@ -62,7 +62,7 @@
       <strong>never written to disk</strong>, and is <strong>never linked to any secret</strong>.
     </li>
     <li>
-      <strong>Abuse reports.</strong> If someone reports a link, we store the link's id and whatever reason they
+      <strong>Abuse reports.</strong> If someone reports a link, we store the link's id and whatever reason was
       typed, so we can act on it. Your browser <strong>strips the decryption key before the report is sent</strong>,
       so a report never reveals a secret's contents to us. We do not store the reporter's IP address.
     </li>
@@ -89,8 +89,8 @@
       <strong>Each message you receive:</strong> its ciphertext and the sealed key that only your private key can
       open, plus timestamps. If a sender attaches files (up to 10, 25 MB in total), each is stored as encrypted
       ciphertext with a random reference and its size — never a filename or type. <strong>No sender name, and no
-      sender IP address, is ever stored</strong> — a sender is anonymous unless they name themselves in the
-      message. Each message is destroyed after the retention you chose (7, 14 or 30 days), whether or not you read
+      sender IP address, is ever stored</strong> — a sender is anonymous unless the message itself says who
+      wrote it. Each message is destroyed after the retention you chose (7, 14 or 30 days), whether or not you read
       it; any files it carries are destroyed with it.
     </li>
     <li>
